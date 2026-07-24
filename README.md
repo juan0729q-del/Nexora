@@ -13,7 +13,7 @@ Tienda de alto rendimiento construida con Next.js App Router, Tailwind CSS y pre
 
 ## Variables de entorno
 
-Define las variables de `.env.example` en Vercel. Para Wompi, `WOMPI_PRIVATE_KEY` debe ser una llave privada (`prv_test_...` o `prv_prod_...`) valida y del mismo ambiente que la API. Para Mercado Pago usa `MERCADOPAGO_ACCESS_TOKEN` y define `PAYMENT_PROVIDER=mercadopago`.
+Define las variables de `.env.example` en Vercel. Nexora soporta Wompi Checkout Web con `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` (`pub_test_...` o `pub_prod_...`) y `WOMPI_INTEGRITY_SECRET` (`test_integrity_...` o `prod_integrity_...`), que firma cada compra desde el servidor. Como alternativa, `WOMPI_PRIVATE_KEY` (`prv_test_...` o `prv_prod_...`) crea Links de Pago por API. Para Mercado Pago usa `MERCADOPAGO_ACCESS_TOKEN` y define `PAYMENT_PROVIDER=mercadopago`.
 
 ## Automatizacion
 

@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     return NextResponse.json(await createHostedCheckout(product, getSiteUrl(request)), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
-    if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: "La pasarela de pago no está configurada correctamente." }, { status: 503 });
+    if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: error.message }, { status: 503 });
     if (error instanceof PaymentProviderError) return NextResponse.json({ message: error.message }, { status: 502 });
     console.error("Unexpected checkout error", error);
     return NextResponse.json({ message: "No fue posible preparar el pago." }, { status: 500 });

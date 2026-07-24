@@ -1,5 +1,5 @@
 import "server-only";
-import { randomUUID } from "crypto";
+import { createHash, randomUUID } from "crypto";
 import type { Product } from "@/lib/products";
 
 type Provider = "wompi" | "mercadopago";
@@ -11,9 +11,18 @@ export class PaymentProviderError extends Error {}
 function getProvider(): Provider {
   const selected = process.env.PAYMENT_PROVIDER?.trim().toLowerCase();
   if (selected === "wompi" || selected === "mercadopago") return selected;
-  if (process.env.WOMPI_PRIVATE_KEY) return "wompi";
+  if (getWompiPublicKey() || process.env.WOMPI_PRIVATE_KEY) return "wompi";
   if (process.env.MERCADOPAGO_ACCESS_TOKEN) return "mercadopago";
   throw new PaymentConfigurationError("No hay una pasarela de pago configurada.");
+}
+
+function getWompiPublicKey() {
+  const publicKey = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY?.trim() || process.env.WOMPI_PUBLIC_KEY?.trim();
+  if (publicKey) return publicKey;
+  // Compatibilidad temporal: la llave publica fue guardada por error bajo este nombre.
+  const legacyValue = process.env.WOMPI_PRIVATE_KEY?.trim();
+  if (legacyValue?.startsWith("pub_")) return legacyValue;
+  return undefined;
 }
 
 function getWompiBaseUrl(privateKey: string) {
@@ -23,7 +32,6 @@ function getWompiBaseUrl(privateKey: string) {
   if (!configuredUrl) return expectedUrl;
   const configuredSandbox = configuredUrl.includes("sandbox.wompi.co");
   if (configuredSandbox !== isSandboxKey) {
-    // Una llave test contra producción (o inversa) devuelve INVALID_ACCESS_TOKEN.
     console.warn("Wompi API base URL does not match the key environment; using matching endpoint.");
     return expectedUrl;
   }
@@ -34,7 +42,7 @@ function providerError(provider: Provider, response: Response, payload: unknown)
   console.error("Payment provider request failed", { provider, status: response.status, payload });
   if (response.status === 401) {
     throw new PaymentProviderError(provider === "wompi"
-      ? "Wompi rechazó la credencial. Verifica WOMPI_PRIVATE_KEY y que pertenezca al mismo ambiente (pruebas o producción)."
+      ? "Wompi rechazó la llave privada. Usa una llave prv_test_/prv_prod_ válida o configura Checkout Web con llave pública y WOMPI_INTEGRITY_SECRET."
       : "Mercado Pago rechazó la credencial. Verifica MERCADOPAGO_ACCESS_TOKEN en Vercel.");
   }
   throw new PaymentProviderError("La pasarela no pudo preparar el pago. Intenta nuevamente en unos minutos.");
@@ -43,12 +51,36 @@ function providerError(provider: Provider, response: Response, payload: unknown)
 export async function createHostedCheckout(product: Product, siteUrl: string): Promise<CheckoutSession> {
   const provider = getProvider();
   const externalReference = `NX-${product.sku}-${randomUUID()}`;
-  return provider === "wompi" ? createWompiPaymentLink(product, siteUrl, externalReference) : createMercadoPagoPreference(product, siteUrl, externalReference);
+  return provider === "wompi" ? createWompiCheckout(product, siteUrl, externalReference) : createMercadoPagoPreference(product, siteUrl, externalReference);
+}
+
+async function createWompiCheckout(product: Product, siteUrl: string, externalReference: string): Promise<CheckoutSession> {
+  const publicKey = getWompiPublicKey();
+  const integritySecret = process.env.WOMPI_INTEGRITY_SECRET?.trim();
+  if (publicKey) {
+    if (!integritySecret) throw new PaymentConfigurationError("Falta WOMPI_INTEGRITY_SECRET para firmar el Checkout Web de Wompi.");
+    return createWompiWebCheckout(product, siteUrl, externalReference, publicKey, integritySecret);
+  }
+  return createWompiPaymentLink(product, siteUrl, externalReference);
+}
+
+function createWompiWebCheckout(product: Product, siteUrl: string, externalReference: string, publicKey: string, integritySecret: string): CheckoutSession {
+  const amountInCents = product.price * 100;
+  const integrity = createHash("sha256").update(`${externalReference}${amountInCents}COP${integritySecret}`).digest("hex");
+  const params = new URLSearchParams({
+    "public-key": publicKey,
+    currency: "COP",
+    "amount-in-cents": String(amountInCents),
+    reference: externalReference,
+    "signature:integrity": integrity,
+    "redirect-url": `${siteUrl}/checkout/resultado?provider=wompi`,
+  });
+  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/p/?${params.toString()}`, externalReference };
 }
 
 async function createWompiPaymentLink(product: Product, siteUrl: string, externalReference: string): Promise<CheckoutSession> {
   const privateKey = process.env.WOMPI_PRIVATE_KEY?.trim();
-  if (!privateKey) throw new PaymentConfigurationError("Falta WOMPI_PRIVATE_KEY en la configuración del servidor.");
+  if (!privateKey || !privateKey.startsWith("prv_")) throw new PaymentConfigurationError("Configura WOMPI_PRIVATE_KEY (prv_test_/prv_prod_) o NEXT_PUBLIC_WOMPI_PUBLIC_KEY junto a WOMPI_INTEGRITY_SECRET.");
   const response = await fetch(`${getWompiBaseUrl(privateKey)}/v1/payment_links`, {
     method: "POST",
     headers: { Authorization: `Bearer ${privateKey}`, "Content-Type": "application/json" },
