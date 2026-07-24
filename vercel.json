@@ -1,7 +1,7 @@
 {
   "crons": [
     {
-      "path": "/api/automation/supplier-sync",
+      "path": "/api/automation/catalog-optimization",
       "schedule": "0 6 * * *"
     }
   ]

@@ -15,7 +15,10 @@ function normalizeUpdate(item: SupplierItem, product: Product) {
   const stock = Number(item.stock ?? item.quantity);
   if (!Number.isFinite(nextCost) || !Number.isFinite(stock)) return null;
   // product.price actúa como precio de venta actual hasta conectar una fuente persistente de costos.
-  const decision = evaluateSupplierCost({ salePrice: product.price, previousCost: nextCost, nextCost });
+  // Punto de comparación temporal: al persistir proveedores, léelo de la última
+  // sincronización guardada en base de datos en vez de esta estimación inicial.
+  const previousCost = Math.round(product.price * 0.45);
+  const decision = evaluateSupplierCost({ salePrice: product.price, previousCost, nextCost });
   return { sku: product.sku, stock: Math.max(0, Math.floor(stock)), providerCost: nextCost, action: decision.action, marginPercent: decision.marginPercent, alert: decision.reason };
 }
 

@@ -1,25 +1,22 @@
 # Nexora
 
-Tienda de alto rendimiento construida con Next.js App Router, Tailwind CSS y preparada para desplegar en Vercel.
+Tienda de alto rendimiento construida con Next.js App Router, Tailwind CSS y preparada para Vercel.
 
 ## Rutas
 
-- `/`: catálogo público, semántico y responsive.
-- `/productos/[slug]`: ficha SEO de cada producto con Schema.org Product y generación estática.
-- `/admin/login`: acceso de sesión protegida.
-- `/admin`: KPIs, alertas y control operacional del catálogo.
+- `/`: catalogo publico, semantico y responsive. Solo muestra productos activos cuyo rendimiento permite destacarlos.
+- `/productos/[slug]`: ficha SEO de cada producto con Schema.org Product.
+- `/admin/login`: acceso de sesion protegida.
+- `/admin`: KPIs, alertas, proveedor de origen, referencia y control operacional.
+- `/api/payments/checkout`: crea un checkout alojado de Wompi o Mercado Pago sin exponer secretos.
+- `/api/automation/catalog-optimization`: proceso protegido para stock, costos y decisiones de catalogo.
 
-## Puesta en marcha
+## Variables de entorno
 
-1. Copia `.env.example` a `.env.local` y define `ADMIN_PASSWORD` y `ADMIN_SESSION_SECRET`.
-2. Instala dependencias con tu gestor preferido y ejecuta `pnpm dev`.
-3. En Vercel, añade las mismas variables de entorno antes de desplegar.
+Define las variables de `.env.example` en Vercel. Para Wompi, `WOMPI_PRIVATE_KEY` debe ser una llave privada (`prv_test_...` o `prv_prod_...`) valida y del mismo ambiente que la API. Para Mercado Pago usa `MERCADOPAGO_ACCESS_TOKEN` y define `PAYMENT_PROVIDER=mercadopago`.
 
-## Integraciones previstas
+## Automatizacion
 
-- `src/lib/providers/payment-provider.ts`: adaptador asíncrono para Wompi o Mercado Pago. La creación de órdenes ocurre en `src/app/api/payments/checkout/route.ts` para proteger las claves privadas.
-- `src/lib/automation/supplier-sync.ts`: sincronización de proveedor para un cron de Vercel.
-- `src/lib/automation/seo-content.ts`: prompt seguro de backend para una IA que genere la ficha SEO.
-- `src/lib/automation/pricing.ts`: regla de margen y anti-anomalías para pausar productos afectados.
+La ruta de automatizacion acepta `GET` (Vercel Cron) y `POST` (agente externo), ambos protegidos con `Authorization: Bearer CRON_SECRET`. En el plan Hobby de Vercel el cron esta configurado diariamente para que el despliegue sea valido. Para ejecutar cada 15 minutos tras actualizar a Vercel Pro, cambia el schedule de `vercel.json` a `*/15 * * * *` y despliega de nuevo.
 
-La tabla de administración está preparada para persistir los cambios en un endpoint o base de datos; en esta primera versión sus cambios son locales a la sesión del navegador.
+`src/lib/automation/catalog-optimizer.ts` contiene la regla determinista para destacar, monitorear o retirar productos. Conecta alli tus metricas reales y guarda las decisiones en base de datos para persistirlas entre ejecuciones.

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { PaymentConfigurationError, PaymentProviderError, createHostedCheckout } from "@/lib/payments/hosted-checkout";
-import { getProduct } from "@/lib/products";
+import { getProduct, isStoreProductAvailable } from "@/lib/products";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,12 +16,11 @@ export async function POST(request: Request) {
     const body = await request.json() as { productSlug?: unknown };
     if (typeof body.productSlug !== "string") return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
     const product = getProduct(body.productSlug);
-    if (!product || !product.active || product.stock < 1) return NextResponse.json({ message: "Este producto no está disponible." }, { status: 400 });
-    const session = await createHostedCheckout(product, getSiteUrl(request));
-    return NextResponse.json(session, { status: 201 });
+    if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Este producto no está disponible temporalmente." }, { status: 400 });
+    return NextResponse.json(await createHostedCheckout(product, getSiteUrl(request)), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
-    if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: "La pasarela de pago no está disponible temporalmente." }, { status: 503 });
+    if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: "La pasarela de pago no está configurada correctamente." }, { status: 503 });
     if (error instanceof PaymentProviderError) return NextResponse.json({ message: error.message }, { status: 502 });
     console.error("Unexpected checkout error", error);
     return NextResponse.json({ message: "No fue posible preparar el pago." }, { status: 500 });
