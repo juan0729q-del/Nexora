@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-onyx: #0F0F0F;
+  --color-silver: #C0C0C0;
+  --color-emerald: #009473;
+  --font-sans: "Geist", "Geist Fallback", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
+}
+
+* { border-color: color-mix(in srgb, #C0C0C0 18%, transparent); }
+html { scroll-behavior: smooth; }
+body { background: #0F0F0F; color: #FFFFFF; }
+::selection { background: #009473; color: #0F0F0F; }
