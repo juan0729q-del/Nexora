@@ -13,11 +13,24 @@ html { scroll-behavior: smooth; }
 body { background: #0F0F0F; color: #FFFFFF; }
 ::selection { background: #009473; color: #0F0F0F; }
 
-@keyframes logo-spin-3d {
-  from { transform: perspective(280px) rotateY(0deg); }
-  to { transform: perspective(280px) rotateY(360deg); }
+@keyframes nexora-emblem-rotate {
+  0%, 12% { transform: rotateY(0deg) rotateZ(-1deg); }
+  48%, 58% { transform: rotateY(180deg) rotateZ(1deg); }
+  100% { transform: rotateY(360deg) rotateZ(-1deg); }
 }
 
-.logo-spin-3d { animation: logo-spin-3d 9s linear infinite; transform-style: preserve-3d; will-change: transform; }
+@keyframes nexora-sparkle {
+  0%, 100% { opacity: 0; transform: scale(.35) rotate(0deg); }
+  18% { opacity: .25; }
+  42% { opacity: .9; transform: scale(1.25) rotate(48deg); }
+  62% { opacity: .1; }
+}
 
-@media (prefers-reduced-motion: reduce) { .logo-spin-3d { animation: none; } }
+.nexora-hero-logo { position: relative; width: min(72vw, 390px); aspect-ratio: 1; perspective: 1000px; }
+.nexora-hero-logo-rotate { position: absolute; inset: 0; animation: nexora-emblem-rotate 16s cubic-bezier(.42, 0, .2, 1) infinite; transform-style: preserve-3d; will-change: transform; filter: drop-shadow(0 0 18px rgba(0, 148, 115, .28)); }
+.nexora-spark { position: absolute; z-index: 1; width: 3.5rem; aspect-ratio: 1; background: radial-gradient(circle, rgba(255,255,255,.96) 0 5%, rgba(192,192,192,.72) 8%, rgba(0,148,115,.34) 30%, transparent 70%); filter: blur(.35px); mix-blend-mode: screen; animation: nexora-sparkle 4.8s ease-in-out infinite; pointer-events: none; }
+.nexora-spark-one { top: 13%; left: 17%; }
+.nexora-spark-two { top: 42%; right: 10%; animation-delay: 1.6s; }
+.nexora-spark-three { bottom: 18%; left: 28%; width: 2.4rem; animation-delay: 3.2s; }
+
+@media (prefers-reduced-motion: reduce) { .nexora-hero-logo-rotate, .nexora-spark { animation: none; } }
