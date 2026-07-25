@@ -12,3 +12,12 @@
 html { scroll-behavior: smooth; }
 body { background: #0F0F0F; color: #FFFFFF; }
 ::selection { background: #009473; color: #0F0F0F; }
+
+@keyframes logo-spin-3d {
+  from { transform: perspective(280px) rotateY(0deg); }
+  to { transform: perspective(280px) rotateY(360deg); }
+}
+
+.logo-spin-3d { animation: logo-spin-3d 9s linear infinite; transform-style: preserve-3d; will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) { .logo-spin-3d { animation: none; } }

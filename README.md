@@ -19,4 +19,4 @@ Define las variables de `.env.example` en Vercel. Nexora soporta Wompi Checkout 
 
 La ruta de automatizacion acepta `GET` (Vercel Cron) y `POST` (agente externo), ambos protegidos con `Authorization: Bearer CRON_SECRET`. En el plan Hobby de Vercel el cron esta configurado diariamente para que el despliegue sea valido. Para ejecutar cada 15 minutos tras actualizar a Vercel Pro, cambia el schedule de `vercel.json` a `*/15 * * * *` y despliega de nuevo.
 
-`src/lib/automation/catalog-optimizer.ts` contiene la regla determinista para destacar, monitorear o retirar productos. Conecta alli tus metricas reales y guarda las decisiones en base de datos para persistirlas entre ejecuciones.
+`src/lib/automation/catalog-optimizer.ts` contiene la regla determinista para destacar, monitorear o retirar productos. `src/lib/automation/niche-rotation.ts` consulta top-selling de CJ por Joyería, Tecnología/Hogar y Bienestar, manteniendo cada reemplazo en su nicho. Configura `CATALOG_STORE_API_URL` y `CATALOG_STORE_API_TOKEN` para persistir la sustitución en tu base de datos; las imágenes HTTPS del proveedor se priorizan antes del fallback local.
