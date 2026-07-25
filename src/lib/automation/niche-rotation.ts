@@ -4,23 +4,25 @@ import { niches, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 
 type SupplierItem = {
-  id?: string; sku?: string; productSku?: string; name?: string; title?: string; description?: string;
-  price?: number | string; sellingPrice?: number | string; stock?: number | string; quantity?: number | string;
-  image?: string; imageUrl?: string; images?: Array<string | { url?: string }>; productUrl?: string; url?: string;
+  id?: string; pid?: string; sku?: string; productSku?: string; name?: string; title?: string; productName?: string; productNameEn?: string; description?: string;
+  price?: number | string; sellingPrice?: number | string; sellPrice?: number | string; stock?: number | string; quantity?: number | string;
+  image?: string; imageUrl?: string; productImage?: string; images?: Array<string | { url?: string }>; productImageSet?: Array<string | { url?: string }>; productUrl?: string; url?: string;
 };
-type SupplierResponse = { data?: SupplierItem[]; items?: SupplierItem[]; products?: SupplierItem[] };
+type SupplierResponse = { data?: SupplierItem[] | { content?: SupplierItem[]; list?: SupplierItem[]; records?: SupplierItem[] }; items?: SupplierItem[]; products?: SupplierItem[] };
 export type TopSellerCandidate = { sku: string; name: string; description: string; price: number; stock: number; sourceUrl: string; image: { src: string; alt: string; source: "provider" | "fallback" } };
 export type NicheReplacement = { niche: ProductNiche; removeSlugs: string[]; replacement?: TopSellerCandidate; reason: string };
 
 function extractItems(payload: unknown): SupplierItem[] {
   if (!payload || typeof payload !== "object") return [];
   const response = payload as SupplierResponse;
-  return response.data || response.items || response.products || [];
+  if (Array.isArray(response.data)) return response.data;
+  if (response.data && typeof response.data === "object") return response.data.content || response.data.list || response.data.records || [];
+  return response.items || response.products || [];
 }
 
 function nativeProviderImage(item: SupplierItem) {
-  const firstImage = item.images?.map((image) => typeof image === "string" ? image : image.url).find(Boolean);
-  const candidate = item.imageUrl || item.image || firstImage;
+  const firstImage = [...(item.images || []), ...(item.productImageSet || [])].map((image) => typeof image === "string" ? image : image.url).find(Boolean);
+  const candidate = item.productImage || item.imageUrl || item.image || firstImage;
   return candidate && /^https:\/\//.test(candidate) ? candidate : undefined;
 }
 
@@ -36,16 +38,18 @@ function supplierTopSellerUrl(niche: ProductNiche) {
   const query = niches[niche].supplierQuery;
   if (endpoint.includes("{niche}")) return endpoint.replace("{niche}", encodeURIComponent(query));
   const url = new URL(endpoint);
-  url.searchParams.set("category", query);
+  url.searchParams.set("keyWord", query);
+  url.searchParams.set("page", "1");
+  url.searchParams.set("size", "20");
   url.searchParams.set("sort", "top_selling");
   url.searchParams.set("limit", "8");
   return url.toString();
 }
 
 function normalizeCandidate(item: SupplierItem, niche: ProductNiche): TopSellerCandidate | undefined {
-  const name = item.name || item.title;
-  const sku = item.sku || item.productSku || item.id;
-  const price = Number(item.sellingPrice ?? item.price);
+  const name = item.name || item.title || item.productNameEn || item.productName;
+  const sku = item.sku || item.productSku || item.pid || item.id;
+  const price = Number(item.sellingPrice ?? item.sellPrice ?? item.price);
   const stock = Number(item.stock ?? item.quantity ?? 0);
   if (!name || !sku || !Number.isFinite(price) || price <= 0) return undefined;
   const imageUrl = nativeProviderImage(item);
@@ -66,7 +70,8 @@ async function getTopSeller(niche: ProductNiche): Promise<TopSellerCandidate | u
   const url = supplierTopSellerUrl(niche);
   const token = process.env.CJ_DROPSHIPPING_API_TOKEN;
   if (!url || !token) return undefined;
-  const response = await fetch(url, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store" });
+  // CJ Product List v2 usa CJ-Access-Token, no Authorization Bearer.
+  const response = await fetch(url, { headers: { "CJ-Access-Token": token, Accept: "application/json" }, cache: "no-store" });
   if (!response.ok) throw new Error(`Top-selling supplier request failed for ${niche}: ${response.status}`);
   return extractItems(await response.json()).map((item) => normalizeCandidate(item, niche)).find((item): item is TopSellerCandidate => Boolean(item));
 }

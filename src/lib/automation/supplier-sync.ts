@@ -1,13 +1,15 @@
 import { getCatalog, type Product } from "@/lib/products";
 import { evaluateSupplierCost } from "./pricing";
 
-type SupplierItem = { sku?: string; productSku?: string; stock?: number; quantity?: number; cost?: number; baseCost?: number; currency?: string };
-type SupplierResponse = { data?: SupplierItem[]; items?: SupplierItem[]; products?: SupplierItem[] };
+type SupplierItem = { sku?: string; productSku?: string; productName?: string; productNameEn?: string; pid?: string; stock?: number; quantity?: number; cost?: number; baseCost?: number; sellPrice?: number; currency?: string };
+type SupplierResponse = { data?: SupplierItem[] | { content?: SupplierItem[]; list?: SupplierItem[]; records?: SupplierItem[] }; items?: SupplierItem[]; products?: SupplierItem[] };
 
 function extractSupplierItems(payload: unknown): SupplierItem[] {
   if (!payload || typeof payload !== "object") return [];
   const response = payload as SupplierResponse;
-  return response.data || response.items || response.products || [];
+  if (Array.isArray(response.data)) return response.data;
+  if (response.data && typeof response.data === "object") return response.data.content || response.data.list || response.data.records || [];
+  return response.items || response.products || [];
 }
 
 function normalizeUpdate(item: SupplierItem, product: Product) {
@@ -26,7 +28,8 @@ export async function syncSupplierCatalog() {
   const endpoint = process.env.CJ_DROPSHIPPING_API_URL;
   const token = process.env.CJ_DROPSHIPPING_API_TOKEN;
   if (!endpoint || !token) return { status: "skipped", reason: "Proveedor no configurado", updates: [] } as const;
-  const response = await fetch(endpoint, { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" }, cache: "no-store" });
+  // CJ API v2 autentica las solicitudes de catálogo con CJ-Access-Token.
+  const response = await fetch(endpoint, { headers: { "CJ-Access-Token": token, Accept: "application/json" }, cache: "no-store" });
   if (!response.ok) throw new Error(`Proveedor no disponible: ${response.status}`);
   const items = extractSupplierItems(await response.json());
   const catalogBySku = new Map(getCatalog().map((product) => [product.sku, product]));
