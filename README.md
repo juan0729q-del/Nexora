@@ -21,7 +21,9 @@ Tienda de alto rendimiento construida con Next.js App Router y Tailwind CSS, pre
 - Proveedor `CJ Dropshipping`, URL de origen directa, SKU único, costo en USD y stock vendible.
 - Entre 5 y 10 productos por nicho.
 
-La importación necesita `CJ_DROPSHIPPING_TOP_SELLING_URL`: el endpoint de CJ que entregue el ranking real de ventas por nicho. Product List V2 por sí solo no acredita que un producto sea top-selling, así que Nexora se niega a etiquetar sus resultados como tales.
+La importación usa `CJ_DROPSHIPPING_API_KEY`, nunca un `accessToken` estático. Al iniciar cada importación o sincronización, Nexora llama al endpoint oficial `getAccessToken`, conserva la sesión solamente durante esa ejecución y, ante una respuesta de autenticación, usa `refreshAccessToken` y repite una sola vez la consulta idempotente. Ni access tokens ni refresh tokens se escriben en Git, JSON ni navegador.
+
+También necesita `CJ_DROPSHIPPING_TOP_SELLING_URL`: un endpoint HTTPS del host oficial `developers.cjdropshipping.com` que entregue el ranking real de ventas por nicho. Product List V2 por sí solo no acredita que un producto sea top-selling, así que Nexora se niega a etiquetar sus resultados como tales. Para stock/costo por artículo, configura `CJ_DROPSHIPPING_PRODUCT_SYNC_URL` con `{sku}`.
 
 Tras obtener una respuesta autorizada de `/api/automation/catalog-import`, aplica y valida el documento con:
 

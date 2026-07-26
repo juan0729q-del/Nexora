@@ -1,6 +1,7 @@
 import "server-only";
 
 import { getCatalog } from "@/lib/catalog-store";
+import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 import { evaluateSupplierCost } from "./pricing";
 
 type SupplierItem = {
@@ -63,13 +64,12 @@ function usdToCop(costUsd: number) {
  * el comercio configure. Los resultados son propuestas versionables: Vercel
  * no dispone de un disco durable para reescribir catalog.json durante un cron.
  */
-export async function syncSupplierCatalog() {
-  const token = process.env.CJ_DROPSHIPPING_API_TOKEN;
+export async function syncSupplierCatalog(client: CjClient = createCjClient()) {
   const template = process.env.CJ_DROPSHIPPING_PRODUCT_SYNC_URL;
-  if (!token || !template) {
+  if (!getCjCredentialConfiguration().configured || !template) {
     return {
       status: "skipped" as const,
-      reason: "Configura CJ_DROPSHIPPING_API_TOKEN y CJ_DROPSHIPPING_PRODUCT_SYNC_URL con {sku} para sincronizar inventario y costos por producto.",
+      reason: "Configura CJ_DROPSHIPPING_API_KEY y CJ_DROPSHIPPING_PRODUCT_SYNC_URL con {sku} para sincronizar inventario y costos por producto.",
       updates: [],
     };
   }
@@ -80,13 +80,8 @@ export async function syncSupplierCatalog() {
   for (const product of catalog) {
     const endpoint = syncUrlFor(product.sku);
     if (!endpoint) continue;
-    const response = await fetch(endpoint, {
-      headers: { "CJ-Access-Token": token, Accept: "application/json" },
-      cache: "no-store",
-    });
-    if (!response.ok) throw new Error(`CJ no pudo sincronizar ${product.sku}: ${response.status}`);
-
-    const item = extractSupplierItems(await response.json()).find((candidate) => (candidate.sku || candidate.productSku) === product.sku);
+    const payload = await client.getJson<SupplierResponse>(endpoint);
+    const item = extractSupplierItems(payload).find((candidate) => (candidate.sku || candidate.productSku) === product.sku);
     if (!item) continue;
     const providerCostUsd = number(item.cost ?? item.baseCost ?? item.sellingPrice ?? item.sellPrice ?? item.price);
     const stock = number(item.stock ?? item.quantity ?? item.inventory ?? item.warehouseInventoryNum);

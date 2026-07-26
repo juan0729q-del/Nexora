@@ -3,6 +3,7 @@ import { getAutomationConfiguration, hasValidCronAuthorization } from "@/lib/aut
 import { optimizeCatalog } from "@/lib/automation/catalog-optimizer";
 import { getTopSellingConfiguration, rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
 import { syncSupplierCatalog } from "@/lib/automation/supplier-sync";
+import { createCjClient } from "@/lib/automation/cj-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -13,10 +14,13 @@ async function run(request: Request) {
   try {
     const catalog = await optimizeCatalog();
     const topSelling = getTopSellingConfiguration();
+    // Ambas operaciones comparten la misma sesiÃ³n efÃ­mera: evita dos llamadas
+    // simultÃ¡neas a getAccessToken cuando CJ limita ese endpoint a 1 QPS.
+    const client = createCjClient();
     const [supplier, rotation] = await Promise.all([
-      syncSupplierCatalog(),
+      syncSupplierCatalog(client),
       topSelling.configured
-        ? rotateCatalogByNiche(catalog.byNiche)
+        ? rotateCatalogByNiche(catalog.byNiche, client)
         : Promise.resolve({ replacements: [], persistence: { status: "skipped", store: "catalog.json versionado", reason: topSelling.reason } }),
     ]);
     return NextResponse.json({ status: "planned", supplier, catalog, rotation });

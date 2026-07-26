@@ -2,6 +2,7 @@ import "server-only";
 
 import { niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
+import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 
 type SupplierItem = {
   id?: string;
@@ -60,7 +61,7 @@ export type CatalogSelection = {
 
 export function getTopSellingConfiguration() {
   return {
-    configured: Boolean(process.env.CJ_DROPSHIPPING_API_TOKEN && process.env.CJ_DROPSHIPPING_TOP_SELLING_URL),
+    configured: Boolean(getCjCredentialConfiguration().configured && process.env.CJ_DROPSHIPPING_TOP_SELLING_URL),
     reason: "CJ_DROPSHIPPING_TOP_SELLING_URL debe apuntar al endpoint del proveedor que entregue el ranking de ventas por nicho.",
   };
 }
@@ -142,22 +143,12 @@ function normalizeCandidate(item: SupplierItem): TopSellerCandidate | undefined 
  * top-selling. Se conserva su orden para no sustituir el ranking del proveedor
  * por métricas locales o por `listedNum`, que no equivale a ventas.
  */
-export async function fetchTopSellersForNiche(niche: ProductNiche, limit: number) {
+export async function fetchTopSellersForNiche(niche: ProductNiche, limit: number, client = createCjClient()) {
   const url = topSellerUrl(niche);
-  const token = process.env.CJ_DROPSHIPPING_API_TOKEN;
-  if (!token) throw new Error("CJ_DROPSHIPPING_API_TOKEN es obligatorio para importar el catálogo.");
-
-  const response = await fetch(url, {
-    headers: { "CJ-Access-Token": token, Accept: "application/json" },
-    cache: "no-store",
-  });
-  if (!response.ok) {
-    const detail = (await response.text()).replace(/\s+/g, " ").slice(0, 220);
-    throw new Error(`CJ Dropshipping respondió ${response.status} al consultar ${niches[niche].label} (${new URL(url).pathname}): ${detail || "sin detalle"}`);
-  }
+  const payload = await client.getJson<SupplierResponse>(url);
 
   const unique = new Map<string, TopSellerCandidate>();
-  for (const raw of extractItems(await response.json())) {
+  for (const raw of extractItems(payload)) {
     const candidate = normalizeCandidate(raw);
     if (candidate && !unique.has(candidate.sku)) unique.set(candidate.sku, candidate);
   }
@@ -222,8 +213,9 @@ export function candidateToProduct(candidate: TopSellerCandidate, niche: Product
 
 export async function collectInitialCatalog(perNiche = 5): Promise<{ products: Product[]; selection: CatalogSelection }> {
   const limit = Math.min(10, Math.max(5, Math.floor(perNiche)));
+  const client = createCjClient();
   const selected = await Promise.all((Object.keys(niches) as ProductNiche[]).map(async (niche) => {
-    const candidates = await fetchTopSellersForNiche(niche, limit);
+    const candidates = await fetchTopSellersForNiche(niche, limit, client);
     if (candidates.length < 5) {
       throw new Error(`CJ solo devolvió ${candidates.length} productos vendibles con imagen nativa y referencia directa para ${niches[niche].label}; se requieren al menos 5.`);
     }
@@ -240,11 +232,11 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
  * ejecución: la propuesta se materializa mediante el importador versionado,
  * nunca mediante un filesystem efímero de Vercel.
  */
-export async function rotateCatalogByNiche(decisions: readonly NicheCatalogDecision[]) {
+export async function rotateCatalogByNiche(decisions: readonly NicheCatalogDecision[], client: CjClient = createCjClient()) {
   const replacements = [] as Array<{ niche: ProductNiche; removeSlugs: string[]; replacementSku?: string; reason: string }>;
   for (const decision of decisions) {
     if (!decision.needsReplacement) continue;
-    const candidate = (await fetchTopSellersForNiche(decision.niche, 1))[0];
+    const candidate = (await fetchTopSellersForNiche(decision.niche, 1, client))[0];
     if (!candidate) {
       replacements.push({ niche: decision.niche, removeSlugs: decision.paused, reason: "CJ no entregó un producto vendible con imagen nativa para reemplazar este nicho." });
       continue;

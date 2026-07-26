@@ -1,5 +1,7 @@
 import "server-only";
 
+import { getCjCredentialConfiguration } from "./cj-client";
+
 /** Centraliza la protección de procesos iniciados por Vercel Cron o un agente de IA. */
 export function hasValidCronAuthorization(authorization: string | null) {
   const secret = process.env.CRON_SECRET;
@@ -13,11 +15,13 @@ export function hasValidCatalogImportAuthorization(authorization: string | null)
 }
 
 export function getAutomationConfiguration() {
+  const cjCredential = getCjCredentialConfiguration();
   return {
     cronConfigured: Boolean(process.env.CRON_SECRET),
-    supplierConfigured: Boolean(process.env.CJ_DROPSHIPPING_API_TOKEN),
-    topSellingConfigured: Boolean(process.env.CJ_DROPSHIPPING_TOP_SELLING_URL && process.env.CJ_DROPSHIPPING_API_TOKEN),
-    productSyncConfigured: Boolean(process.env.CJ_DROPSHIPPING_PRODUCT_SYNC_URL && process.env.CJ_DROPSHIPPING_API_TOKEN),
+    supplierConfigured: cjCredential.configured,
+    supplierUsingLegacyCredentialName: cjCredential.usingLegacyName,
+    topSellingConfigured: Boolean(process.env.CJ_DROPSHIPPING_TOP_SELLING_URL && cjCredential.configured),
+    productSyncConfigured: Boolean(process.env.CJ_DROPSHIPPING_PRODUCT_SYNC_URL && cjCredential.configured),
     adminSessionConfigured: Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_SESSION_SECRET),
     catalogAutomationEnabled: process.env.CATALOG_AUTOMATION_ENABLED !== "false",
   };
