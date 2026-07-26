@@ -55,7 +55,7 @@ for (const product of products) {
 const nextCatalog = {
   version: Number.isInteger(current.version) ? current.version + 1 : 1,
   importedAt: new Date().toISOString(),
-  source: "CJ Dropshipping — Product List v2 trending por categoría y listados",
+  source: "CJ Dropshipping — Product List v2 por categoría y número de listados",
   products,
 };
 

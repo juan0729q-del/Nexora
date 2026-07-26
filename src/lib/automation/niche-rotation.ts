@@ -82,7 +82,7 @@ export type CatalogSelection = {
   source: "cj-product-list-v2";
   endpoint: string;
   categoryFiltered: true;
-  trendFlag: "trending";
+  trendFlag: "trending-first";
   ranking: "listing-count";
   providerOrderPreserved: true;
 };
@@ -186,12 +186,19 @@ function categoriesForNiche(niche: ProductNiche, categories: readonly CjCategory
     .map(({ category }) => category);
 }
 
-function productListUrl(categoryId: string) {
+type ProductListCriteria = {
+  categoryId?: string;
+  keyWord?: string;
+  trendingOnly: boolean;
+};
+
+function productListUrl({ categoryId, keyWord, trendingOnly }: ProductListCriteria) {
   const url = new URL(productListV2Endpoint);
   url.searchParams.set("page", "1");
   url.searchParams.set("size", "100");
-  url.searchParams.set("categoryId", categoryId);
-  url.searchParams.set("productFlag", "0");
+  if (categoryId) url.searchParams.set("categoryId", categoryId);
+  if (keyWord) url.searchParams.set("keyWord", keyWord);
+  if (trendingOnly) url.searchParams.set("productFlag", "0");
   url.searchParams.set("startWarehouseInventory", "1");
   url.searchParams.set("verifiedWarehouse", "1");
   url.searchParams.set("sort", "desc");
@@ -235,6 +242,27 @@ function normalizeListedCandidate(item: CjListProduct, fallbackCategory: CjCateg
   };
 }
 
+function hasReturnedNicheCategory(item: CjListProduct, niche: ProductNiche) {
+  const returnedPath = normalizeText(categoryPath(item));
+  if (!returnedPath) return false;
+  const terms = [...nicheCategoryTerms[niche], ...niches[niche].supplierQuery.split(/\s+/)].map(normalizeText);
+  return terms.some((term) => returnedPath.includes(term));
+}
+
+function addListedCandidates(
+  items: readonly CjListProduct[],
+  fallbackCategory: CjCategoryLeaf,
+  candidates: Map<string, ListedCandidate>,
+  excludedSkus: ReadonlySet<string>,
+  requireReturnedNicheCategory: ProductNiche | undefined,
+) {
+  for (const item of items) {
+    if (requireReturnedNicheCategory && !hasReturnedNicheCategory(item, requireReturnedNicheCategory)) continue;
+    const candidate = normalizeListedCandidate(item, fallbackCategory);
+    if (candidate && !excludedSkus.has(candidate.sku) && !candidates.has(candidate.sku)) candidates.set(candidate.sku, candidate);
+  }
+}
+
 async function enrichCandidate(candidate: ListedCandidate, client: CjClient): Promise<CjTrendingCandidate | undefined> {
   const payload = await client.getJson<CjProductDetailResponse>(productQueryUrl(candidate.id));
   const detail = payload.data;
@@ -263,9 +291,10 @@ async function enrichCandidate(candidate: ListedCandidate, client: CjClient): Pr
 }
 
 /**
- * Product List v2 no entrega unidades vendidas. Por eso la selección usa la
- * señal documentada por CJ: productFlag=0 (Trending) y orderBy=1 (cantidad de
- * listados), siempre filtrada por una categoría real de cada nicho.
+ * Product List v2 no entrega unidades vendidas. La estrategia prioriza
+ * productFlag=0 (Trending) y, si una categoría no tiene resultados, conserva
+ * el filtro de categoría o valida la categoría devuelta por una búsqueda de
+ * palabras clave. En todos los casos orderBy=1 ordena por cantidad de listados.
  */
 export async function fetchTrendingProductsForNiche(
   niche: ProductNiche,
@@ -280,12 +309,31 @@ export async function fetchTrendingProductsForNiche(
 
   const candidates = new Map<string, ListedCandidate>();
   for (const category of matchingCategories.slice(0, 3)) {
-    const payload = await client.getJson<CjProductListResponse>(productListUrl(category.id));
-    for (const item of extractProducts(payload)) {
-      const candidate = normalizeListedCandidate(item, category);
-      if (candidate && !excludedSkus.has(candidate.sku) && !candidates.has(candidate.sku)) candidates.set(candidate.sku, candidate);
-    }
+    const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: true }));
+    addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
     if (candidates.size >= Math.max(limit * 3, 15)) break;
+  }
+
+  // Hay categorías CJ sin productos marcados Trending. Se conserva la
+  // clasificación del nicho usando la categoría que CJ devuelve en la búsqueda.
+  if (candidates.size < limit) {
+    const keywordCategory: CjCategoryLeaf = {
+      id: `keyword-${niche}`,
+      name: niches[niche].supplierQuery,
+      path: `Búsqueda oficial CJ › ${niches[niche].label}`,
+    };
+    const payload = await client.getJson<CjProductListResponse>(productListUrl({ keyWord: niches[niche].supplierQuery, trendingOnly: true }));
+    addListedCandidates(extractProducts(payload), keywordCategory, candidates, excludedSkus, niche);
+  }
+
+  // Último respaldo: la misma categoría, sin productFlag, pero ordenada por
+  // número de listados y con inventario verificado. No se afirma que sean ventas.
+  if (candidates.size < limit) {
+    for (const category of matchingCategories.slice(0, 3)) {
+      const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: false }));
+      addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
+      if (candidates.size >= Math.max(limit * 3, 15)) break;
+    }
   }
 
   const selected: CjTrendingCandidate[] = [];
@@ -342,7 +390,7 @@ export function candidateToProduct(candidate: CjTrendingCandidate, niche: Produc
     accent: accentFor(niche),
     supplier: {
       name: "CJ Dropshipping",
-      sourcePage: `CJ Product List v2 · Tendencia CJ por listados · ${candidate.categoryPath}`,
+      sourcePage: `CJ Product List v2 · Categoría y número de listados · ${candidate.categoryPath}`,
       sourceUrl: candidate.sourceUrl,
       reference: `${candidate.sku} · ${candidate.id}`,
       costUsd: candidate.supplierCostUsd,
@@ -363,7 +411,7 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
   for (const niche of Object.keys(niches) as ProductNiche[]) {
     const candidates = await fetchTrendingProductsForNiche(niche, limit, client, categories, excludedSkus);
     if (candidates.length < 5) {
-      throw new Error(`CJ solo devolvió ${candidates.length} productos trending vendibles con imagen nativa y ficha oficial para ${niches[niche].label}; se requieren al menos 5.`);
+      throw new Error(`CJ solo devolvió ${candidates.length} productos vendibles con imagen nativa y ficha oficial para ${niches[niche].label}; se requieren al menos 5.`);
     }
     for (const candidate of candidates) excludedSkus.add(candidate.sku);
     products.push(...candidates.map((candidate) => candidateToProduct(candidate, niche)));
@@ -375,7 +423,7 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
       source: "cj-product-list-v2",
       endpoint: productListV2Endpoint,
       categoryFiltered: true,
-      trendFlag: "trending",
+      trendFlag: "trending-first",
       ranking: "listing-count",
       providerOrderPreserved: true,
     },
@@ -394,7 +442,7 @@ export async function rotateCatalogByNiche(decisions: readonly NicheCatalogDecis
     if (!decision.needsReplacement) continue;
     const candidate = (await fetchTrendingProductsForNiche(decision.niche, 1, client, categories))[0];
     if (!candidate) {
-      replacements.push({ niche: decision.niche, removeSlugs: decision.paused, reason: "CJ no entregó un producto trending vendible con imagen nativa para reemplazar este nicho." });
+      replacements.push({ niche: decision.niche, removeSlugs: decision.paused, reason: "CJ no entregó un producto vendible con imagen nativa para reemplazar este nicho." });
       continue;
     }
     replacements.push({ niche: decision.niche, removeSlugs: decision.paused, replacementSku: candidate.sku, reason: "Reemplazo del mismo nicho preparado desde Product List v2 de CJ." });
