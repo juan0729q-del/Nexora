@@ -3,6 +3,9 @@ import "server-only";
 const cjOrigin = "https://developers.cjdropshipping.com";
 const tokenEndpoint = "/api2.0/v1/authentication/getAccessToken";
 const refreshEndpoint = "/api2.0/v1/authentication/refreshAccessToken";
+// CJ documenta un máximo de 1 petición por segundo. Se deja un margen para
+// evitar que dos consultas consecutivas del mismo trabajo reciban un 429.
+const cjRequestIntervalMs = 1_100;
 
 type CjEnvelope<T> = {
   code?: number;
@@ -120,6 +123,14 @@ function canRetryWithNewToken(init?: RequestInit) {
   return method === "GET" || method === "HEAD";
 }
 
+function isRateLimitFailure(response: Response, payload: CjEnvelope<unknown> | undefined) {
+  return response.status === 429 || payload?.code === 1600200;
+}
+
+function wait(milliseconds: number) {
+  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
+}
+
 /**
  * Cliente efímero por ejecución. Autentica con la API key antes de cualquier
  * importación/consulta y comparte una sola sesión entre las peticiones del
@@ -129,6 +140,8 @@ function canRetryWithNewToken(init?: RequestInit) {
 export class CjClient {
   private sessionPromise: Promise<CjSession> | undefined;
   private refreshPromise: Promise<CjSession> | undefined;
+  private requestQueue: Promise<void> = Promise.resolve();
+  private nextRequestAt = 0;
 
   private async authenticateWithApiKey() {
     const response = await this.fetchCj(`${cjOrigin}${tokenEndpoint}`, {
@@ -202,6 +215,7 @@ export class CjClient {
   }
 
   private async fetchCj(url: string, init: RequestInit) {
+    await this.waitForRequestSlot();
     try {
       return await fetch(url, { ...init, signal: init.signal || AbortSignal.timeout(requestTimeout()) });
     } catch (error) {
@@ -210,14 +224,41 @@ export class CjClient {
     }
   }
 
+  private async waitForRequestSlot() {
+    const previous = this.requestQueue;
+    let release: (() => void) | undefined;
+    this.requestQueue = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+
+    await previous;
+    try {
+      const delay = Math.max(0, this.nextRequestAt - Date.now());
+      if (delay) await wait(delay);
+      this.nextRequestAt = Date.now() + cjRequestIntervalMs;
+    } finally {
+      release?.();
+    }
+  }
+
   async getJson<T>(url: string, init?: RequestInit): Promise<T> {
     const current = await this.getSession();
-    let result = await this.request(url, current.accessToken, init);
+    let activeSession = current;
+    let result = await this.request(url, activeSession.accessToken, init);
     if (isSuccessful(result.response, result.payload)) return result.payload as T;
 
     if (canRetryWithNewToken(init) && isAuthenticationFailure(result.response, result.payload)) {
       const renewed = await this.renewSession(current);
-      result = await this.request(url, renewed.accessToken, init);
+      activeSession = renewed;
+      result = await this.request(url, activeSession.accessToken, init);
+      if (isSuccessful(result.response, result.payload)) return result.payload as T;
+    }
+
+    if (isRateLimitFailure(result.response, result.payload)) {
+      // El espaciado normal evita el límite dentro de una instancia. Este
+      // reintento cubre la cuota compartida por API key u otras ejecuciones.
+      await wait(cjRequestIntervalMs);
+      result = await this.request(url, activeSession.accessToken, init);
       if (isSuccessful(result.response, result.payload)) return result.payload as T;
     }
 
