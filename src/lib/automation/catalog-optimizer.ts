@@ -1,4 +1,5 @@
-import { getCatalog, getCatalogDecision, niches, type ProductNiche } from "@/lib/products";
+import { getCatalog } from "@/lib/catalog-store";
+import { getCatalogDecision, niches, type ProductNiche } from "@/lib/products";
 
 export type NicheCatalogDecision = {
   niche: ProductNiche;
@@ -9,12 +10,18 @@ export type NicheCatalogDecision = {
 };
 
 /**
- * Núcleo de decisión para un agente de IA/BI. La entrada puede sustituirse por
- * ventas y conversiones reales: la salida conserva siempre el nicho de origen
- * para que un retiro de joyería solo se reemplace por joyería, y así sucesivamente.
+ * Lee señales persistentes. Los ceros de métricas recién importadas se tratan
+ * como datos aún no disponibles, no como rendimiento bajo.
  */
-export function optimizeCatalog() {
-  const decisions = getCatalog().map((product) => ({ sku: product.sku, slug: product.slug, niche: product.niche, action: getCatalogDecision(product), metrics: product.performance }));
+export async function optimizeCatalog() {
+  const catalog = await getCatalog();
+  const decisions = catalog.map((product) => ({
+    sku: product.sku,
+    slug: product.slug,
+    niche: product.niche,
+    action: getCatalogDecision(product),
+    metrics: product.performance,
+  }));
   const byNiche = (Object.keys(niches) as ProductNiche[]).map((niche): NicheCatalogDecision => {
     const current = decisions.filter((decision) => decision.niche === niche);
     const paused = current.filter((decision) => decision.action === "pause").map((decision) => decision.slug);

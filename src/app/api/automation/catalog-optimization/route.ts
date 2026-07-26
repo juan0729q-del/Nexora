@@ -11,10 +11,8 @@ async function run(request: Request) {
   if (!hasValidCronAuthorization(request.headers.get("authorization"))) return NextResponse.json({ message: "No autorizado" }, { status: 401 });
   if (!getAutomationConfiguration().catalogAutomationEnabled) return NextResponse.json({ status: "skipped", reason: "Automatización de catálogo desactivada" });
   try {
-    const catalog = optimizeCatalog();
+    const catalog = await optimizeCatalog();
     const [supplier, rotation] = await Promise.all([syncSupplierCatalog(), rotateCatalogByNiche(catalog.byNiche)]);
-    // El adaptador CATALOG_STORE_API_URL recibe los retiros e inserciones por nicho.
-    // Si no está configurado, se devuelve el plan sin fingir persistencia.
     return NextResponse.json({ status: "completed", supplier, catalog, rotation });
   } catch (error) {
     console.error("Catalog automation failed", error);
@@ -22,6 +20,6 @@ async function run(request: Request) {
   }
 }
 
-// Vercel Cron invoca GET; POST está disponible para un agente de IA o proveedor externo.
+// Vercel Cron invoca GET; POST está disponible para un agente de IA autorizado.
 export const GET = run;
 export const POST = run;

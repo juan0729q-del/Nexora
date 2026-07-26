@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { PaymentConfigurationError, PaymentProviderError, createHostedCheckout } from "@/lib/payments/hosted-checkout";
-import { getProduct, isStoreProductAvailable } from "@/lib/products";
+import { getProduct } from "@/lib/catalog-store";
+import { isStoreProductAvailable } from "@/lib/products";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json() as { productSlug?: unknown };
     if (typeof body.productSlug !== "string") return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
-    const product = getProduct(body.productSlug);
+    const product = await getProduct(body.productSlug);
     if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Este producto no está disponible temporalmente." }, { status: 400 });
     return NextResponse.json(await createHostedCheckout(product, getSiteUrl(request)), { status: 201 });
   } catch (error) {

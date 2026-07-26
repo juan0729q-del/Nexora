@@ -6,6 +6,12 @@ export function hasValidCronAuthorization(authorization: string | null) {
   return Boolean(secret && authorization === `Bearer ${secret}`);
 }
 
+/** Protección independiente para una importación manual de catálogo desde Vercel. */
+export function hasValidCatalogImportAuthorization(authorization: string | null) {
+  const seedSecret = process.env.CATALOG_IMPORT_SECRET;
+  return hasValidCronAuthorization(authorization) || Boolean(seedSecret && authorization === `Bearer ${seedSecret}`);
+}
+
 export function getAutomationConfiguration() {
   return {
     cronConfigured: Boolean(process.env.CRON_SECRET),
