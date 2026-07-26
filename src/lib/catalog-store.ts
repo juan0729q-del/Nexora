@@ -1,7 +1,7 @@
 import "server-only";
 
 import catalogDocument from "@/data/catalog.json";
-import { getCatalogDecision, hasNativeProviderImage, type Product, type ProductNiche } from "@/lib/products";
+import { getCatalogDecision, isValidCatalogProduct, type Product, type ProductNiche } from "@/lib/products";
 
 type CatalogDocument = {
   version: number;
@@ -22,8 +22,15 @@ function catalog() {
 
 export async function getCatalog() {
   // Incluso una edición manual del JSON no puede introducir una imagen local,
-  // de relleno o de un origen distinto a la ficha nativa del proveedor.
-  return catalog().products.filter(hasNativeProviderImage);
+  // de relleno, un proveedor no autorizado ni identificadores duplicados.
+  const seenSlugs = new Set<string>();
+  const seenSkus = new Set<string>();
+  return catalog().products.filter((product) => {
+    if (!isValidCatalogProduct(product) || seenSlugs.has(product.slug) || seenSkus.has(product.sku)) return false;
+    seenSlugs.add(product.slug);
+    seenSkus.add(product.sku);
+    return true;
+  });
 }
 
 export async function getStoreCatalog(niche?: ProductNiche) {

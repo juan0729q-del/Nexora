@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAutomationConfiguration, hasValidCronAuthorization } from "@/lib/automation/runtime-auth";
 import { optimizeCatalog } from "@/lib/automation/catalog-optimizer";
-import { rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
+import { getTopSellingConfiguration, rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
 import { syncSupplierCatalog } from "@/lib/automation/supplier-sync";
 
 export const runtime = "nodejs";
@@ -12,8 +12,14 @@ async function run(request: Request) {
   if (!getAutomationConfiguration().catalogAutomationEnabled) return NextResponse.json({ status: "skipped", reason: "Automatización de catálogo desactivada" });
   try {
     const catalog = await optimizeCatalog();
-    const [supplier, rotation] = await Promise.all([syncSupplierCatalog(), rotateCatalogByNiche(catalog.byNiche)]);
-    return NextResponse.json({ status: "completed", supplier, catalog, rotation });
+    const topSelling = getTopSellingConfiguration();
+    const [supplier, rotation] = await Promise.all([
+      syncSupplierCatalog(),
+      topSelling.configured
+        ? rotateCatalogByNiche(catalog.byNiche)
+        : Promise.resolve({ replacements: [], persistence: { status: "skipped", store: "catalog.json versionado", reason: topSelling.reason } }),
+    ]);
+    return NextResponse.json({ status: "planned", supplier, catalog, rotation });
   } catch (error) {
     console.error("Catalog automation failed", error);
     return NextResponse.json({ message: "Falló la automatización del catálogo." }, { status: 502 });

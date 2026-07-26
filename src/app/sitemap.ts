@@ -1,16 +1,20 @@
 import type { MetadataRoute } from "next";
-import { getCatalog } from "@/lib/catalog-store";
+import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
+import { isStoreProductAvailable } from "@/lib/products";
+import { getSiteUrl } from "@/lib/site";
 
 export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://nexora-amber-two.vercel.app";
+  const baseUrl = getSiteUrl();
   const products = await getCatalog();
+  const metadata = getCatalogImportMetadata();
+  const lastModified = metadata.importedAt ? new Date(metadata.importedAt) : undefined;
   return [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: "weekly", priority: 1 },
-    ...products.filter((product) => product.active).map((product) => ({
+    { url: baseUrl, lastModified, changeFrequency: "weekly", priority: 1 },
+    ...products.filter(isStoreProductAvailable).map((product) => ({
       url: `${baseUrl}/productos/${product.slug}`,
-      lastModified: new Date(),
+      lastModified,
       changeFrequency: "weekly" as const,
       priority: 0.8,
     })),

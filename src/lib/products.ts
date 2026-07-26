@@ -30,6 +30,8 @@ export type ProductSupplier = {
   sourcePage: string;
   sourceUrl: string;
   reference: string;
+  /** Costo vigente informado por CJ en USD; nunca se expone al storefront. */
+  costUsd: number;
 };
 export type ProductPerformance = {
   salesLast30Days: number;
@@ -77,7 +79,37 @@ export function isStoreProductAvailable(product: Product) {
 
 /** Invariante de Nexora: nunca renderizar ni vender imágenes sustitutas. */
 export function hasNativeProviderImage(product: Product) {
-  return product.image.source === "provider" && /^https:\/\//.test(product.image.src);
+  if (product.image.source !== "provider" || product.supplier.name !== "CJ Dropshipping") return false;
+  try {
+    return new URL(product.image.src).protocol === "https:" && new URL(product.supplier.sourceUrl).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+/**
+ * El JSON es un límite de confianza: solo llegan a la tienda registros CJ
+ * completos, coherentes y con una imagen nativa HTTPS previamente validada.
+ */
+export function isValidCatalogProduct(value: unknown): value is Product {
+  if (!isRecord(value) || !isRecord(value.image) || !isRecord(value.supplier) || !isRecord(value.performance)) return false;
+  const product = value as Partial<Product>;
+  const image = value.image as Partial<Product["image"]>;
+  const supplier = value.supplier as Partial<ProductSupplier>;
+  const performance = value.performance as Partial<ProductPerformance>;
+  const strings = [product.slug, product.name, product.category, product.description, product.longDescription, product.sku, product.material];
+  const hasRequiredStrings = strings.every((field) => typeof field === "string" && field.trim().length > 0);
+  const numericFields = [product.price, product.rating, product.reviewCount, product.stock, performance.salesLast30Days, performance.conversionRate, performance.returnRate];
+  const hasValidNumbers = numericFields.every((field) => typeof field === "number" && Number.isFinite(field) && field >= 0);
+  const hasKnownNiche = typeof product.niche === "string" && product.niche in niches;
+  const hasExpectedImage = image.source === "provider" && typeof image.src === "string" && typeof image.alt === "string";
+  const hasExpectedSupplier = supplier.name === "CJ Dropshipping" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costUsd === "number" && Number.isFinite(supplier.costUsd) && supplier.costUsd > 0;
+  const hasExpectedFlags = typeof product.active === "boolean" && ["emerald", "silver", "warm"].includes(product.accent || "");
+  return hasRequiredStrings && hasValidNumbers && hasKnownNiche && hasExpectedImage && hasExpectedSupplier && hasExpectedFlags && hasNativeProviderImage(product as Product);
 }
 
 export const formatCOP = (amount: number) =>

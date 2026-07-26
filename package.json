@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "catalog:apply-import": "node scripts/persist-catalog-import.mjs"
   },
   "dependencies": {
     "next": "16.2.11",

@@ -1,22 +1,50 @@
 # Nexora
 
-Tienda de alto rendimiento construida con Next.js App Router, Tailwind CSS y preparada para Vercel.
+Tienda de alto rendimiento construida con Next.js App Router y Tailwind CSS, preparada para Vercel. El catálogo publicado es un JSON versionado en Git: no hay base de datos externa ni escritura efímera dentro de una Function.
 
 ## Rutas
 
-- `/`: catalogo publico, semantico y responsive. Solo muestra productos activos cuyo rendimiento permite destacarlos.
-- `/productos/[slug]`: ficha SEO de cada producto con Schema.org Product.
-- `/admin/login`: acceso de sesion protegida.
-- `/admin`: KPIs, alertas, proveedor de origen, referencia y control operacional.
-- `/api/payments/checkout`: crea un checkout alojado de Wompi o Mercado Pago sin exponer secretos.
-- `/api/automation/catalog-optimization`: proceso protegido para stock, costos y decisiones de catalogo.
+- `/`: catálogo público por Joyería, Tecnología/Hogar y Bienestar.
+- `/productos/[slug]`: ficha SEO con Schema.org Product y la imagen original de CJ.
+- `/admin/login` y `/admin`: acceso protegido, catálogo real y alertas operativas.
+- `/api/payments/checkout`: crea un checkout alojado sin exponer secretos.
+- `/api/payments/wompi/webhook`: valida eventos firmados de Wompi.
+- `/api/payments/mercadopago/webhook`: verifica el pago contra la API de Mercado Pago.
+- `/api/automation/catalog-import`: obtiene candidatos CJ validados; no escribe el filesystem de Vercel.
+- `/api/automation/catalog-optimization`: genera propuestas de sincronización y rotación protegidas con `CRON_SECRET`.
+
+## Catálogo CJ persistente
+
+`src/data/catalog.json` es la única fuente publicada. Solo admite productos con:
+
+- Imagen HTTPS nativa recibida del proveedor y `source: "provider"`.
+- Proveedor `CJ Dropshipping`, URL de origen directa, SKU único, costo en USD y stock vendible.
+- Entre 5 y 10 productos por nicho.
+
+La importación necesita `CJ_DROPSHIPPING_TOP_SELLING_URL`: el endpoint de CJ que entregue el ranking real de ventas por nicho. Product List V2 por sí solo no acredita que un producto sea top-selling, así que Nexora se niega a etiquetar sus resultados como tales.
+
+Tras obtener una respuesta autorizada de `/api/automation/catalog-import`, aplica y valida el documento con:
+
+```bash
+npm run catalog:apply-import -- .catalog-import.json
+git add src/data/catalog.json
+git commit -m "Sync verified CJ catalog"
+git push origin main
+```
+
+La automatización versionada está en `.github/workflows/sync-cj-catalog.yml`. Para habilitarla, configura en GitHub:
+
+- Variable `NEXORA_CATALOG_IMPORT_URL` con `https://TU-DOMINIO/api/automation/catalog-import?perNiche=5`.
+- Secret `NEXORA_CRON_SECRET` con el mismo valor que `CRON_SECRET` de Vercel.
+
+Se programa cada 15 minutos, aunque GitHub puede demorar ejecuciones programadas. En Vercel Hobby, el cron nativo permanece diario; en Vercel Pro puede cambiarse a `*/15 * * * *`.
+
+## Pagos
+
+Nexora usa Wompi Checkout Web cuando existen `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET`. Como alternativa puede crear Links de Pago con `WOMPI_PRIVATE_KEY`. Mercado Pago se activa con `PAYMENT_PROVIDER=mercadopago` y `MERCADOPAGO_ACCESS_TOKEN`.
+
+El regreso del comprador nunca se toma como pago final. Configura en Wompi el webhook HTTPS `https://TU-DOMINIO/api/payments/wompi/webhook` y la variable privada `WOMPI_EVENT_SECRET`. Mercado Pago recibe `notification_url` automáticamente al crear cada preferencia y el handler consulta su API con el token de servidor.
 
 ## Variables de entorno
 
-Define las variables de `.env.example` en Vercel. Nexora soporta Wompi Checkout Web con `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` (`pub_test_...` o `pub_prod_...`) y `WOMPI_INTEGRITY_SECRET` (`test_integrity_...` o `prod_integrity_...`), que firma cada compra desde el servidor. Como alternativa, `WOMPI_PRIVATE_KEY` (`prv_test_...` o `prv_prod_...`) crea Links de Pago por API. Para Mercado Pago usa `MERCADOPAGO_ACCESS_TOKEN` y define `PAYMENT_PROVIDER=mercadopago`.
-
-## Automatizacion
-
-La ruta de automatizacion acepta `GET` (Vercel Cron) y `POST` (agente externo), ambos protegidos con `Authorization: Bearer CRON_SECRET`. En el plan Hobby de Vercel el cron esta configurado diariamente para que el despliegue sea valido. Para ejecutar cada 15 minutos tras actualizar a Vercel Pro, cambia el schedule de `vercel.json` a `*/15 * * * *` y despliega de nuevo.
-
-`src/lib/automation/catalog-optimizer.ts` contiene la regla determinista para destacar, monitorear o retirar productos. `src/lib/automation/niche-rotation.ts` consulta top-selling de CJ por Joyería, Tecnología/Hogar y Bienestar, manteniendo cada reemplazo en su nicho. Configura `CATALOG_STORE_API_URL` y `CATALOG_STORE_API_TOKEN` para persistir la sustitución en tu base de datos; las imágenes HTTPS del proveedor se priorizan antes del fallback local.
+Consulta `.env.example`. Nunca subas credenciales reales ni publiques variables sin el prefijo `NEXT_PUBLIC_`.

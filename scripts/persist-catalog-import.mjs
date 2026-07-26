@@ -1,0 +1,63 @@
+import { readFile, writeFile } from "node:fs/promises";
+import { resolve } from "node:path";
+
+const inputPath = process.argv[2];
+if (!inputPath) throw new Error("Uso: node scripts/persist-catalog-import.mjs <respuesta-importacion.json>");
+
+const catalogPath = resolve("src/data/catalog.json");
+const payload = JSON.parse(await readFile(resolve(inputPath), "utf8"));
+const current = JSON.parse(await readFile(catalogPath, "utf8"));
+const products = payload?.products;
+
+function isHttpsUrl(value) {
+  if (typeof value !== "string") return false;
+  try {
+    return new URL(value).protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function validProduct(product) {
+  return Boolean(
+    product
+    && typeof product.slug === "string"
+    && typeof product.name === "string"
+    && ["jewelry", "technologyHome", "wellbeing"].includes(product.niche)
+    && Number.isFinite(product.price) && product.price > 0
+    && Number.isInteger(product.stock) && product.stock > 0
+    && product.active === true
+    && product.image?.source === "provider" && isHttpsUrl(product.image?.src)
+    && product.supplier?.name === "CJ Dropshipping"
+    && isHttpsUrl(product.supplier?.sourceUrl)
+    && typeof product.supplier?.reference === "string" && product.supplier.reference.length > 0
+    && Number.isFinite(product.supplier?.costUsd) && product.supplier.costUsd > 0,
+  );
+}
+
+if (!Array.isArray(products) || !products.every(validProduct)) {
+  throw new Error("La respuesta contiene un producto incompleto, sin stock vendible o sin imagen nativa HTTPS de CJ. catalog.json no fue modificado.");
+}
+
+const byNiche = new Map(["jewelry", "technologyHome", "wellbeing"].map((niche) => [niche, products.filter((product) => product.niche === niche)]));
+for (const [niche, entries] of byNiche) {
+  if (entries.length < 5 || entries.length > 10) throw new Error(`${niche} debe contener entre 5 y 10 productos reales; recibió ${entries.length}.`);
+}
+
+const slugs = new Set();
+const skus = new Set();
+for (const product of products) {
+  if (slugs.has(product.slug) || skus.has(product.sku)) throw new Error("La respuesta tiene slugs o SKU duplicados. catalog.json no fue modificado.");
+  slugs.add(product.slug);
+  skus.add(product.sku);
+}
+
+const nextCatalog = {
+  version: Number.isInteger(current.version) ? current.version + 1 : 1,
+  importedAt: new Date().toISOString(),
+  source: "CJ Dropshipping — endpoint top-selling verificado",
+  products,
+};
+
+await writeFile(catalogPath, `${JSON.stringify(nextCatalog, null, 2)}\n`, "utf8");
+console.log(`Catálogo CJ validado y versionado: ${products.length} productos.`);

@@ -15,8 +15,15 @@ export async function POST(request: Request) {
   try {
     const requested = Number(new URL(request.url).searchParams.get("perNiche") || 5);
     const perNiche = Math.min(10, Math.max(5, Number.isFinite(requested) ? Math.floor(requested) : 5));
-    const products = await collectInitialCatalog(perNiche);
-    return NextResponse.json({ status: "validated", imported: products.length, products, nativeProviderImages: true });
+    const { products, selection } = await collectInitialCatalog(perNiche);
+    return NextResponse.json({
+      status: "validated",
+      imported: products.length,
+      products,
+      selection,
+      nativeProviderImages: true,
+      persistence: "Use scripts/persist-catalog-import.mjs to validate and version this payload in catalog.json.",
+    });
   } catch (error) {
     console.error("Catalog import preview failed", error);
     return NextResponse.json({ message: error instanceof Error ? error.message : "No fue posible consultar el catálogo." }, { status: 502 });

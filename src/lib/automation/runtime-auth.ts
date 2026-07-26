@@ -15,7 +15,9 @@ export function hasValidCatalogImportAuthorization(authorization: string | null)
 export function getAutomationConfiguration() {
   return {
     cronConfigured: Boolean(process.env.CRON_SECRET),
-    supplierConfigured: Boolean(process.env.CJ_DROPSHIPPING_API_URL && process.env.CJ_DROPSHIPPING_API_TOKEN),
+    supplierConfigured: Boolean(process.env.CJ_DROPSHIPPING_API_TOKEN),
+    topSellingConfigured: Boolean(process.env.CJ_DROPSHIPPING_TOP_SELLING_URL && process.env.CJ_DROPSHIPPING_API_TOKEN),
+    productSyncConfigured: Boolean(process.env.CJ_DROPSHIPPING_PRODUCT_SYNC_URL && process.env.CJ_DROPSHIPPING_API_TOKEN),
     adminSessionConfigured: Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_SESSION_SECRET),
     catalogAutomationEnabled: process.env.CATALOG_AUTOMATION_ENABLED !== "false",
   };
