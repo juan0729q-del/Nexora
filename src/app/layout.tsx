@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { NexyMascot } from "@/components/store/nexy-mascot";
 import { getSiteUrl } from "@/lib/site";
 import "./globals.css";
 
@@ -19,5 +20,12 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full`}><body className="min-h-full bg-onyx font-sans text-white antialiased">{children}</body></html>;
+  return (
+    <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
+      <body className="min-h-full bg-onyx font-sans text-white antialiased">
+        {children}
+        <NexyMascot />
+      </body>
+    </html>
+  );
 }
