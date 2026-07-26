@@ -45,7 +45,8 @@ export type Product = {
   niche: ProductNiche;
   description: string;
   longDescription: string;
-  image: { src: string; alt: string; source?: "provider" | "fallback" };
+  /** URL HTTPS original entregada por el proveedor; no se admiten placeholders. */
+  image: { src: string; alt: string; source: "provider" };
   price: number;
   compareAtPrice?: number;
   rating: number;
@@ -71,7 +72,12 @@ export function getCatalogDecision(product: Product): CatalogDecision {
 }
 
 export function isStoreProductAvailable(product: Product) {
-  return product.active && product.stock > 0 && getCatalogDecision(product) !== "pause";
+  return hasNativeProviderImage(product) && product.active && product.stock > 0 && getCatalogDecision(product) !== "pause";
+}
+
+/** Invariante de Nexora: nunca renderizar ni vender imágenes sustitutas. */
+export function hasNativeProviderImage(product: Product) {
+  return product.image.source === "provider" && /^https:\/\//.test(product.image.src);
 }
 
 export const formatCOP = (amount: number) =>

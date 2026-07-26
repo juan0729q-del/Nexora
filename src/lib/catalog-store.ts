@@ -1,7 +1,7 @@
 import "server-only";
 
 import catalogDocument from "@/data/catalog.json";
-import { getCatalogDecision, type Product, type ProductNiche } from "@/lib/products";
+import { getCatalogDecision, hasNativeProviderImage, type Product, type ProductNiche } from "@/lib/products";
 
 type CatalogDocument = {
   version: number;
@@ -21,7 +21,9 @@ function catalog() {
 }
 
 export async function getCatalog() {
-  return catalog().products;
+  // Incluso una edición manual del JSON no puede introducir una imagen local,
+  // de relleno o de un origen distinto a la ficha nativa del proveedor.
+  return catalog().products.filter(hasNativeProviderImage);
 }
 
 export async function getStoreCatalog(niche?: ProductNiche) {
