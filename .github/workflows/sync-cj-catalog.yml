@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 concurrency:
   group: nexora-cj-catalog-sync
@@ -17,14 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NEXORA_CATALOG_IMPORT_URL: ${{ vars.NEXORA_CATALOG_IMPORT_URL }}
-      CRON_SECRET: ${{ secrets.NEXORA_CRON_SECRET }}
     steps:
       - name: Check protected endpoint configuration
         id: config
         run: |
-          if [ -z "$NEXORA_CATALOG_IMPORT_URL" ] || [ -z "$CRON_SECRET" ]; then
+          if [ -z "$NEXORA_CATALOG_IMPORT_URL" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "Missing NEXORA_CATALOG_IMPORT_URL variable or NEXORA_CRON_SECRET secret; skipping safely."
+            echo "Missing NEXORA_CATALOG_IMPORT_URL variable; skipping safely."
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
@@ -32,7 +32,10 @@ jobs:
         if: steps.config.outputs.configured == 'true'
       - name: Request validated CJ products from Nexora
         if: steps.config.outputs.configured == 'true'
-        run: curl --fail-with-body --silent --show-error --retry 2 --retry-delay 10 -H "Authorization: Bearer $CRON_SECRET" -X POST "$NEXORA_CATALOG_IMPORT_URL" -o .catalog-import.json
+        run: |
+          oidc_token="$(curl --fail-with-body --silent --show-error -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nexora-catalog-import" | jq --raw-output '.value')"
+          test -n "$oidc_token" && test "$oidc_token" != "null"
+          curl --fail-with-body --silent --show-error --retry 2 --retry-delay 10 -H "Authorization: Bearer $oidc_token" -X POST "$NEXORA_CATALOG_IMPORT_URL" -o .catalog-import.json
       - name: Validate and persist catalog JSON
         if: steps.config.outputs.configured == 'true'
         run: node scripts/persist-catalog-import.mjs .catalog-import.json

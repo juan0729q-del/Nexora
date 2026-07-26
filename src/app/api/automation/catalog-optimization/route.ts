@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAutomationConfiguration, hasValidCronAuthorization } from "@/lib/automation/runtime-auth";
 import { optimizeCatalog } from "@/lib/automation/catalog-optimizer";
-import { getTopSellingConfiguration, rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
+import { getProductDiscoveryConfiguration, rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
 import { syncSupplierCatalog } from "@/lib/automation/supplier-sync";
 import { createCjClient } from "@/lib/automation/cj-client";
 
@@ -13,15 +13,15 @@ async function run(request: Request) {
   if (!getAutomationConfiguration().catalogAutomationEnabled) return NextResponse.json({ status: "skipped", reason: "Automatización de catálogo desactivada" });
   try {
     const catalog = await optimizeCatalog();
-    const topSelling = getTopSellingConfiguration();
+    const discovery = getProductDiscoveryConfiguration();
     // Ambas operaciones comparten la misma sesiÃ³n efÃ­mera: evita dos llamadas
     // simultÃ¡neas a getAccessToken cuando CJ limita ese endpoint a 1 QPS.
     const client = createCjClient();
     const [supplier, rotation] = await Promise.all([
       syncSupplierCatalog(client),
-      topSelling.configured
+      discovery.configured
         ? rotateCatalogByNiche(catalog.byNiche, client)
-        : Promise.resolve({ replacements: [], persistence: { status: "skipped", store: "catalog.json versionado", reason: topSelling.reason } }),
+        : Promise.resolve({ replacements: [], persistence: { status: "skipped", store: "catalog.json versionado", reason: discovery.reason } }),
     ]);
     return NextResponse.json({ status: "planned", supplier, catalog, rotation });
   } catch (error) {

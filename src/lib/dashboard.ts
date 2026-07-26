@@ -51,11 +51,13 @@ export async function getDashboardSnapshot() {
   }
   alerts.push({
     id: "supplier-sync",
-    severity: automation.topSellingConfigured && automation.productSyncConfigured ? "info" : "warning",
+    severity: automation.productDiscoveryConfigured ? "info" : "warning",
     title: "Sincronización CJ",
-    detail: automation.topSellingConfigured && automation.productSyncConfigured
-      ? "Los endpoints de ranking y sincronización por SKU están configurados; el cron generará propuestas versionables."
-      : "Falta configurar el endpoint CJ de top-selling y/o el endpoint de sincronización por SKU. No se inventarán rankings ni cambios de stock.",
+    detail: automation.productDiscoveryConfigured
+      ? automation.productSyncConfigured
+        ? "Product List v2 y la sincronización por SKU están configurados; el cron generará propuestas versionables."
+        : "Product List v2 puede descubrir productos trending con inventario verificado. La sincronización adicional por SKU permanece opcional."
+      : "Falta CJ_DROPSHIPPING_API_KEY. No se consultará ni se inventará catálogo del proveedor.",
   });
   alerts.push({
     id: "automation-session",

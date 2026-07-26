@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
  * con Git, preservando un historial auditable.
  */
 export async function POST(request: Request) {
-  if (!hasValidCatalogImportAuthorization(request.headers.get("authorization"))) return NextResponse.json({ message: "No autorizado" }, { status: 401 });
+  if (!(await hasValidCatalogImportAuthorization(request.headers.get("authorization")))) return NextResponse.json({ message: "No autorizado" }, { status: 401 });
   try {
     const requested = Number(new URL(request.url).searchParams.get("perNiche") || 5);
     const perNiche = Math.min(10, Math.max(5, Number.isFinite(requested) ? Math.floor(requested) : 5));

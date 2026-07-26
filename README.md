@@ -23,7 +23,7 @@ Tienda de alto rendimiento construida con Next.js App Router y Tailwind CSS, pre
 
 La importación usa `CJ_DROPSHIPPING_API_KEY`, nunca un `accessToken` estático. Al iniciar cada importación o sincronización, Nexora llama al endpoint oficial `getAccessToken`, conserva la sesión solamente durante esa ejecución y, ante una respuesta de autenticación, usa `refreshAccessToken` y repite una sola vez la consulta idempotente. Ni access tokens ni refresh tokens se escriben en Git, JSON ni navegador.
 
-También necesita `CJ_DROPSHIPPING_TOP_SELLING_URL`: un endpoint HTTPS del host oficial `developers.cjdropshipping.com` que entregue el ranking real de ventas por nicho. Product List V2 por sí solo no acredita que un producto sea top-selling, así que Nexora se niega a etiquetar sus resultados como tales. Para stock/costo por artículo, configura `CJ_DROPSHIPPING_PRODUCT_SYNC_URL` con `{sku}`.
+La selección inicial usa directamente el endpoint oficial `Product List v2`: primero resuelve las categorías CJ, filtra cada nicho por una categoría real, `productFlag=0` (Trending), inventario verificado y `orderBy=1` en orden descendente. CJ define ese orden como cantidad de listados, no unidades vendidas, por lo que Nexora lo etiqueta como tendencia por listados y nunca como ventas verificadas. La ficha oficial de cada producto vuelve a consultarse para conservar exclusivamente sus imágenes nativas. `CJ_DROPSHIPPING_PRODUCT_SYNC_URL` con `{sku}` sigue siendo opcional para sincronizaciones detalladas posteriores.
 
 Tras obtener una respuesta autorizada de `/api/automation/catalog-import`, aplica y valida el documento con:
 
@@ -37,7 +37,7 @@ git push origin main
 La automatización versionada está en `.github/workflows/sync-cj-catalog.yml`. Para habilitarla, configura en GitHub:
 
 - Variable `NEXORA_CATALOG_IMPORT_URL` con `https://TU-DOMINIO/api/automation/catalog-import?perNiche=5`.
-- Secret `NEXORA_CRON_SECRET` con el mismo valor que `CRON_SECRET` de Vercel.
+- El workflow obtiene un token OIDC firmado por GitHub Actions y limitado a `main` y a su propio archivo; no copia `CRON_SECRET` a GitHub.
 
 Se programa cada 15 minutos, aunque GitHub puede demorar ejecuciones programadas. En Vercel Hobby, el cron nativo permanece diario; en Vercel Pro puede cambiarse a `*/15 * * * *`.
 
