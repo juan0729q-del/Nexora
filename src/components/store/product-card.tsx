@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useState } from "react";
 import { beginCheckout } from "@/lib/payments";
-import { getProductPresentation } from "@/lib/product-presentation";
-import { formatCOP, isStoreProductAvailable, type Product } from "@/lib/products";
+import { getProductPresentation, type StorefrontProduct } from "@/lib/product-presentation";
+import { formatCOP } from "@/lib/products";
 import { ProductArt } from "./product-art";
 
-export function ProductCard({ product, priority = false }: { product: Product; priority?: boolean }) {
+export function ProductCard({ product, priority = false }: { product: StorefrontProduct; priority?: boolean }) {
   const [status, setStatus] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
-  const available = isStoreProductAvailable(product);
+  const available = product.available;
   const presentation = getProductPresentation(product);
 
   async function buy() {

@@ -1,4 +1,5 @@
 import { getStoreCatalog } from "@/lib/catalog-store";
+import { toStorefrontProduct } from "@/lib/product-presentation";
 import { niches, type ProductNiche } from "@/lib/products";
 import { ProductCard } from "./product-card";
 
@@ -10,7 +11,7 @@ const anchorByNiche: Record<ProductNiche, string> = {
 
 export async function NicheCatalogSection({ niche, priority = false }: { niche: ProductNiche; priority?: boolean }) {
   const definition = niches[niche];
-  const products = await getStoreCatalog(niche);
+  const products = (await getStoreCatalog(niche)).map(toStorefrontProduct);
   return (
     <section id={anchorByNiche[niche]} className="scroll-mt-24 border-t border-silver/15 px-5 py-14 first:border-t-0 sm:px-8 sm:py-20 lg:px-12" aria-labelledby={`${niche}-title`}>
       <div className="mx-auto max-w-7xl">

@@ -1,4 +1,4 @@
-import type { Product } from "./products";
+import { isStoreProductAvailable, type Product } from "./products";
 
 export type ProductPresentation = {
   title: string;
@@ -8,6 +8,14 @@ export type ProductPresentation = {
 };
 
 type EditorialCopy = Omit<ProductPresentation, "imageAlt">;
+
+/** Datos públicos mínimos que pueden cruzar al componente de compra cliente. */
+export type StorefrontProduct = Pick<
+  Product,
+  "slug" | "name" | "category" | "sku" | "image" | "price" | "compareAtPrice" | "rating" | "reviewCount" | "stock"
+> & {
+  available: boolean;
+};
 
 /**
  * Capa editorial para el storefront. El JSON de CJ conserva el nombre y la
@@ -124,5 +132,28 @@ export function getProductPresentation(product: Pick<Product, "sku" | "name" | "
     cardDescription: `Una selección Nexora${categoryHint}, elegida para sumar intención y utilidad a tu rutina.`,
     detailDescription: `Una propuesta Nexora${categoryHint} con imagen original del proveedor. Estamos preparando una historia comercial detallada para acompañar sus especificaciones verificadas.`,
     imageAlt: `${title}. Imagen original del proveedor CJ Dropshipping.`,
+  };
+}
+
+/**
+ * Impide que el cliente reciba descripciones crudas, métricas operativas,
+ * URLs internas de proveedor o costos. El checkout solo necesita el slug y
+ * vuelve a validar el producto completo dentro del Route Handler.
+ */
+export function toStorefrontProduct(product: Product): StorefrontProduct {
+  const presentation = getProductPresentation(product);
+
+  return {
+    slug: product.slug,
+    name: presentation.title,
+    category: product.category,
+    sku: product.sku,
+    image: { ...product.image, alt: presentation.imageAlt },
+    price: product.price,
+    compareAtPrice: product.compareAtPrice,
+    rating: product.rating,
+    reviewCount: product.reviewCount,
+    stock: product.stock,
+    available: isStoreProductAvailable(product),
   };
 }

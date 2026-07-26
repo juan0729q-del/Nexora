@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Product } from "@/lib/products";
 
-export function ProductArt({ product, priority = false, alt }: { product: Product; priority?: boolean; alt?: string }) {
+export function ProductArt({ product, priority = false, alt }: { product: Pick<Product, "category" | "image">; priority?: boolean; alt?: string }) {
   if (product.image.source !== "provider" || !product.image.src.startsWith("https://")) return null;
 
   return (

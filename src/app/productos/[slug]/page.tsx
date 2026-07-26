@@ -4,7 +4,7 @@ import { ProductCard } from "@/components/store/product-card";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
 import { getProduct } from "@/lib/catalog-store";
-import { getProductPresentation } from "@/lib/product-presentation";
+import { getProductPresentation, toStorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP, isStoreProductAvailable } from "@/lib/products";
 import { siteUrlFor } from "@/lib/site";
 
@@ -41,6 +41,7 @@ export default async function ProductPage({ params }: Props) {
   if (!product || !isStoreProductAvailable(product)) notFound();
 
   const presentation = getProductPresentation(product);
+  const storefrontProduct = toStorefrontProduct(product);
   const schema = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -81,7 +82,7 @@ export default async function ProductPage({ params }: Props) {
             </dl>
             <p className="mt-6 text-2xl font-semibold text-white">{formatCOP(product.price)}</p>
           </div>
-          <ProductCard product={product} priority />
+          <ProductCard product={storefrontProduct} priority />
         </article>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schemaJson }} />
       </main>
