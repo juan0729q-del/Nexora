@@ -4,6 +4,7 @@ import { hasValidCatalogImportAuthorization } from "@/lib/automation/runtime-aut
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 /**
  * Obtiene y valida candidatos reales sin escribir en el filesystem efímero de
@@ -26,6 +27,8 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Catalog import preview failed", error);
-    return NextResponse.json({ message: error instanceof Error ? error.message : "No fue posible consultar el catálogo." }, { status: 502 });
+    const message = error instanceof Error ? error.message : "No fue posible consultar el catálogo.";
+    const validationFailure = message.startsWith("CJ solo devolvió") || message.startsWith("CJ no devolvió una categoría");
+    return NextResponse.json({ message }, { status: validationFailure ? 422 : 502 });
   }
 }

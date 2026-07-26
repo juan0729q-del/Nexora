@@ -93,6 +93,12 @@ const nicheCategoryTerms: Record<ProductNiche, readonly string[]> = {
   wellbeing: ["health", "beauty", "massage", "fitness", "sport", "wellness", "personal care", "yoga", "therapy", "relaxation"],
 };
 
+const nicheSearchTerms: Record<ProductNiche, readonly string[]> = {
+  jewelry: ["necklace", "bracelet", "ring"],
+  technologyHome: ["wireless charger", "smart home", "kitchen gadget"],
+  wellbeing: ["massager", "fitness", "personal care"],
+};
+
 export function getProductDiscoveryConfiguration() {
   return {
     configured: getCjCredentialConfiguration().configured,
@@ -308,31 +314,35 @@ export async function fetchTrendingProductsForNiche(
   if (!matchingCategories.length) throw new Error(`CJ no devolvió una categoría compatible con ${niches[niche].label}. No se importarán productos sin clasificación verificable.`);
 
   const candidates = new Map<string, ListedCandidate>();
+  const candidatePoolTarget = Math.max(limit * 2, 10);
   for (const category of matchingCategories.slice(0, 3)) {
     const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: true }));
     addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
-    if (candidates.size >= Math.max(limit * 3, 15)) break;
+    if (candidates.size >= candidatePoolTarget) break;
   }
 
   // Hay categorías CJ sin productos marcados Trending. Se conserva la
   // clasificación del nicho usando la categoría que CJ devuelve en la búsqueda.
-  if (candidates.size < limit) {
-    const keywordCategory: CjCategoryLeaf = {
-      id: `keyword-${niche}`,
-      name: niches[niche].supplierQuery,
-      path: `Búsqueda oficial CJ › ${niches[niche].label}`,
-    };
-    const payload = await client.getJson<CjProductListResponse>(productListUrl({ keyWord: niches[niche].supplierQuery, trendingOnly: true }));
-    addListedCandidates(extractProducts(payload), keywordCategory, candidates, excludedSkus, niche);
+  if (candidates.size < candidatePoolTarget) {
+    for (const searchTerm of nicheSearchTerms[niche]) {
+      const keywordCategory: CjCategoryLeaf = {
+        id: `keyword-${niche}-${slugify(searchTerm)}`,
+        name: searchTerm,
+        path: `Búsqueda oficial CJ › ${niches[niche].label}`,
+      };
+      const payload = await client.getJson<CjProductListResponse>(productListUrl({ keyWord: searchTerm, trendingOnly: true }));
+      addListedCandidates(extractProducts(payload), keywordCategory, candidates, excludedSkus, niche);
+      if (candidates.size >= candidatePoolTarget) break;
+    }
   }
 
   // Último respaldo: la misma categoría, sin productFlag, pero ordenada por
   // número de listados y con inventario verificado. No se afirma que sean ventas.
-  if (candidates.size < limit) {
-    for (const category of matchingCategories.slice(0, 3)) {
+  if (candidates.size < candidatePoolTarget) {
+    for (const category of matchingCategories.slice(0, 6)) {
       const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: false }));
       addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
-      if (candidates.size >= Math.max(limit * 3, 15)) break;
+      if (candidates.size >= candidatePoolTarget) break;
     }
   }
 
