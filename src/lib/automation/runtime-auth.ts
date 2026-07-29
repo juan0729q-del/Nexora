@@ -7,7 +7,10 @@ const githubActionsIssuer = "https://token.actions.githubusercontent.com";
 const githubActionsJwksUrl = `${githubActionsIssuer}/.well-known/jwks`;
 const githubActionsAudience = "nexora-catalog-import";
 const githubActionsRepository = "juan0729q-del/Nexora";
-const githubActionsWorkflowRef = "juan0729q-del/Nexora/.github/workflows/sync-cj-catalog.yml@refs/heads/main";
+const githubActionsWorkflowRefs = new Set([
+  "juan0729q-del/Nexora/.github/workflows/sync-cj-catalog.yml@refs/heads/main",
+  "juan0729q-del/Nexora/.github/workflows/enrich-cj-product-details.yml@refs/heads/main",
+]);
 const jwksCacheDurationMs = 60 * 60 * 1_000;
 
 type JwtHeader = { alg?: unknown; kid?: unknown; typ?: unknown };
@@ -124,7 +127,8 @@ async function hasValidGithubActionsOidcAuthorization(authorization: string | nu
     && audienceIncludes(claims.aud, githubActionsAudience)
     && claims.repository === githubActionsRepository
     && claims.ref === "refs/heads/main"
-    && claims.workflow_ref === githubActionsWorkflowRef
+    && typeof claims.workflow_ref === "string"
+    && githubActionsWorkflowRefs.has(claims.workflow_ref)
     && typeof claims.sub === "string"
     && typeof exp === "number" && exp > now - 30
     && (nbf === undefined || nbf <= now + 30)
@@ -153,7 +157,7 @@ export function hasValidCronAuthorization(authorization: string | null) {
 /**
  * La importación acepta un secreto de operador o una identidad OIDC firmada por
  * GitHub Actions. El segundo camino evita guardar una copia de CRON_SECRET en
- * GitHub y queda limitado a .github/workflows/sync-cj-catalog.yml en main.
+ * GitHub y queda limitado a los dos workflows versionados de CJ en main.
  */
 export async function hasValidCatalogImportAuthorization(authorization: string | null) {
   return hasValidCronAuthorization(authorization)
