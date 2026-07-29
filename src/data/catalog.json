@@ -1,5 +1,5 @@
 {
-  "version": 37,
+  "version": 38,
   "importedAt": "2026-07-29T03:40:38.373Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
@@ -34,7 +34,113 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/8d4af980-1734-45c0-b668-203bd561dd0f.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/12/31/05/5360adc7-ef34-4218-9223-ee5251bbdb30.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17193600/2406260838140326700.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17193600/2406260838140327500.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17193600/2406260838140328100.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17193600/2406260838140329100.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17193600/2406260838140329600.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\nUnique design, stylish and beautiful.\nGood material, comfortable wear.\nA variety of colors, any choice.\nProduct information:\nStyle: simple\nMaterial: stone\nType: Necklace\nModeling: Crystal Column\nChain style: O-chain\nExtension chain: 10cm or less\nCircumference: 51cm (inclusive)-80cm (inclusive)\nPopular elements: rainbow\nSize:\n\nPackage:\nPendant necklace X1\nProduct Image:",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Unique design, stylish and beautiful.",
+              "Good material, comfortable wear.",
+              "A variety of colors, any choice."
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Style: simple",
+              "Material: stone",
+              "Type: Necklace",
+              "Modeling: Crystal Column",
+              "Chain style: O-chain",
+              "Extension chain: 10cm or less",
+              "Circumference: 51cm (inclusive)-80cm (inclusive)",
+              "Popular elements: rainbow",
+              "Size:",
+              "Package:",
+              "Pendant necklace X1",
+              "Product Image:"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Style",
+            "value": "simple"
+          },
+          {
+            "label": "Material",
+            "value": "stone"
+          },
+          {
+            "label": "Type",
+            "value": "Necklace"
+          },
+          {
+            "label": "Modeling",
+            "value": "Crystal Column"
+          },
+          {
+            "label": "Chain style",
+            "value": "O-chain"
+          },
+          {
+            "label": "Extension chain",
+            "value": "10cm or less"
+          },
+          {
+            "label": "Circumference",
+            "value": "51cm (inclusive)-80cm (inclusive)"
+          },
+          {
+            "label": "Popular elements",
+            "value": "rainbow"
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "retro-reiki-healing-energy-crystal-pendant-natural-stone-for-yoga-medita-cjlx1206870",
@@ -67,7 +173,228 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232439078653952.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/a690582e-7982-459b-bccc-20aeb679b58c.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/ec4de599-d428-4d74-bfc3-fd103b6a0a89.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/dfa7b1bf-88f8-4db9-ba8d-121e4e81e8a6.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e5154097-8fe4-41e2-85f6-2503ac63edf4.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/eda79fdf-aa1f-4b13-aacc-1984d4708131.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/97c47901-ace0-4a9a-8df9-feb74b509f12.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e525d49c-542f-4eb3-85af-32c70f32bf3f.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/703815bd-c80d-4716-9e8a-486c97943d39.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/eb55aff2-ff3d-41b9-adaf-e39a3a5d87f1.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2671bf5e-5b3a-4df0-b561-f4fb742dc6bf.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/4682c2a9-1238-47b5-9f08-7f9149ddd825.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3fa4283a-ad06-4b2f-8e3e-068e9fbf1656.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/89df7fa6-75de-47ac-b944-a97bbfa4f592.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/ce7eed24-bd39-49ff-adca-f192f335e42a.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/bcd3e206-4f98-4071-a5a9-f92430249ed5.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/f9d8007a-a821-4ad7-b595-808aa9949549.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/48225fc3-467d-4777-b69a-b7e1fc8def09.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/0b956e1f-74f6-4271-8820-bdd6f6b5cb1a.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5326fedf-31be-4286-a812-8c7a41b5392d.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3d6d2954-f0a5-4e9d-8ec9-2303ab5e2512.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/73ab781e-98f3-457c-84de-c2ede343b054.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/96581103-6930-4e28-a38a-c98a4ecd47ef.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/23fbf777-3740-4b04-98f1-a7165440057f.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/ce9a8a7f-2601-45fd-9fa6-bd6123c1d7ca.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5e8f2504-9fac-411a-a63c-4fb4e330d6b6.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c1dac1b4-fb95-4402-a0f9-eb33d7cd56d2.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/fe02681e-1298-4424-837c-9263dc7b1e7a.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/10486f20-7c26-40fe-9553-4bf6c7918208.png",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "All product specifications in the link include necklaces and pendants!\n\nProduct Name:\nMeditation Healing 7 Chakra Natural Stone Pendant Necklace\nSKU：A/B/H/I\nPrice: $1.5\n\ndescription\nMaterial: Stone\nProduct attributes: general goods, light and thin\nPackage size\n150*150*40(1mm)\nOverview:\n\nUnique design, stylish and beautiful.\nGood material, and comfortable to wear.\nA variety of colors, more choice.\n\nProduct Information:\n\nMaterial: stone\nStyle: Unisex\nPackaging: Individually packed\nColor: A style (55*16mm), B style (60*10mm)\n\nPacking List：\n\nNecklace*1",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "All product specifications in the link include necklaces and pendants!",
+              "Product Name:",
+              "Meditation Healing 7 Chakra Natural Stone Pendant Necklace",
+              "SKU：A/B/H/I",
+              "Price: $1.5",
+              "Material: Stone",
+              "Product attributes: general goods, light and thin",
+              "Package size",
+              "150*150*40(1mm)",
+              "Unique design, stylish and beautiful.",
+              "Good material, and comfortable to wear.",
+              "A variety of colors, more choice."
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Material: stone",
+              "Style: Unisex",
+              "Packaging: Individually packed",
+              "Color: A style (55*16mm), B style (60*10mm)"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "Necklace*1"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Price",
+            "value": "$1.5"
+          },
+          {
+            "label": "Material",
+            "value": "Stone"
+          },
+          {
+            "label": "Product attributes",
+            "value": "general goods, light and thin"
+          },
+          {
+            "label": "Material",
+            "value": "stone"
+          },
+          {
+            "label": "Style",
+            "value": "Unisex"
+          },
+          {
+            "label": "Packaging",
+            "value": "Individually packed"
+          },
+          {
+            "label": "Color",
+            "value": "A style (55*16mm), B style (60*10mm)"
+          }
+        ],
+        "packageContents": [
+          "Necklace*1"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "kabala-life-tree-necklace-cjzblxlx06494",
@@ -100,7 +427,136 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/1926191792896.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733542214045696.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733542386012160.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733542629281792.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733542901911552.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733543136792576.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733543371673600.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733543573000192.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733543728189440.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733543988236288.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733544239894528.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733544395083776.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733544567050240.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733544730628096.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733544969703424.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733545187807232.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16778016/1631733545473019904.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Product Name : Kabala Life Tree\n\nProduct material : Copper wire, natural stone\n\nChain leather cord: circumference is about 50cm.\n\nPendant size: diameter 5cm.\n\nProduct weight : about 18G.",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Product Name : Kabala Life Tree",
+              "Product material : Copper wire, natural stone",
+              "Chain leather cord: circumference is about 50cm.",
+              "Pendant size: diameter 5cm.",
+              "Product weight : about 18G."
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Product Name",
+            "value": "Kabala Life Tree"
+          },
+          {
+            "label": "Product material",
+            "value": "Copper wire, natural stone"
+          },
+          {
+            "label": "Chain leather cord",
+            "value": "circumference is about 50cm."
+          },
+          {
+            "label": "Pendant size",
+            "value": "diameter 5cm."
+          },
+          {
+            "label": "Product weight",
+            "value": "about 18G."
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "creative-heart-shaped-cardinal-pendant-necklace-exquisite-party-commemor-cjlx1214580",
@@ -133,7 +589,108 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/01/20/04/d673b779-fc4b-4a80-adb0-8e937f649211.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2026/01/15/10/cde90e9f-b9e2-4c73-a6c2-26e598d682ac.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c3b859de-0aef-41cb-ab20-90ad655f3410.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/7e2c070f-f438-4ecc-8f03-2ac3c2282765.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/118b185c-1cfd-4023-897d-dbe234f4e83e.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/de36b4f1-61e2-4cc0-bf7f-85adce3c0df0.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15efd212-4c70-4d47-b01f-bee24fa51e3c.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\nUnique design, stylish and beautiful.\nGood material, High quality.\n100% Brand New.\nA variety of colors, any choice.\n\nProduct information:\n\nMaterial: Copper\nStyle: Unisex\nModeling: Animal\nPackaging: Individually packed\nChain style: water wave chain\nColor: silver\n\nNote: The actual product may differ from the picture.\nPacking list:\n 1*Necklace",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Unique design, stylish and beautiful.",
+              "Good material, High quality.",
+              "100% Brand New.",
+              "A variety of colors, any choice."
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Material: Copper",
+              "Style: Unisex",
+              "Modeling: Animal",
+              "Packaging: Individually packed",
+              "Chain style: water wave chain",
+              "Color: silver"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "1*Necklace"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Material",
+            "value": "Copper"
+          },
+          {
+            "label": "Style",
+            "value": "Unisex"
+          },
+          {
+            "label": "Modeling",
+            "value": "Animal"
+          },
+          {
+            "label": "Packaging",
+            "value": "Individually packed"
+          },
+          {
+            "label": "Chain style",
+            "value": "water wave chain"
+          },
+          {
+            "label": "Color",
+            "value": "silver"
+          }
+        ],
+        "packageContents": [
+          "1*Necklace"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "simple-moon-star-necklace-clavicle-chain-short-necklace-cjzblxlx02215",
@@ -166,7 +723,51 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/20180929/1633464062415.png",
+          "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Style: simple \nMaterial: Alloy \nTreatment process: diamond \nStyle: women's style",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Style: simple",
+              "Material: Alloy",
+              "Treatment process: diamond",
+              "Style: women's style"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Style",
+            "value": "simple"
+          },
+          {
+            "label": "Material",
+            "value": "Alloy"
+          },
+          {
+            "label": "Treatment process",
+            "value": "diamond"
+          },
+          {
+            "label": "Style",
+            "value": "women's style"
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "air-purifier-humidifier-cjxfznzn00558",
@@ -199,7 +800,125 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/15819552/564835242744.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/8fa618bb-a77d-4c53-89ae-a1c6a3778cde.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6b8254d7-55d0-42cd-9c19-dea232e07138.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/7e707392-cf73-4c4e-8a0e-d1ca0eaa4702.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/88b65402-fca6-43f9-901c-50fdc75c2b2c.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/b480443d-7924-41b8-9b5c-e23dc174e2e4.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/9f46b68a-be1e-446f-90bc-5caa17e38cef.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Characteristics:\nColor: black, white\nMaterial: ABS (Acrylonitrile butadiene styrene)\nVoltage: 5 V cd, voltage:\nPower: 3 W\nTank capacity: 1000 ml\nNoise: 36 to 45 db\nSpray mist: 50 ml / h\nLED light: 7 colors\nArea of use: 30 to 40\nWorking time: about 9 hours (automatic timing)\nSize: approx. 10x10x2 2 cm / thickness 66 ''\n\nCharacteristics:\n-Modern design makes it a great addition to your decor.\n-Low power, very good operation, is also an LED night lamp.\n-Unique effect with 7 color changes.\n-Easy access using the USB cable\n- Humidifies the air in the room during summer and winter, refreshes the quality of the air we breathe.\n-Purifies the air while spreading your favorite perfume in the room, add 3 to 4 drops of essential oil. (Oil not included)\n-It is ideal for your home, office or car.\n-Helps provide fresher and cleaner air and a healthy and harmonious living environment.",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Characteristics:",
+              "Color: black, white",
+              "Material: ABS (Acrylonitrile butadiene styrene)",
+              "Voltage: 5 V cd, voltage:",
+              "Power: 3 W",
+              "Tank capacity: 1000 ml",
+              "Noise: 36 to 45 db",
+              "Spray mist: 50 ml / h",
+              "LED light: 7 colors",
+              "Area of use: 30 to 40",
+              "Working time: about 9 hours (automatic timing)",
+              "Size: approx. 10x10x2 2 cm / thickness 66 ''",
+              "-Modern design makes it a great addition to your decor.",
+              "-Low power, very good operation, is also an LED night lamp.",
+              "-Unique effect with 7 color changes.",
+              "-Easy access using the USB cable",
+              "- Humidifies the air in the room during summer and winter, refreshes the quality of the air we breathe.",
+              "-Purifies the air while spreading your favorite perfume in the room, add 3 to 4 drops of essential oil. (Oil not included)",
+              "-It is ideal for your home, office or car.",
+              "-Helps provide fresher and cleaner air and a healthy and harmonious living environment."
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Color",
+            "value": "black, white"
+          },
+          {
+            "label": "Material",
+            "value": "ABS (Acrylonitrile butadiene styrene)"
+          },
+          {
+            "label": "Voltage",
+            "value": "5 V cd, voltage:"
+          },
+          {
+            "label": "Power",
+            "value": "3 W"
+          },
+          {
+            "label": "Tank capacity",
+            "value": "1000 ml"
+          },
+          {
+            "label": "Noise",
+            "value": "36 to 45 db"
+          },
+          {
+            "label": "Spray mist",
+            "value": "50 ml / h"
+          },
+          {
+            "label": "LED light",
+            "value": "7 colors"
+          },
+          {
+            "label": "Area of use",
+            "value": "30 to 40"
+          },
+          {
+            "label": "Working time",
+            "value": "about 9 hours (automatic timing)"
+          },
+          {
+            "label": "Size",
+            "value": "approx. 10x10x2 2 cm / thickness 66 ''"
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "creative-tool-holder-large-capacity-holder-multifunctional-kitchen-tool-cjjjcfcf00469",
@@ -232,7 +951,120 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/203007/6153672711.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906080327900.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906090320000.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906090321300.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906090323000.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906090326200.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906090327500.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906100320200.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906100323400.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906100326600.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906100328300.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906110321700.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906110326700.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17208288/2407130906110329200.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "• Overview:\nThe multifunctional storage rack can be used to place knives and cutlery, which effectively prevents the knife and cutlery from rusting.\nPP material, black and white colors, simple and elegant, better match your kitchen.\nDetachable bottom design, fast draining speed, more convenient cleaning, clean and hygienic.\n\n• Specification:\nMaterial:stainless steel\nColor: as shown\nStyle: A 8 inch knife holder + storage bucket\nB 8 inch knife holder + storage bucket + cutting board\nC 6 inch storage bucket\n\n• Package Content:\n1x Tool holder",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "• Overview:",
+              "The multifunctional storage rack can be used to place knives and cutlery, which effectively prevents the knife and cutlery from rusting.",
+              "PP material, black and white colors, simple and elegant, better match your kitchen.",
+              "Detachable bottom design, fast draining speed, more convenient cleaning, clean and hygienic.",
+              "• Specification:",
+              "Material:stainless steel",
+              "Color: as shown",
+              "Style: A 8 inch knife holder + storage bucket",
+              "B 8 inch knife holder + storage bucket + cutting board",
+              "C 6 inch storage bucket",
+              "• Package Content:",
+              "1x Tool holder"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Material",
+            "value": "stainless steel"
+          },
+          {
+            "label": "Color",
+            "value": "as shown"
+          },
+          {
+            "label": "Style",
+            "value": "A 8 inch knife holder + storage bucket"
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "multifunctional-slotted-spoon-grinding-cooking-spoon-mashed-auxiliary-fo-cjjjjtcf01196",
@@ -265,7 +1097,102 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/79350ee1-7117-43b5-805b-554f58210351.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/82f8dc42-aa54-4c54-a56a-88f8550c3d93.png",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/abcae771-f470-4235-aafd-a6c43b65f543.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/15f62642-8585-4d6b-9c7b-e24d36151122.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/30da19c2-7e3d-4e83-ba63-8a3be55bac8d.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/f380cc31-f274-49e9-938c-a41cc722d1fc.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/64cde185-2170-4173-ae67-659105cd240a.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/6c2a3862-0297-4617-8d10-b65bc3a06bc2.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\n\nCreative multifunctional cooking spoon\nFood-grade material, high temperature resistance, safe and environmentally friendly, can be used for cooking, draining spoon, grinding, pressing mud and other multi-functional purposes\nHalf-enclosed design to easily scoop rice\nThe head of the rice palm is half-enclosed, so the rice is not easy to fall off.\nConvex and convex serrations are easy to grind\nEasy to use, not easy to hurt your hands, is a good helper in the kitchen\nMulti-purpose\nHollow in the middle, quick stirring, easy to enjoy the food\n\nSpecifications:\n\nProduct category: Cooking spoon\nmaterial: plastic\n\ncolour: Red, Black\n\nPackage Content:\n 1*Creative multi-function cooking spoon",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Creative multifunctional cooking spoon",
+              "Food-grade material, high temperature resistance, safe and environmentally friendly, can be used for cooking, draining spoon, grinding, pressing mud and other multi-functional purposes",
+              "Half-enclosed design to easily scoop rice",
+              "The head of the rice palm is half-enclosed, so the rice is not easy to fall off.",
+              "Convex and convex serrations are easy to grind",
+              "Easy to use, not easy to hurt your hands, is a good helper in the kitchen",
+              "Multi-purpose",
+              "Hollow in the middle, quick stirring, easy to enjoy the food"
+            ]
+          },
+          {
+            "title": "Especificaciones",
+            "content": [
+              "Product category: Cooking spoon",
+              "material: plastic",
+              "colour: Red, Black"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "1*Creative multi-function cooking spoon"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Product category",
+            "value": "Cooking spoon"
+          },
+          {
+            "label": "material",
+            "value": "plastic"
+          },
+          {
+            "label": "colour",
+            "value": "Red, Black"
+          }
+        ],
+        "packageContents": [
+          "1*Creative multi-function cooking spoon"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "creative-noodle-potentiometer-pasta-measurer-noodle-maker-selector-measu-cjjjjtcf00671",
@@ -298,7 +1225,90 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/15605280/352925190104.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2f38a549-35b6-4763-b619-2da8d6d97b9d.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/99734d1a-ee8a-480c-b013-625ff561e884.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c5d4374b-eb10-4486-8d32-85d57a2c4b66.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6ea5f1e1-5b51-4610-a434-29ddcd11c109.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5af7c7d1-e09a-4193-b092-01b4e8a18158.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\nCreative Plastic Spaghetti Measuring Tool\nYou can control the thickness of the noodles according to your preferences\n\nproduct information:\n\nKitchen tools\nPasta measuring tool\nConvenient, compact and easy to use\nApplicable people: people who love to eat\nPurpose: can be made according to the size you like\nmaterial: plastic\nSize: 8*9*1CM\ncaution:\nDue to manual measurement, the size may have an error of 1-2cm\nDue to different monitors, the color may be different\nDue to the long shipping time, the item may be damaged during transportation. If the item is damaged, please contact us before leaving feedback. Thank you for your understanding\n\nPacking list: 1*component selector",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Creative Plastic Spaghetti Measuring Tool",
+              "You can control the thickness of the noodles according to your preferences"
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Kitchen tools",
+              "Pasta measuring tool",
+              "Convenient, compact and easy to use",
+              "Applicable people: people who love to eat",
+              "Purpose: can be made according to the size you like",
+              "material: plastic",
+              "Size: 8*9*1CM",
+              "caution:",
+              "Due to manual measurement, the size may have an error of 1-2cm",
+              "Due to different monitors, the color may be different",
+              "Due to the long shipping time, the item may be damaged during transportation. If the item is damaged, please contact us before leaving feedback. Thank you for your understanding"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Applicable people",
+            "value": "people who love to eat"
+          },
+          {
+            "label": "Purpose",
+            "value": "can be made according to the size you like"
+          },
+          {
+            "label": "material",
+            "value": "plastic"
+          },
+          {
+            "label": "Size",
+            "value": "8*9*1CM"
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "tool-storage-rack-cjjjcfcf00523",
@@ -331,7 +1341,103 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/2044/3041969909565.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/1563695901594.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/306383069830.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/853407896985.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/9977078297028.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/59574080929.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/1238533472274.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/8360978602680.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/d7426eb0-75f9-4622-ac4e-ae00e154d261.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Product properties:\nProduct Name: MDF magnetic tool holder\nProduct specifications: 24*21.5*3CM (support width 12CM)\nProduct material: MDF + magnetic\n\nMaintenance:\n1. First use: Wipe the surface of the knife holder with a damp cloth and dry it, then use it;\n2. Regularly clean the knife holder, the surface can be wiped with cooking oil for curing (the cooking oil should be burned and cooled to warm, use a dry film without oil to evenly wipe the surface until it is bright)\n3. Do not place the knife holder at high temperature or near the microwave oven to avoid exposure.\n\nPacking list:\n\n1*Tool holder",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Product properties:",
+              "Product Name: MDF magnetic tool holder",
+              "Product specifications: 24*21.5*3CM (support width 12CM)",
+              "Product material: MDF + magnetic",
+              "Maintenance:",
+              "1. First use: Wipe the surface of the knife holder with a damp cloth and dry it, then use it;",
+              "2. Regularly clean the knife holder, the surface can be wiped with cooking oil for curing (the cooking oil should be burned and cooled to warm, use a dry film without oil to evenly wipe the surface until it is bright)",
+              "3. Do not place the knife holder at high temperature or near the microwave oven to avoid exposure."
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "1*Tool holder"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Product Name",
+            "value": "MDF magnetic tool holder"
+          },
+          {
+            "label": "Product specifications",
+            "value": "24*21.5*3CM (support width 12CM)"
+          },
+          {
+            "label": "Product material",
+            "value": "MDF + magnetic"
+          },
+          {
+            "label": "First use",
+            "value": "Wipe the surface of the knife holder with a damp cloth and dry it, then use it;"
+          }
+        ],
+        "packageContents": [
+          "1*Tool holder"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "silicone-ice-face-roller-contour-shrink-pores-remove-dark-circles-massag-cjmj1980349",
@@ -364,7 +1470,110 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/05/05/06/fae6d7ea-92d4-4869-8bdf-77f4d86a634d.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120326900.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120327400.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120328000.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120328400.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120329000.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120329400.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800120329800.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17094240/2403030800130320100.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\n1. This kind of face ice cube mold helps to reduce the eye bags,fine lines and blood,also,to reduce the swelling of skin and cool the air,massaging your face and making your makeup easier.\n2. This face massage mold bears a temperature of -40-250℃,suitable for oven,freezer and dishwasher,not easy to be damaged.\n3. This moisturizing and non-stick icing mold is washable,serving you for long-term use because it is soft and elastic.\n4. Compact and lightweight,this face massager is easy to store and carry,you can place it in your bag without worrying about taking up so much space.\n5. Easy operation: You just need to add water to the mold and place it in the freezer,waiting for several hours,you will get a good ice cube to massage your skin.\n\nProduct information:\nCategory makeup tools: Body Care Appliances, facial beauty makeup tools\nColor classification: Pink 1, Green 1, yellow 1, purple 1, Red 1\nMaterial: Silicone\n\nPacking list:\n\nSilicone Ice Roller*1 \n\nProduct Image:",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "1. This kind of face ice cube mold helps to reduce the eye bags,fine lines and blood,also,to reduce the swelling of skin and cool the air,massaging your face and making your makeup easier.",
+              "2. This face massage mold bears a temperature of -40-250℃,suitable for oven,freezer and dishwasher,not easy to be damaged.",
+              "3. This moisturizing and non-stick icing mold is washable,serving you for long-term use because it is soft and elastic.",
+              "4. Compact and lightweight,this face massager is easy to store and carry,you can place it in your bag without worrying about taking up so much space.",
+              "5. Easy operation: You just need to add water to the mold and place it in the freezer,waiting for several hours,you will get a good ice cube to massage your skin."
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Category makeup tools: Body Care Appliances, facial beauty makeup tools",
+              "Color classification: Pink 1, Green 1, yellow 1, purple 1, Red 1",
+              "Material: Silicone"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "Silicone Ice Roller*1",
+              "Product Image:"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Easy operation",
+            "value": "You just need to add water to the mold and place it in the freezer,waiting for several hours,you will get a good ice cube to massage your skin."
+          },
+          {
+            "label": "Category makeup tools",
+            "value": "Body Care Appliances, facial beauty makeup tools"
+          },
+          {
+            "label": "Color classification",
+            "value": "Pink 1, Green 1, yellow 1, purple 1, Red 1"
+          },
+          {
+            "label": "Material",
+            "value": "Silicone"
+          }
+        ],
+        "packageContents": [
+          "Silicone Ice Roller*1",
+          "Product Image:"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "konjac-sponge-for-washing-face-round-konjac-konnyaku-sponge-facial-clean-cjbjmrpf00214",
@@ -397,7 +1606,61 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/09/06/06/6e4a3bd6-b5b3-480e-a48a-28245bf3a6b7.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/a4e98b22-a254-48a5-beb7-36dc0e293fcf.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/16368480/1636900615063.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\n\nNatural ancient method production, biodegradable, is the ideal natural environmental cleaning products. Suitable for any skin type, even sensitive skin can be protected in place, which is a wise choice to care for your delicate skin.\n\nThe unique Mesh Knot in Konjac face wash is enough to clean the skin without stimulation, remove the old horniness of the skin, lock the water and moisturize, suitable for any skin type, and make the skin clean, protect, beautify and nourish in one step. It can also be used for newborn babies without damaging their skin.\n\nSpecifications:\nSuitable for people: any skin\n\nProduct introduction:\nKonjac face washing is made from the konjac rhizome (natural plant fiber), extracted from Konjac essence. Its texture is mild and natural pure.\n\nCan be used for: powder, isolation, BB cream, foundation, blush cream, the tip is suitable for concealer.\n\nPlease keep the powder puff clean. The powder puff with sebum dirt will become dirty and hard. It is not easy to get honey powder. At this time, please clean the powder puff. (use neutral detergent, after washing by pressing down above, put it in a cool place to dry. When the puff loses its elasticity, it can't recover its softness after cleaning. Please replace the puff",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Natural ancient method production, biodegradable, is the ideal natural environmental cleaning products. Suitable for any skin type, even sensitive skin can be protected in place, which is a wise choice to care for your delicate skin.",
+              "The unique Mesh Knot in Konjac face wash is enough to clean the skin without stimulation, remove the old horniness of the skin, lock the water and moisturize, suitable for any skin type, and make the skin clean, protect, beautify and nourish in one step. It can also be used for newborn babies without damaging their skin."
+            ]
+          },
+          {
+            "title": "Especificaciones",
+            "content": [
+              "Suitable for people: any skin",
+              "Product introduction:",
+              "Konjac face washing is made from the konjac rhizome (natural plant fiber), extracted from Konjac essence. Its texture is mild and natural pure.",
+              "Can be used for: powder, isolation, BB cream, foundation, blush cream, the tip is suitable for concealer.",
+              "Please keep the powder puff clean. The powder puff with sebum dirt will become dirty and hard. It is not easy to get honey powder. At this time, please clean the powder puff. (use neutral detergent, after washing by pressing down above, put it in a cool place to dry. When the puff loses its elasticity, it can't recover its softness after cleaning. Please replace the puff"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Suitable for people",
+            "value": "any skin"
+          },
+          {
+            "label": "Can be used for",
+            "value": "powder, isolation, BB cream, foundation, blush cream, the tip is suitable for concealer."
+          }
+        ],
+        "packageContents": []
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "wheat-complexion-body-tanning-moisturizing-cjpf1516421",
@@ -430,7 +1693,104 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/c8c46af2-8f23-4eb0-b06a-dfbc08da0976.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c2675582-9c8c-450d-ab39-3f0574ee4be3.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/9dcc054b-c98b-431a-a889-5af8f6dc54c7.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/4fd27fc6-9797-40a9-b5b2-2c6e04d04450.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/72c66ef5-fc0c-43eb-9434-9245a09b3617.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/f40de869-c768-4135-8e99-cce6fcd797e2.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6a1d0e49-6fc1-4c60-9c3c-2d7ea0ee4ab8.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e0693a1a-e819-437c-af8d-3db178cd0f9e.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6f291c34-5810-4466-ab57-9e40cac9669c.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/67c83428-ac66-4046-861b-0cf0590cc573.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Product information :\nProduct Category : Body Cream\nNet content: 50 (g/ml)\nSpecifications : Tanning Cream-50g\nSize Information:\nSize: 5. 3*5. 3*4. 5cm\nPacking list:\nBody Cream*1",
+        "sections": [
+          {
+            "title": "Información del producto",
+            "content": [
+              "Product Category : Body Cream",
+              "Net content: 50 (g/ml)"
+            ]
+          },
+          {
+            "title": "Medidas y dimensiones",
+            "content": [
+              "Size: 5. 3*5. 3*4. 5cm"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "Body Cream*1"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Product Category",
+            "value": "Body Cream"
+          },
+          {
+            "label": "Net content",
+            "value": "50 (g/ml)"
+          },
+          {
+            "label": "Size",
+            "value": "5. 3*5. 3*4. 5cm"
+          }
+        ],
+        "packageContents": [
+          "Body Cream*1"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "24k-gold-collagen-protein-lifting-cjpf1675580",
@@ -463,7 +1823,94 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://cf.cjdropshipping.com/0c7c6687-fe1e-4493-a0e0-accbf7fa5048.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/a819c837-4617-4f22-a5cf-430a69aa8b8c.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1734c989-6667-4a68-b102-cfa04ab412be.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/fe407189-dfaa-42ef-ae18-f4c75db9a876.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/65a1ec29-f16d-43dc-8bae-c07aae084b36.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c57ea294-579a-4e5a-b366-8f1e6f3f6074.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/67f6ad3c-9561-4b92-a60d-7ba232618062.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Product information :\nNet content: 30(g/ml)\nProduct specification: 30ml boxed (for export only, domestic sales are prohibited, and purchase is equivalent to the default disclaimer).\nEfficacy of cosmetics: brighten skin tone, moisturize, tighten and soften skin.\n\nSize Information:\nSize: 10.5 * 2.8 * 2.8cm.\n\nPacking list:\nEssence *1",
+        "sections": [
+          {
+            "title": "Información del producto",
+            "content": [
+              "Net content: 30(g/ml)",
+              "Product specification: 30ml boxed (for export only, domestic sales are prohibited, and purchase is equivalent to the default disclaimer).",
+              "Efficacy of cosmetics: brighten skin tone, moisturize, tighten and soften skin."
+            ]
+          },
+          {
+            "title": "Medidas y dimensiones",
+            "content": [
+              "Size: 10.5 * 2.8 * 2.8cm."
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "Essence *1"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Net content",
+            "value": "30(g/ml)"
+          },
+          {
+            "label": "Product specification",
+            "value": "30ml boxed (for export only, domestic sales are prohibited, and purchase is equivalent to the default disclaimer)."
+          },
+          {
+            "label": "Efficacy of cosmetics",
+            "value": "brighten skin tone, moisturize, tighten and soften skin."
+          },
+          {
+            "label": "Size",
+            "value": "10.5 * 2.8 * 2.8cm."
+          }
+        ],
+        "packageContents": [
+          "Essence *1"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     },
     {
       "slug": "4-colors-electric-eye-massager-red-blue-light-massage-eye-beautification-cjyd2021218",
@@ -496,7 +1943,143 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      }
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/06/18/01/3e75a820-9597-4553-a1f6-a9005cb5828b.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153140322500.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153140326000.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153140328700.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153150320800.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153150322800.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153150324900.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153150327100.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153160320500.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153160322200.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153160327300.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153160329800.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17186688/2406180153170323300.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\n1. Microcurrent: Microcurrent uses low-voltage energy to stimulate the muscles and deeper layers of the skin, helping with signs of aging and promoting smooth, healthy skin.\n2. Red Light Therapy The Optimal range of LED red light at 660nm helps deeply rejuvenate the skin and improve the appearance and vibrance of the skin.\n3. Facial Massage: Low vibration provides a gentle massage, helping decrease the appearance of puffiness and boosting the skin’s natural radiance.\n4. Therapeutic Warmth Warming wand head helps to increase the absorption of skin care products, reduce redness, and support healthy, glowing skin.\n\nProduct Information:\nGear: 3 gear\nSpecification: English\nFunction: color light\nStyle: Vibration\nColor classification: Rose gold\n\nPacking List:\n1*Eye Beautification Instrument\n\nProduct Image:",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "1. Microcurrent: Microcurrent uses low-voltage energy to stimulate the muscles and deeper layers of the skin, helping with signs of aging and promoting smooth, healthy skin.",
+              "2. Red Light Therapy The Optimal range of LED red light at 660nm helps deeply rejuvenate the skin and improve the appearance and vibrance of the skin.",
+              "3. Facial Massage: Low vibration provides a gentle massage, helping decrease the appearance of puffiness and boosting the skin’s natural radiance.",
+              "4. Therapeutic Warmth Warming wand head helps to increase the absorption of skin care products, reduce redness, and support healthy, glowing skin."
+            ]
+          },
+          {
+            "title": "Información del producto",
+            "content": [
+              "Gear: 3 gear"
+            ]
+          },
+          {
+            "title": "Especificaciones",
+            "content": [
+              "Function: color light",
+              "Style: Vibration",
+              "Color classification: Rose gold"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "1*Eye Beautification Instrument",
+              "Product Image:"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Microcurrent",
+            "value": "Microcurrent uses low-voltage energy to stimulate the muscles and deeper layers of the skin, helping with signs of aging and promoting smooth, healthy skin."
+          },
+          {
+            "label": "Facial Massage",
+            "value": "Low vibration provides a gentle massage, helping decrease the appearance of puffiness and boosting the skin’s natural radiance."
+          },
+          {
+            "label": "Gear",
+            "value": "3 gear"
+          },
+          {
+            "label": "Function",
+            "value": "color light"
+          },
+          {
+            "label": "Style",
+            "value": "Vibration"
+          },
+          {
+            "label": "Color classification",
+            "value": "Rose gold"
+          }
+        ],
+        "packageContents": [
+          "1*Eye Beautification Instrument",
+          "Product Image:"
+        ]
+      },
+      "shipping": {
+        "logisticsProperties": []
+      },
+      "variants": []
     }
   ]
 }

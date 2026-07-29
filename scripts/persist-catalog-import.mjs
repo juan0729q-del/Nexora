@@ -32,6 +32,23 @@ function isOfficialCjApiUrl(value) {
 }
 
 function validProduct(product) {
+  const validImage = (image) => image?.source === "provider" && isOfficialCjImageUrl(image?.src) && typeof image?.alt === "string" && image.alt.trim().length > 0;
+  const validDetails = product?.providerDetails
+    && typeof product.providerDetails.description === "string" && product.providerDetails.description.trim().length > 0
+    && Array.isArray(product.providerDetails.sections)
+    && product.providerDetails.sections.every((section) => typeof section?.title === "string" && Array.isArray(section?.content) && section.content.every((line) => typeof line === "string" && line.trim().length > 0))
+    && Array.isArray(product.providerDetails.specifications)
+    && product.providerDetails.specifications.every((specification) => typeof specification?.label === "string" && typeof specification?.value === "string")
+    && Array.isArray(product.providerDetails.packageContents)
+    && product.providerDetails.packageContents.every((item) => typeof item === "string" && item.trim().length > 0);
+  const validVariants = Array.isArray(product?.variants) && product.variants.every((variant) => (
+    typeof variant?.sku === "string" && variant.sku.trim().length > 0
+    && typeof variant?.label === "string" && variant.label.trim().length > 0
+    && (!variant.image || validImage(variant.image))
+  ));
+  const validShipping = product?.shipping
+    && Array.isArray(product.shipping.logisticsProperties)
+    && product.shipping.logisticsProperties.every((property) => typeof property === "string" && property.trim().length > 0);
   return Boolean(
     product
     && typeof product.slug === "string"
@@ -40,7 +57,13 @@ function validProduct(product) {
     && Number.isFinite(product.price) && product.price > 0
     && Number.isInteger(product.stock) && product.stock > 0
     && product.active === true
-    && product.image?.source === "provider" && isOfficialCjImageUrl(product.image?.src)
+    && validImage(product.image)
+    && Array.isArray(product.images) && product.images.length > 0
+    && product.images.every(validImage)
+    && product.images.some((image) => image.src === product.image.src)
+    && validDetails
+    && validShipping
+    && validVariants
     && product.supplier?.name === "CJ Dropshipping"
     && isOfficialCjApiUrl(product.supplier?.sourceUrl)
     && typeof product.supplier?.reference === "string" && product.supplier.reference.length > 0

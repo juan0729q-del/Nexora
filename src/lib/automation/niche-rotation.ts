@@ -1,6 +1,13 @@
 import "server-only";
 
 import { isOfficialCjImageUrl } from "@/lib/cj-assets";
+import {
+  createProviderDetails,
+  createProviderImages,
+  type ProductShippingDetails,
+  type ProviderVariant,
+} from "@/lib/provider-product-details";
+import { getCatalog } from "@/lib/catalog-store";
 import { niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
@@ -57,8 +64,28 @@ type CjProductDetail = {
   materialNameEn?: string | string[];
   materialNameEnSet?: string[];
   categoryName?: string;
+  productWeight?: number | string;
+  packingWeight?: number | string;
+  productUnit?: string;
+  productProEnSet?: string[];
+  productProEn?: string | string[];
+  productKeyEn?: string;
+  variants?: CjProductVariant[];
   listedNum?: number | string;
   status?: number | string;
+};
+
+type CjProductVariant = {
+  vid?: string;
+  variantName?: string;
+  variantNameEn?: string;
+  variantSku?: string;
+  variantKey?: string;
+  variantImage?: string;
+  variantLength?: number | string;
+  variantWidth?: number | string;
+  variantHeight?: number | string;
+  variantWeight?: number | string;
 };
 
 type CjCategoryResponse = { data?: CjCategory[] };
@@ -76,7 +103,11 @@ export type CjTrendingCandidate = {
   listedNum: number;
   categoryPath: string;
   sourceUrl: string;
-  image: { src: string; alt: string; source: "provider" };
+  image: Product["image"];
+  images: Product["images"];
+  providerDetails: Product["providerDetails"];
+  shipping: ProductShippingDetails;
+  variants: ProviderVariant[];
 };
 
 export type CatalogSelection = {
@@ -86,6 +117,8 @@ export type CatalogSelection = {
   trendFlag: "trending-first";
   ranking: "listing-count";
   providerOrderPreserved: true;
+  continuityFallbackNiches: ProductNiche[];
+  discoveryDiagnostics: Partial<Record<ProductNiche, string>>;
 };
 
 const nicheCategoryTerms: Record<ProductNiche, readonly string[]> = {
@@ -138,8 +171,46 @@ function materialFrom(detail: CjProductDetail) {
   return supplied.replace(/[\[\]"]/g, "").trim() || "Según ficha oficial de CJ";
 }
 
-function imageFrom(detail: CjProductDetail, fallback: CjListProduct) {
-  return [detail.bigImage, ...(detail.productImageSet || []), fallback.bigImage].find(isOfficialCjImageUrl);
+function optionalPositiveNumber(value: unknown) {
+  const number = numberOrZero(value);
+  return number > 0 ? number : undefined;
+}
+
+function variantFrom(detail: CjProductVariant): ProviderVariant | undefined {
+  const sku = detail.variantSku?.trim();
+  const label = detail.variantNameEn?.trim() || detail.variantName?.trim() || detail.variantKey?.trim();
+  if (!sku || !label) return undefined;
+
+  const lengthMm = optionalPositiveNumber(detail.variantLength);
+  const widthMm = optionalPositiveNumber(detail.variantWidth);
+  const heightMm = optionalPositiveNumber(detail.variantHeight);
+  const dimensions = lengthMm || widthMm || heightMm ? { lengthMm, widthMm, heightMm } : undefined;
+  const image = isOfficialCjImageUrl(detail.variantImage)
+    ? { src: detail.variantImage, alt: label, source: "provider" as const }
+    : undefined;
+  return {
+    sku,
+    label,
+    options: detail.variantKey?.trim() || undefined,
+    image,
+    dimensions,
+    weightGrams: optionalPositiveNumber(detail.variantWeight),
+  };
+}
+
+function shippingFrom(detail: CjProductDetail): ProductShippingDetails {
+  const suppliedProperties = detail.productProEnSet || detail.productProEn;
+  const logisticsProperties = Array.isArray(suppliedProperties)
+    ? suppliedProperties
+    : typeof suppliedProperties === "string"
+      ? suppliedProperties.replace(/[\[\]"]/g, "").split(",")
+      : [];
+  return {
+    productWeightGrams: optionalPositiveNumber(detail.productWeight),
+    packingWeightGrams: optionalPositiveNumber(detail.packingWeight),
+    unit: detail.productUnit?.trim() || undefined,
+    logisticsProperties: [...new Set(logisticsProperties.map((property) => property.trim()).filter(Boolean))],
+  };
 }
 
 function categoryPath(item: CjListProduct) {
@@ -193,9 +264,9 @@ type ProductListCriteria = {
 function productListUrl({ categoryId, keyWord, trendingOnly }: ProductListCriteria) {
   const url = new URL(productListV2Endpoint);
   url.searchParams.set("page", "1");
-  // List v2 consumes points independently of the page size. Twenty results
-  // are enough for the capped validation pool and avoid processing noise.
-  url.searchParams.set("size", "20");
+  // List v2 cobra por consulta, no por el tamaño solicitado. Un pool mayor
+  // reduce reintentos de categorías con pocas fichas realmente vendibles.
+  url.searchParams.set("size", "50");
   if (categoryId) url.searchParams.set("categoryId", categoryId);
   if (keyWord) url.searchParams.set("keyWord", keyWord);
   if (trendingOnly) url.searchParams.set("productFlag", "0");
@@ -268,11 +339,19 @@ async function enrichCandidate(candidate: ListedCandidate, client: CjClient): Pr
   const detail = payload.data;
   if (!detail || (detail.pid && detail.pid !== candidate.id) || (detail.status !== undefined && String(detail.status) !== "3")) return undefined;
 
-  const image = imageFrom(detail, candidate.item);
   const description = detail.description?.trim() || candidate.description?.trim();
   const name = detail.productNameEn?.trim() || candidate.name;
   const sku = detail.productSku?.trim() || candidate.sku;
   const supplierCostUsd = numberOrZero(detail.sellPrice) || candidate.supplierCostUsd;
+  const variants = (detail.variants || []).map(variantFrom).filter((variant): variant is ProviderVariant => Boolean(variant));
+  const images = createProviderImages({
+    alt: name,
+    primary: detail.bigImage || candidate.item.bigImage,
+    productImageSet: detail.productImageSet || [],
+    description: description || "",
+    variantImageSet: variants.flatMap((variant) => variant.image?.src || []),
+  });
+  const image = images[0];
   if (!image || !description || !name || !sku || supplierCostUsd <= 0) return undefined;
 
   return {
@@ -286,7 +365,11 @@ async function enrichCandidate(candidate: ListedCandidate, client: CjClient): Pr
     listedNum: candidate.listedNum,
     categoryPath: detail.categoryName?.trim() || candidate.categoryPath,
     sourceUrl: productQueryUrl(candidate.id),
-    image: { src: image, alt: name, source: "provider" },
+    image,
+    images,
+    providerDetails: createProviderDetails(description),
+    shipping: shippingFrom(detail),
+    variants,
   };
 }
 
@@ -310,8 +393,8 @@ export async function fetchTrendingProductsForNiche(
   const candidates = new Map<string, ListedCandidate>();
   // A bounded plan keeps one import below the function timeout and CJ points
   // budget even when a category has few valid products.
-  const candidatePoolTarget = Math.min(12, Math.max(limit + 3, 8));
-  for (const category of matchingCategories.slice(0, 3)) {
+  const candidatePoolTarget = Math.min(15, Math.max(limit * 2, 10));
+  for (const category of matchingCategories.slice(0, 2)) {
     client.assertPointsAvailable(50);
     const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: true }));
     addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
@@ -321,7 +404,7 @@ export async function fetchTrendingProductsForNiche(
   // Hay categorías CJ sin productos marcados Trending. Se conserva la
   // clasificación del nicho usando la categoría que CJ devuelve en la búsqueda.
   if (candidates.size < candidatePoolTarget) {
-    for (const searchTerm of nicheSearchTerms[niche].slice(0, 2)) {
+    for (const searchTerm of nicheSearchTerms[niche].slice(0, 3)) {
       const keywordCategory: CjCategoryLeaf = {
         id: `keyword-${niche}-${slugify(searchTerm)}`,
         name: searchTerm,
@@ -346,7 +429,9 @@ export async function fetchTrendingProductsForNiche(
   }
 
   const selected: CjTrendingCandidate[] = [];
-  const detailAttemptLimit = Math.min(10, Math.max(limit + 3, 8));
+  // Un pequeño margen evita descartar un nicho completo cuando algunas fichas
+  // destacadas no tienen descripción o imágenes oficiales completas.
+  const detailAttemptLimit = Math.min(12, Math.max(limit * 2, 10));
   let detailAttempts = 0;
   for (const candidate of [...candidates.values()].sort((left, right) => right.listedNum - left.listedNum || left.sku.localeCompare(right.sku))) {
     if (detailAttempts >= detailAttemptLimit) break;
@@ -393,6 +478,10 @@ export function candidateToProduct(candidate: CjTrendingCandidate, niche: Produc
     description: candidate.description,
     longDescription: candidate.description,
     image: candidate.image,
+    images: candidate.images,
+    providerDetails: candidate.providerDetails,
+    shipping: candidate.shipping,
+    variants: candidate.variants,
     price,
     compareAtPrice: undefined,
     rating: 0,
@@ -415,20 +504,108 @@ export function candidateToProduct(candidate: CjTrendingCandidate, niche: Produc
   };
 }
 
+function productIdFrom(product: Product) {
+  try {
+    const productId = new URL(product.supplier.sourceUrl).searchParams.get("pid")?.trim();
+    if (productId) return productId;
+  } catch {
+    // La validación del catálogo ya impide URLs ajenas a CJ; se conserva este
+    // resguardo para que un registro dañado nunca dispare una consulta ambigua.
+  }
+  return undefined;
+}
+
+/**
+ * Rehidrata las fichas YA publicadas con Product Details de CJ. Este camino no
+ * descubre ni reemplaza productos: conserva SKU, precio y rendimiento de
+ * Nexora, y actualiza exclusivamente la información oficial de proveedor.
+ */
+export async function enrichPublishedCatalogDetails(client: CjClient = createCjClient()) {
+  const catalog = await getCatalog();
+  const products: Product[] = [];
+
+  for (const product of catalog) {
+    const productId = productIdFrom(product);
+    if (!productId) throw new Error(`No se pudo recuperar el identificador CJ de ${product.sku}; la ficha no fue modificada.`);
+
+    client.assertPointsAvailable(10);
+    const payload = await client.getJson<CjProductDetailResponse>(productQueryUrl(productId));
+    const detail = payload.data;
+    if (!detail || (detail.pid && detail.pid !== productId) || (detail.status !== undefined && String(detail.status) !== "3")) {
+      throw new Error(`CJ no confirmó una ficha vendible para ${product.sku}; no se persistirá un catálogo parcial.`);
+    }
+
+    const sku = detail.productSku?.trim() || product.sku;
+    if (sku !== product.sku) throw new Error(`CJ devolvió un SKU distinto al esperado para ${product.sku}; se canceló la actualización por seguridad.`);
+    const name = detail.productNameEn?.trim() || product.name;
+    const description = detail.description?.trim() || product.description;
+    const variants = (detail.variants || []).map(variantFrom).filter((variant): variant is ProviderVariant => Boolean(variant));
+    const images = createProviderImages({
+      alt: name,
+      primary: detail.bigImage || product.image.src,
+      productImageSet: detail.productImageSet || product.images.map((image) => image.src),
+      description,
+      variantImageSet: variants.flatMap((variant) => variant.image?.src || []),
+    });
+    const image = images[0];
+    if (!image || !description) throw new Error(`CJ no devolvió descripción e imágenes oficiales completas para ${product.sku}; no se persistirá un catálogo parcial.`);
+
+    products.push({
+      ...product,
+      name,
+      description,
+      longDescription: description,
+      image,
+      images,
+      material: materialFrom(detail),
+      providerDetails: createProviderDetails(description),
+      shipping: shippingFrom(detail),
+      variants,
+      supplier: {
+        ...product.supplier,
+        sourceUrl: productQueryUrl(productId),
+        reference: `${sku} · ${productId}`,
+        costUsd: numberOrZero(detail.sellPrice) || product.supplier.costUsd,
+      },
+    });
+  }
+
+  return {
+    products,
+    telemetry: client.getTelemetry(),
+    persistence: "La respuesta se valida y versiona mediante GitHub Actions; Vercel no escribe en filesystem de Functions.",
+  };
+}
+
 export async function collectInitialCatalog(perNiche = 5): Promise<{ products: Product[]; selection: CatalogSelection; telemetry: ReturnType<CjClient["getTelemetry"]> }> {
   const limit = Math.min(10, Math.max(5, Math.floor(perNiche)));
   const client = createCjClient();
   const categories = await fetchCategoryLeaves(client);
+  // El catálogo vigente es continuidad segura, no relleno: ya pasó la validación de CJ.
+  const verifiedCatalog = await getCatalog();
   const excludedSkus = new Set<string>();
   const products: Product[] = [];
+  const continuityFallbackNiches: ProductNiche[] = [];
+  const discoveryDiagnostics: Partial<Record<ProductNiche, string>> = {};
 
   for (const niche of Object.keys(niches) as ProductNiche[]) {
     const candidates = await fetchTrendingProductsForNiche(niche, limit, client, categories, excludedSkus);
-    if (candidates.length < 5) {
+    const selected = candidates.map((candidate) => candidateToProduct(candidate, niche));
+    if (selected.length < 5) {
+      const recovered = verifiedCatalog
+        .filter((product) => product.niche === niche && product.active && product.stock > 0 && !excludedSkus.has(product.sku) && !selected.some((entry) => entry.sku === product.sku))
+        .slice(0, 5 - selected.length);
+      if (recovered.length) {
+        selected.push(...recovered);
+        continuityFallbackNiches.push(niche);
+        discoveryDiagnostics[niche] = `CJ devolvió ${candidates.length} candidatos nuevos completos; se conservaron ${recovered.length} fichas CJ ya verificadas para sostener el mínimo de cinco.`;
+      }
+    }
+    if (selected.length < 5) {
       throw new Error(`CJ solo devolvió ${candidates.length} productos vendibles con imagen nativa y ficha oficial para ${niches[niche].label}; se requieren al menos 5.`);
     }
-    for (const candidate of candidates) excludedSkus.add(candidate.sku);
-    products.push(...candidates.map((candidate) => candidateToProduct(candidate, niche)));
+    for (const product of selected) excludedSkus.add(product.sku);
+    products.push(...selected);
   }
 
   return {
@@ -441,6 +618,8 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
       trendFlag: "trending-first",
       ranking: "listing-count",
       providerOrderPreserved: true,
+      continuityFallbackNiches,
+      discoveryDiagnostics,
     },
   };
 }

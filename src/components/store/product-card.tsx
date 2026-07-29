@@ -8,7 +8,7 @@ import { formatCOP } from "@/lib/products";
 import { useNexy } from "./nexy-context";
 import { ProductArt } from "./product-art";
 
-export function ProductCard({ product, priority = false }: { product: StorefrontProduct; priority?: boolean }) {
+export function ProductCard({ product, priority = false, showArt = true }: { product: StorefrontProduct; priority?: boolean; showArt?: boolean }) {
   const [status, setStatus] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const available = product.available;
@@ -41,15 +41,19 @@ export function ProductCard({ product, priority = false }: { product: Storefront
 
   return (
     <article className="group rounded-2xl border border-silver/15 bg-white/[0.025] p-3 transition hover:border-silver/35">
-      <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} aria-label={`Ver ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">
-        <ProductArt product={product} priority={priority} alt={presentation.imageAlt} />
-      </Link>
+      {showArt && (
+        <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} aria-label={`Ver ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">
+          <ProductArt product={product} priority={priority} alt={presentation.imageAlt} />
+        </Link>
+      )}
       <div className="px-1 pt-5 pb-2">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-medium text-emerald">{reviewSummary}</p>
             <h3 className="mt-2 text-lg font-semibold text-white">
-              <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} className="hover:text-emerald">{presentation.title}</Link>
+              {showArt
+                ? <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} className="hover:text-emerald">{presentation.title}</Link>
+                : presentation.title}
             </h3>
           </div>
           {product.stock < 5 && <span className="rounded-full bg-red-400/10 px-2 py-1 text-[10px] font-bold text-red-300 uppercase">Últimas unidades</span>}

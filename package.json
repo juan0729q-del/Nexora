@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "catalog:apply-import": "node scripts/persist-catalog-import.mjs"
+    "catalog:apply-import": "node scripts/persist-catalog-import.mjs",
+    "catalog:enrich-provider-details": "node scripts/enrich-catalog-provider-details.mjs"
   },
   "dependencies": {
     "next": "16.2.11",

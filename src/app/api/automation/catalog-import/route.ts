@@ -19,7 +19,7 @@ export async function POST(request: Request) {
     const perNiche = Math.min(10, Math.max(5, Number.isFinite(requested) ? Math.floor(requested) : 5));
     const { products, selection, telemetry } = await collectInitialCatalog(perNiche);
     return NextResponse.json({
-      status: "validated",
+      status: selection.continuityFallbackNiches.length ? "validated-with-continuity-fallback" : "validated",
       imported: products.length,
       products,
       selection,

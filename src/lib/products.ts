@@ -1,4 +1,14 @@
 import { isOfficialCjApiUrl, isOfficialCjImageUrl } from "./cj-assets";
+import {
+  isValidProductShippingDetails,
+  isValidProviderDetails,
+  isValidProviderImage,
+  isValidProviderVariant,
+  type ProductShippingDetails,
+  type ProviderDetails,
+  type ProviderImage,
+  type ProviderVariant,
+} from "./provider-product-details";
 
 export type PaymentCurrency = "COP";
 
@@ -49,8 +59,16 @@ export type Product = {
   niche: ProductNiche;
   description: string;
   longDescription: string;
-  /** URL HTTPS original entregada por el proveedor; no se admiten placeholders. */
-  image: { src: string; alt: string; source: "provider" };
+  /** Portada original de CJ, usada para LCP, tarjetas y Open Graph. */
+  image: ProviderImage;
+  /** Galería completa de recursos oficiales de CJ, sin placeholders ni proxies. */
+  images: ProviderImage[];
+  /** Descripción y especificaciones originales de CJ, transformadas a datos seguros. */
+  providerDetails: ProviderDetails;
+  /** Peso, empaque y propiedades logísticas comunicadas por CJ cuando existan. */
+  shipping: ProductShippingDetails;
+  /** Información de variantes; no se usa para cobrar hasta implementar selección por SKU. */
+  variants: ProviderVariant[];
   price: number;
   compareAtPrice?: number;
   rating: number;
@@ -86,7 +104,12 @@ export function isStoreProductAvailable(product: Product) {
 /** Invariante de Nexora: nunca renderizar ni vender imágenes sustitutas. */
 export function hasNativeProviderImage(product: Product) {
   if (product.image.source !== "provider" || product.supplier.name !== "CJ Dropshipping") return false;
-  return isOfficialCjImageUrl(product.image.src) && isOfficialCjApiUrl(product.supplier.sourceUrl);
+  return isOfficialCjImageUrl(product.image.src)
+    && Array.isArray(product.images)
+    && product.images.length > 0
+    && product.images.every(isValidProviderImage)
+    && product.images.some((image) => image.src === product.image.src)
+    && isOfficialCjApiUrl(product.supplier.sourceUrl);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -108,10 +131,18 @@ export function isValidCatalogProduct(value: unknown): value is Product {
   const numericFields = [product.price, product.rating, product.reviewCount, product.stock, performance.salesLast30Days, performance.conversionRate, performance.returnRate];
   const hasValidNumbers = numericFields.every((field) => typeof field === "number" && Number.isFinite(field) && field >= 0);
   const hasKnownNiche = typeof product.niche === "string" && product.niche in niches;
-  const hasExpectedImage = image.source === "provider" && typeof image.src === "string" && typeof image.alt === "string";
+  const hasExpectedImage = isValidProviderImage(image);
+  const hasProviderContent = Array.isArray(product.images)
+    && product.images.length > 0
+    && product.images.every(isValidProviderImage)
+    && product.images.some((entry) => entry.src === image.src)
+    && isValidProviderDetails(product.providerDetails)
+    && isValidProductShippingDetails(product.shipping)
+    && Array.isArray(product.variants)
+    && product.variants.every(isValidProviderVariant);
   const hasExpectedSupplier = supplier.name === "CJ Dropshipping" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costUsd === "number" && Number.isFinite(supplier.costUsd) && supplier.costUsd > 0;
   const hasExpectedFlags = typeof product.active === "boolean" && ["emerald", "silver", "warm"].includes(product.accent || "");
-  return hasRequiredStrings && hasValidNumbers && hasKnownNiche && hasExpectedImage && hasExpectedSupplier && hasExpectedFlags && hasNativeProviderImage(product as Product);
+  return hasRequiredStrings && hasValidNumbers && hasKnownNiche && hasExpectedImage && hasProviderContent && hasExpectedSupplier && hasExpectedFlags && hasNativeProviderImage(product as Product);
 }
 
 export const formatCOP = (amount: number) =>

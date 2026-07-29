@@ -1,60 +1,56 @@
-name: Sync Nexora CJ catalog
+name: Enrich Nexora CJ product details
 
 on:
   workflow_dispatch:
-  schedule:
-    # Un único orquestador CJ: importación diaria automática y ejecución manual
-    # inmediata cuando el administrador necesite una nueva versión verificada.
-    - cron: "0 6 * * *"
 
 permissions:
   contents: write
   id-token: write
 
 concurrency:
-  group: nexora-cj-catalog-sync
+  group: nexora-cj-catalog-enrichment
   cancel-in-progress: false
 
 jobs:
-  import-and-version:
+  enrich-and-version:
     runs-on: ubuntu-latest
     env:
-      NEXORA_CATALOG_IMPORT_URL: ${{ vars.NEXORA_CATALOG_IMPORT_URL }}
+      NEXORA_CATALOG_ENRICHMENT_URL: ${{ vars.NEXORA_CATALOG_ENRICHMENT_URL }}
     steps:
       - name: Check protected endpoint configuration
         id: config
         run: |
-          if [ -z "$NEXORA_CATALOG_IMPORT_URL" ]; then
+          if [ -z "$NEXORA_CATALOG_ENRICHMENT_URL" ]; then
             echo "configured=false" >> "$GITHUB_OUTPUT"
-            echo "Missing NEXORA_CATALOG_IMPORT_URL variable; skipping safely."
+            echo "Missing NEXORA_CATALOG_ENRICHMENT_URL variable; skipping safely."
           else
             echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
       - uses: actions/checkout@v4
         if: steps.config.outputs.configured == 'true'
-      - name: Request validated CJ products from Nexora
+      - name: Request official details and images from CJ
         if: steps.config.outputs.configured == 'true'
         run: |
           oidc_token="$(curl --fail-with-body --silent --show-error -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=nexora-catalog-import" | jq --raw-output '.value')"
           test -n "$oidc_token" && test "$oidc_token" != "null"
-          status="$(curl --silent --show-error --retry 2 --retry-delay 10 -H "Authorization: Bearer $oidc_token" -X POST "$NEXORA_CATALOG_IMPORT_URL" -o .catalog-import.json -w '%{http_code}')"
+          status="$(curl --silent --show-error --retry 2 --retry-delay 10 -H "Authorization: Bearer $oidc_token" -X POST "$NEXORA_CATALOG_ENRICHMENT_URL" -o .catalog-enrichment.json -w '%{http_code}')"
           if [[ "$status" -lt 200 || "$status" -ge 300 ]]; then
-            echo "::error::Nexora catalog import responded with HTTP $status"
-            jq --compact-output . .catalog-import.json 2>/dev/null || cat .catalog-import.json
+            echo "::error::Nexora product enrichment responded with HTTP $status"
+            jq --compact-output . .catalog-enrichment.json 2>/dev/null || cat .catalog-enrichment.json
             exit 1
           fi
       - name: Validate and persist catalog JSON
         if: steps.config.outputs.configured == 'true'
-        run: node scripts/persist-catalog-import.mjs .catalog-import.json
+        run: node scripts/persist-catalog-import.mjs .catalog-enrichment.json
       - name: Commit catalog update
         if: steps.config.outputs.configured == 'true'
         run: |
           if git diff --quiet -- src/data/catalog.json; then
-            echo "Catalog unchanged."
+            echo "Catalog details unchanged."
             exit 0
           fi
           git config user.name "nexora-catalog-bot"
           git config user.email "nexora-catalog-bot@users.noreply.github.com"
           git add src/data/catalog.json
-          git commit -m "Sync verified CJ catalog"
+          git commit -m "Enrich CJ product details"
           git push

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { createHash, randomUUID } from "crypto";
+import { getProductPresentation } from "@/lib/product-presentation";
 import type { Product } from "@/lib/products";
 
 export type PaymentProvider = "wompi" | "mercadopago";
@@ -90,12 +91,13 @@ function createWompiWebCheckout(product: Product, siteUrl: string, externalRefer
 async function createWompiPaymentLink(product: Product, siteUrl: string, externalReference: string): Promise<CheckoutSession> {
   const privateKey = process.env.WOMPI_PRIVATE_KEY?.trim();
   if (!privateKey || !privateKey.startsWith("prv_")) throw new PaymentConfigurationError("Configura WOMPI_PRIVATE_KEY (prv_test_/prv_prod_) o NEXT_PUBLIC_WOMPI_PUBLIC_KEY junto a WOMPI_INTEGRITY_SECRET.");
+  const presentation = getProductPresentation(product);
   const response = await fetch(`${getWompiBaseUrl(privateKey)}/v1/payment_links`, {
     method: "POST",
     headers: { Authorization: `Bearer ${privateKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: `Nexora — ${product.name}`,
-      description: product.description,
+      name: `Nexora — ${presentation.title}`,
+      description: presentation.cardDescription,
       single_use: true,
       collect_shipping: true,
       currency: "COP",
@@ -115,11 +117,12 @@ async function createMercadoPagoPreference(product: Product, siteUrl: string, ex
   if (!accessToken) throw new PaymentConfigurationError("Falta MERCADOPAGO_ACCESS_TOKEN en la configuración del servidor.");
   const checkoutResultUrl = resultUrl(siteUrl, "mercadopago", externalReference);
   const notificationUrl = new URL("/api/payments/mercadopago/webhook", `${siteUrl}/`).toString();
+  const presentation = getProductPresentation(product);
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", "X-Idempotency-Key": externalReference },
     body: JSON.stringify({
-      items: [{ id: product.sku, title: product.name, description: product.description, quantity: 1, unit_price: product.price, currency_id: "COP" }],
+      items: [{ id: product.sku, title: presentation.title, description: presentation.cardDescription, quantity: 1, unit_price: product.price, currency_id: "COP" }],
       external_reference: externalReference,
       back_urls: { success: checkoutResultUrl, failure: checkoutResultUrl, pending: checkoutResultUrl },
       notification_url: notificationUrl,
