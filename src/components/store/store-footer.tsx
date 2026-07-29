@@ -13,7 +13,6 @@ export function StoreFooter() {
         <p>© {new Date().getFullYear()} Nexora. Diseño que eleva tu rutina.</p>
         <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
           <Link href="/#joyeria" className="transition hover:text-white">Productos</Link>
-          <Link href="/admin/login" className="transition hover:text-white">Administración</Link>
           <span aria-hidden="true" className="hidden h-4 w-px bg-silver/25 sm:block" />
           <span className="text-silver/45">Síguenos</span>
           {socialLinks.map((social) => (

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { AdminProductsTable } from "@/components/admin/admin-products-table";
 import { AdminCatalogRefresh } from "@/components/admin/admin-catalog-refresh";
+import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { isAdmin } from "@/lib/admin-auth";
 import { getDashboardSnapshot } from "@/lib/dashboard";
 import { formatCOP } from "@/lib/products";
@@ -29,6 +30,7 @@ export default async function AdminPage() {
           <p className="mt-2 text-xs text-silver/60">Importación: {dashboard.catalogMetadata.importedAt || "pendiente de una respuesta CJ verificada"}</p>
         </div>
         <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+          <AdminNavigation current="operations" />
           <AdminCatalogRefresh version={dashboard.catalogMetadata.version} importedAt={dashboard.catalogMetadata.importedAt} />
           <form action={logout}><button className="rounded-full border border-silver/25 px-4 py-2 text-sm text-silver/80 hover:border-silver">Cerrar sesión</button></form>
         </div>

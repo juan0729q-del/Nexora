@@ -8,6 +8,7 @@ import {
   type ProviderVariant,
 } from "@/lib/provider-product-details";
 import { getCatalog } from "@/lib/catalog-store";
+import { recommendedPriceForContribution } from "@/lib/commerce-finance";
 import { niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
@@ -450,9 +451,8 @@ function slugify(value: string) {
 
 function priceInCop(supplierCostUsd: number) {
   const exchangeRate = Number(process.env.USD_TO_COP_RATE || 4200);
-  const multiplier = Number(process.env.CATALOG_MARKUP_MULTIPLIER || 2.15);
-  const calculated = supplierCostUsd * (Number.isFinite(exchangeRate) ? exchangeRate : 4200) * (Number.isFinite(multiplier) ? multiplier : 2.15);
-  return Math.max(1_000, Math.round(calculated / 100) * 100);
+  const supplierCostCop = supplierCostUsd * (Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 4200);
+  return recommendedPriceForContribution({ supplierCostCop, roundingCop: 100 });
 }
 
 function categoryFor(niche: ProductNiche) {

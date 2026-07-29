@@ -1,5 +1,6 @@
 import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
 import { getCatalogDecision } from "@/lib/products";
+import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
 import { getAutomationConfiguration } from "@/lib/automation/runtime-auth";
 
 export type DashboardAlert = {
@@ -11,6 +12,7 @@ export type DashboardAlert = {
 
 export async function getDashboardSnapshot() {
   const products = await getCatalog();
+  const salesDashboard = await getSalesDashboardSnapshot();
   const catalogMetadata = getCatalogImportMetadata();
   const alerts: DashboardAlert[] = [];
 
@@ -55,6 +57,15 @@ export async function getDashboardSnapshot() {
       ? "Product List v2 e inventario oficial por SKU se consultan con límite conservador. GitHub Actions solo versiona cambios reales del catálogo."
       : "Falta CJ_DROPSHIPPING_API_KEY. No se consultará ni se inventará catálogo del proveedor.",
   });
+
+  if (salesDashboard.priceReviewCount) {
+    alerts.push({
+      id: "catalog-contribution",
+      severity: "warning",
+      title: "Revisión de rentabilidad pendiente",
+      detail: `${salesDashboard.priceReviewCount} productos no alcanzan el objetivo de contribución después de Wompi antes de flete y CAC. Revísalos en Ventas y postventa antes de escalar pauta o promociones.`,
+    });
+  }
   alerts.push({
     id: "automation-session",
     severity: automation.adminSessionConfigured && automation.cronConfigured ? "info" : "warning",

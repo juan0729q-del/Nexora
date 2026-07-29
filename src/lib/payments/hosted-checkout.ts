@@ -58,7 +58,12 @@ function resultUrl(siteUrl: string, provider: PaymentProvider, externalReference
 
 export async function createHostedCheckout(product: Product, siteUrl: string): Promise<CheckoutSession> {
   const provider = getProvider();
-  const externalReference = `NX-${product.sku}-${randomUUID()}`;
+  // Los links de pago de Wompi limitan sku a 36 caracteres. Usamos la misma
+  // referencia corta y única en ambos flujos para que la conciliación posterior
+  // pueda correlacionar el pago sin que el proveedor rechace el checkout.
+  const skuFragment = product.sku.replace(/[^a-zA-Z0-9]/g, "").slice(-12).toUpperCase() || "PRODUCTO";
+  const uniqueFragment = randomUUID().replace(/-/g, "").slice(0, 16).toUpperCase();
+  const externalReference = `NX-${skuFragment}-${uniqueFragment}`;
   return provider === "wompi"
     ? createWompiCheckout(product, siteUrl, externalReference)
     : createMercadoPagoPreference(product, siteUrl, externalReference);
@@ -84,6 +89,9 @@ function createWompiWebCheckout(product: Product, siteUrl: string, externalRefer
     reference: externalReference,
     "signature:integrity": integrity,
     "redirect-url": resultUrl(siteUrl, "wompi", externalReference),
+    // Wompi muestra su formulario seguro de dirección y teléfono de envío.
+    // Nexora no recopila ni guarda estos datos en el storefront.
+    "collect-shipping": "true",
   });
   return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/p/?${params.toString()}`, externalReference };
 }
