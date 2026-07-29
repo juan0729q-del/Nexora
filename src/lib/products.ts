@@ -67,7 +67,7 @@ export type Product = {
   providerDetails: ProviderDetails;
   /** Peso, empaque y propiedades logísticas comunicadas por CJ cuando existan. */
   shipping: ProductShippingDetails;
-  /** Información de variantes; no se usa para cobrar hasta implementar selección por SKU. */
+  /** Variantes oficiales de CJ, seleccionables por SKU durante la cotización y el checkout. */
   variants: ProviderVariant[];
   price: number;
   compareAtPrice?: number;

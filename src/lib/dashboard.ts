@@ -1,6 +1,7 @@
 import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
 import { getCatalogDecision } from "@/lib/products";
 import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
+import { getSalesLedgerStatus } from "@/lib/sales-ledger";
 import { getAutomationConfiguration } from "@/lib/automation/runtime-auth";
 
 export type DashboardAlert = {
@@ -12,7 +13,7 @@ export type DashboardAlert = {
 
 export async function getDashboardSnapshot() {
   const products = await getCatalog();
-  const salesDashboard = await getSalesDashboardSnapshot();
+  const salesDashboard = await getSalesDashboardSnapshot({ includePersistedSales: false });
   const catalogMetadata = getCatalogImportMetadata();
   const alerts: DashboardAlert[] = [];
 
@@ -49,6 +50,7 @@ export async function getDashboardSnapshot() {
   }
 
   const automation = getAutomationConfiguration();
+  const salesLedger = getSalesLedgerStatus();
   alerts.push({
     id: "supplier-sync",
     severity: automation.productDiscoveryConfigured ? "info" : "warning",
@@ -66,6 +68,12 @@ export async function getDashboardSnapshot() {
       detail: `${salesDashboard.priceReviewCount} productos no alcanzan el objetivo de contribución después de Wompi antes de flete y CAC. Revísalos en Ventas y postventa antes de escalar pauta o promociones.`,
     });
   }
+  alerts.push({
+    id: "sales-ledger",
+    severity: salesLedger.configured ? "info" : "warning",
+    title: "Registro de ventas y postventa",
+    detail: salesLedger.detail,
+  });
   alerts.push({
     id: "automation-session",
     severity: automation.adminSessionConfigured && automation.cronConfigured ? "info" : "warning",

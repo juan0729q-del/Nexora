@@ -216,6 +216,12 @@ export class CjClient {
     }
   }
 
+  /** Obtiene primero la telemetría de la sesión y luego valida la reserva. */
+  async authenticateAndAssertPoints(nextRequestCost = 0) {
+    await this.getSession();
+    this.assertPointsAvailable(nextRequestCost);
+  }
+
   private observe(payload: CjEnvelope<unknown> | undefined) {
     if (!payload) return;
     if (payload.requestId) this.telemetry.requestId = payload.requestId;
@@ -326,6 +332,43 @@ export class CjClient {
     if (isRateLimitFailure(result.response, result.payload)) {
       // CJ recomienda regular la frecuencia; solo se hace un reintento con
       // Retry-After, margen conservador y jitter, nunca un bucle agresivo.
+      const jitter = Math.floor(Math.random() * 250);
+      await wait(retryAfterMilliseconds(result.response) + jitter);
+      result = await this.request(url, activeSession.accessToken, init);
+      if (isSuccessful(result.response, result.payload)) return result.payload as T;
+      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+    }
+
+    throw new CjRequestError(result.detail);
+  }
+
+  /**
+   * Algunas consultas de CJ, como freightCalculateTip, son POST pero no
+   * cambian estado. Este método limita los reintentos al token/429 de esa
+   * consulta idempotente; nunca debe usarse para crear pedidos o compras.
+   */
+  async postJson<T>(url: string, body: unknown): Promise<T> {
+    const init: RequestInit = {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    };
+    const current = await this.getSession();
+    let activeSession = current;
+    let result = await this.request(url, activeSession.accessToken, init);
+    if (isSuccessful(result.response, result.payload)) return result.payload as T;
+    if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+
+    // La cotización no tiene efectos laterales en CJ; un único reintento con
+    // token fresco evita que un access token vencido bloquee el checkout.
+    if (isAuthenticationFailure(result.response, result.payload)) {
+      activeSession = await this.renewSession(current);
+      result = await this.request(url, activeSession.accessToken, init);
+      if (isSuccessful(result.response, result.payload)) return result.payload as T;
+      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+    }
+
+    if (isRateLimitFailure(result.response, result.payload)) {
       const jitter = Math.floor(Math.random() * 250);
       await wait(retryAfterMilliseconds(result.response) + jitter);
       result = await this.request(url, activeSession.accessToken, init);

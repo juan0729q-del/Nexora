@@ -41,6 +41,11 @@ export async function getProduct(slug: string) {
   return (await getCatalog()).find((product) => product.slug === slug);
 }
 
+/** Recupera el producto CJ desde una referencia de pago que conserva el SKU. */
+export async function getProductBySku(sku: string) {
+  return (await getCatalog()).find((product) => product.sku === sku);
+}
+
 export function getCatalogImportMetadata() {
   const document = catalog();
   return { version: document.version, importedAt: document.importedAt, source: document.source };

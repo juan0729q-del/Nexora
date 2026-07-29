@@ -15,6 +15,9 @@ export type StorefrontProduct = Pick<
   "slug" | "name" | "category" | "sku" | "image" | "price" | "compareAtPrice" | "rating" | "reviewCount" | "stock"
 > & {
   available: boolean;
+  /** Referencias de variante aptas para que el cliente cotice; el servidor
+   * conserva y valida los identificadores/logística privados de CJ. */
+  variants: Array<{ sku: string; label: string; options?: string }>;
 };
 
 /**
@@ -155,5 +158,10 @@ export function toStorefrontProduct(product: Product): StorefrontProduct {
     reviewCount: product.reviewCount,
     stock: product.stock,
     available: isStoreProductAvailable(product),
+    variants: product.variants.map((variant) => ({
+      sku: variant.sku,
+      label: variant.label,
+      options: variant.options,
+    })),
   };
 }

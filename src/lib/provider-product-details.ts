@@ -35,14 +35,20 @@ export type ProductDimensions = {
   heightMm?: number;
 };
 
-/** Las variantes se exponen como referencia; el checkout no las selecciona aún. */
+/** Variante oficial de CJ; el checkout la selecciona y la conserva en el pedido. */
 export type ProviderVariant = {
+  /** Identificador de variante oficial de CJ, necesario para cotizar el flete. */
+  providerVariantId?: string;
   sku: string;
   label: string;
   options?: string;
   image?: ProviderImage;
   dimensions?: ProductDimensions;
   weightGrams?: number;
+  /** Volumen nativo de CJ (mm³); se convierte a cm³ sólo en la cotización. */
+  volumeCubicMillimeters?: number;
+  /** Costo base vigente informado por CJ en USD; no se expone al storefront. */
+  supplierCostUsd?: number;
 };
 
 export type ProductShippingDetails = {
@@ -242,12 +248,15 @@ export function isValidProviderVariant(value: unknown): value is ProviderVariant
   const validDimensions = dimensions === undefined || (typeof dimensions === "object" && Object.values(dimensions).every((dimension) => dimension === undefined || validPositiveNumber(dimension)));
   return typeof variant.sku === "string"
     && variant.sku.trim().length > 0
+    && (variant.providerVariantId === undefined || (typeof variant.providerVariantId === "string" && variant.providerVariantId.trim().length > 0))
     && typeof variant.label === "string"
     && variant.label.trim().length > 0
     && (variant.options === undefined || typeof variant.options === "string")
     && (variant.image === undefined || isValidProviderImage(variant.image))
     && validDimensions
-    && (variant.weightGrams === undefined || validPositiveNumber(variant.weightGrams));
+    && (variant.weightGrams === undefined || validPositiveNumber(variant.weightGrams))
+    && (variant.volumeCubicMillimeters === undefined || validPositiveNumber(variant.volumeCubicMillimeters))
+    && (variant.supplierCostUsd === undefined || validPositiveNumber(variant.supplierCostUsd));
 }
 
 export function isValidProductShippingDetails(value: unknown): value is ProductShippingDetails {

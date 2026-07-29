@@ -29,6 +29,19 @@ function positiveNumber(value: string | undefined, fallback: number, minimum = 0
 }
 
 /**
+ * Tasa usada al capturar la cotización de CJ. Se mantiene configurable porque
+ * el flete se devuelve en USD y Wompi cobra en COP; nunca se consulta una API
+ * de cambio durante el checkout para evitar una segunda fuente inestable.
+ */
+export function getUsdToCopRate() {
+  return positiveNumber(process.env.USD_TO_COP_RATE, 4200, 1);
+}
+
+export function usdToCop(amountUsd: number, exchangeRate = getUsdToCopRate()) {
+  return Math.round(Math.max(0, amountUsd) * exchangeRate);
+}
+
+/**
  * Plan Avanzado mostrado por el comercio: 2,65 % + COP 700 y el IVA aplicado
  * únicamente sobre la comisión. Los valores siguen siendo configurables para
  * reflejar un contrato distinto sin editar código.

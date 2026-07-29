@@ -7,7 +7,9 @@ Tienda de alto rendimiento construida con Next.js App Router y Tailwind CSS, pre
 - `/`: catálogo público por Joyería, Tecnología/Hogar y Bienestar.
 - `/productos/[slug]`: ficha estática/ISR con Schema.org `Product`, Open Graph por artículo y la imagen original de CJ.
 - `/admin/login` y `/admin`: acceso protegido, catálogo real, alertas operativas y recarga segura de la versión publicada.
-- `/api/payments/checkout`: crea un checkout alojado y vuelve a validar inventario CJ para artículos críticos.
+- `/admin/ventas`: indicadores, pedidos, flete CJ, rentabilidad y postventa privada.
+- `/api/shipping/quotes`: cotiza cada variante y destino directamente con CJ antes del cobro.
+- `/api/payments/checkout`: valida la cotización firmada, el inventario de la variante y crea el checkout alojado.
 - `/api/automation/catalog-import`: obtiene candidatos CJ validados; no escribe el filesystem de Vercel.
 - `/api/automation/indexnow`: cron protegido que comunica URLs públicas a IndexNow para Bing.
 
@@ -27,11 +29,23 @@ https://TU-DOMINIO/api/automation/catalog-import?perNiche=5
 
 El workflow usa OIDC limitado al repositorio, rama `main` y archivo de workflow; no copia `CRON_SECRET` a GitHub.
 
+## Envío CJ y checkout
+
+Antes de abrir Wompi, Nexora solicita los datos mínimos de entrega, consulta las opciones reales de CJ para la variante elegida y propone la de menor costo. El comprador puede escoger cualquier método disponible, con su costo, origen de inventario, recargo remoto si aplica y plazo que informa CJ. El total firmado incluye producto + flete y la cotización vence en pocos minutos; cualquier cambio de dirección o variante obliga a cotizar de nuevo.
+
+La hoja privada conserva la variante exacta, dirección, correo, opción logística, costo cobrado y costo CJ. Tras un pago aprobado y conciliado, el administrador crea el pedido en CJ y actualiza su guía desde `/admin/ventas`; Nexora no crea una orden de proveedor ni genera un cargo a CJ automáticamente.
+
+Protege `POST /api/shipping/quotes` con una regla de Rate Limiting/WAF de Vercel. El límite local es una defensa complementaria y no sustituye una regla distribuida.
+
 ## Pagos
 
-Nexora usa Wompi Checkout Web cuando existen `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET`. Como alternativa puede crear Links de Pago con `WOMPI_PRIVATE_KEY`. Mercado Pago se activa con `PAYMENT_PROVIDER=mercadopago` y `MERCADOPAGO_ACCESS_TOKEN`.
+Nexora usa Wompi Checkout Web cuando existen `NEXT_PUBLIC_WOMPI_PUBLIC_KEY` y `WOMPI_INTEGRITY_SECRET`. Como alternativa puede crear Links de Pago con `WOMPI_PRIVATE_KEY`. La pasarela activa debe ser `PAYMENT_PROVIDER=wompi`: Mercado Pago conserva código de preparación, pero queda bloqueado hasta implementar una conciliación de postventa equivalente; así no se admiten ventas que el libro privado no pueda seguir.
 
-El regreso del comprador nunca se toma como pago final. Configura en Wompi el webhook HTTPS `https://TU-DOMINIO/api/payments/wompi/webhook` y la variable privada `WOMPI_EVENT_SECRET`. Mercado Pago recibe `notification_url` automáticamente al crear cada preferencia y el handler consulta su API con el token de servidor.
+El regreso del comprador nunca se toma como pago final. Configura en Wompi el webhook HTTPS `https://TU-DOMINIO/api/payments/wompi/webhook` y la variable privada `WOMPI_EVENT_SECRET`; sólo ese evento firmado cambia el estado de pago y habilita la postventa.
+
+## Ventas y postventa privada
+
+Consulta [docs/google-apps-script/README.md](docs/google-apps-script/README.md) para conectar el libro de Google Sheets. En producción se requieren `GOOGLE_SHEETS_SYNC_ENABLED=true`, `GOOGLE_SHEETS_WEBHOOK_URL`, `GOOGLE_SHEETS_WEBHOOK_SECRET` y `CHECKOUT_QUOTE_SECRET` para que el checkout registre la orden antes de revelar la pasarela.
 
 ## Google, Bing e IndexNow
 

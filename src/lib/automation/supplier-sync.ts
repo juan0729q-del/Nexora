@@ -126,12 +126,19 @@ async function getSupplementalCostUsd(sku: string, client: CjClient) {
  * consultas públicas nunca reciben la API key y un fallo conservador evita
  * vender una unidad que no se pudo confirmar.
  */
-export async function verifyCheckoutInventory(product: Pick<Product, "sku" | "stock">): Promise<SupplierStockVerification> {
-  if (product.stock > checkoutVerificationThreshold()) return { status: "not-required", stock: product.stock };
+export async function verifyCheckoutInventory(
+  product: Pick<Product, "sku" | "stock">,
+  { variantSku, forceLiveCheck = false }: { variantSku?: string; forceLiveCheck?: boolean } = {},
+): Promise<SupplierStockVerification> {
+  const sku = variantSku?.trim() || product.sku;
+  // Una variante puede tener inventario distinto al producto principal. Si el
+  // cliente acaba de cotizar una variante específica, se valida ese SKU antes
+  // del cobro incluso cuando el agregado del producto parezca saludable.
+  if (!forceLiveCheck && product.stock > checkoutVerificationThreshold()) return { status: "not-required", stock: product.stock };
   if (!getCjCredentialConfiguration().configured) return { status: "snapshot", stock: product.stock };
 
   try {
-    const stock = await getOfficialCjStock(product.sku);
+    const stock = await getOfficialCjStock(sku);
     if (stock === undefined) return { status: "unverified", stock: product.stock, reason: "CJ no devolvió un inventario interpretable para este SKU." };
     if (stock <= checkoutSafetyBuffer()) return { status: "unavailable", stock, reason: "CJ reportó inventario insuficiente para confirmar una nueva compra." };
     return { status: "available", stock };

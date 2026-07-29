@@ -87,6 +87,8 @@ type CjProductVariant = {
   variantWidth?: number | string;
   variantHeight?: number | string;
   variantWeight?: number | string;
+  variantVolume?: number | string;
+  variantSellPrice?: number | string;
 };
 
 type CjCategoryResponse = { data?: CjCategory[] };
@@ -190,12 +192,15 @@ function variantFrom(detail: CjProductVariant): ProviderVariant | undefined {
     ? { src: detail.variantImage, alt: label, source: "provider" as const }
     : undefined;
   return {
+    providerVariantId: detail.vid?.trim() || undefined,
     sku,
     label,
     options: detail.variantKey?.trim() || undefined,
     image,
     dimensions,
     weightGrams: optionalPositiveNumber(detail.variantWeight),
+    volumeCubicMillimeters: optionalPositiveNumber(detail.variantVolume),
+    supplierCostUsd: optionalPositiveNumber(detail.variantSellPrice),
   };
 }
 
