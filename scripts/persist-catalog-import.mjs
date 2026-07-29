@@ -5,14 +5,27 @@ const inputPath = process.argv[2];
 if (!inputPath) throw new Error("Uso: node scripts/persist-catalog-import.mjs <respuesta-importacion.json>");
 
 const catalogPath = resolve("src/data/catalog.json");
+const imageHostsPath = resolve("src/data/cj-image-hosts.json");
 const payload = JSON.parse(await readFile(resolve(inputPath), "utf8"));
 const current = JSON.parse(await readFile(catalogPath, "utf8"));
+const cjImageHosts = JSON.parse(await readFile(imageHostsPath, "utf8"));
 const products = payload?.products;
 
-function isHttpsUrl(value) {
+function isOfficialCjImageUrl(value) {
   if (typeof value !== "string") return false;
   try {
-    return new URL(value).protocol === "https:";
+    const url = new URL(value);
+    return url.protocol === "https:" && cjImageHosts.includes(url.hostname);
+  } catch {
+    return false;
+  }
+}
+
+function isOfficialCjApiUrl(value) {
+  if (typeof value !== "string") return false;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && url.hostname === "developers.cjdropshipping.com";
   } catch {
     return false;
   }
@@ -27,16 +40,30 @@ function validProduct(product) {
     && Number.isFinite(product.price) && product.price > 0
     && Number.isInteger(product.stock) && product.stock > 0
     && product.active === true
-    && product.image?.source === "provider" && isHttpsUrl(product.image?.src)
+    && product.image?.source === "provider" && isOfficialCjImageUrl(product.image?.src)
     && product.supplier?.name === "CJ Dropshipping"
-    && isHttpsUrl(product.supplier?.sourceUrl)
+    && isOfficialCjApiUrl(product.supplier?.sourceUrl)
     && typeof product.supplier?.reference === "string" && product.supplier.reference.length > 0
     && Number.isFinite(product.supplier?.costUsd) && product.supplier.costUsd > 0,
   );
 }
 
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(Object.keys(value).sort().map((key) => [key, canonicalize(value[key])]));
+  }
+  return value;
+}
+
+function canonicalProducts(entries) {
+  return entries
+    .map((entry) => canonicalize(entry))
+    .sort((left, right) => `${left.niche}:${left.sku}`.localeCompare(`${right.niche}:${right.sku}`));
+}
+
 if (!Array.isArray(products) || !products.every(validProduct)) {
-  throw new Error("La respuesta contiene un producto incompleto, sin stock vendible o sin imagen nativa HTTPS de CJ. catalog.json no fue modificado.");
+  throw new Error("La respuesta contiene un producto incompleto, sin stock vendible o sin imagen nativa autorizada de CJ. catalog.json no fue modificado.");
 }
 
 const byNiche = new Map(["jewelry", "technologyHome", "wellbeing"].map((niche) => [niche, products.filter((product) => product.niche === niche)]));
@@ -50,6 +77,12 @@ for (const product of products) {
   if (slugs.has(product.slug) || skus.has(product.sku)) throw new Error("La respuesta tiene slugs o SKU duplicados. catalog.json no fue modificado.");
   slugs.add(product.slug);
   skus.add(product.sku);
+}
+
+const currentProducts = Array.isArray(current.products) ? current.products : [];
+if (JSON.stringify(canonicalProducts(currentProducts)) === JSON.stringify(canonicalProducts(products))) {
+  console.log("Catálogo CJ sin cambios reales; no se crea commit ni despliegue.");
+  process.exit(0);
 }
 
 const nextCatalog = {

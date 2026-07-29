@@ -1,3 +1,5 @@
+import { isOfficialCjApiUrl, isOfficialCjImageUrl } from "./cj-assets";
+
 export type PaymentCurrency = "COP";
 
 export const niches = {
@@ -64,11 +66,15 @@ export type Product = {
 
 export type CatalogDecision = "feature" | "monitor" | "pause";
 
+// Compartido por servidor y cliente para que la disponibilidad sea idéntica
+// en catálogo, ficha, botón y checkout. El umbral crítico es conservador.
+const stockPauseThreshold = 2;
+
 /** Regla determinista que el cron recalcula con stock y métricas persistentes. */
 export function getCatalogDecision(product: Product): CatalogDecision {
   const { salesLast30Days, conversionRate, returnRate } = product.performance;
   // Métricas desconocidas se representan como 0; no se interpretan como ventas malas.
-  if (product.stock < 1 || returnRate >= 7 || (salesLast30Days > 0 && salesLast30Days < 5 && conversionRate < 1)) return "pause";
+  if (product.stock <= stockPauseThreshold || returnRate >= 7 || (salesLast30Days > 0 && salesLast30Days < 5 && conversionRate < 1)) return "pause";
   if (product.stock < 5 || returnRate >= 4 || (conversionRate > 0 && conversionRate < 2)) return "monitor";
   return "feature";
 }
@@ -80,11 +86,7 @@ export function isStoreProductAvailable(product: Product) {
 /** Invariante de Nexora: nunca renderizar ni vender imágenes sustitutas. */
 export function hasNativeProviderImage(product: Product) {
   if (product.image.source !== "provider" || product.supplier.name !== "CJ Dropshipping") return false;
-  try {
-    return new URL(product.image.src).protocol === "https:" && new URL(product.supplier.sourceUrl).protocol === "https:";
-  } catch {
-    return false;
-  }
+  return isOfficialCjImageUrl(product.image.src) && isOfficialCjApiUrl(product.supplier.sourceUrl);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -4,7 +4,7 @@ export function AdminProductsTable({ initialProducts }: { initialProducts: reado
   return <section className="overflow-hidden rounded-2xl border border-silver/15 bg-white/[.025]">
     <div className="flex items-center justify-between border-b border-silver/15 px-5 py-4">
       <div><h2 className="font-semibold text-white">Catálogo operativo</h2><p className="mt-1 text-xs text-silver/60">Solo registros CJ versionados con imagen nativa y referencia directa.</p></div>
-      <span className="text-xs text-silver/60">{initialProducts.filter((item) => item.active).length} activos</span>
+      <span className="text-xs text-silver/60">{initialProducts.filter((item) => item.active && getCatalogDecision(item) !== "pause").length} publicados</span>
     </div>
     {!initialProducts.length ? <p className="p-5 text-sm leading-6 text-silver/65">No hay productos publicados. La importación se mantiene bloqueada hasta obtener datos reales y validados de CJ Dropshipping.</p> : <div className="overflow-x-auto">
       <table className="min-w-full text-left text-sm">

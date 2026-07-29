@@ -3,10 +3,11 @@ import { getAutomationConfiguration, hasValidCronAuthorization } from "@/lib/aut
 import { optimizeCatalog } from "@/lib/automation/catalog-optimizer";
 import { getProductDiscoveryConfiguration, rotateCatalogByNiche } from "@/lib/automation/niche-rotation";
 import { syncSupplierCatalog } from "@/lib/automation/supplier-sync";
-import { createCjClient } from "@/lib/automation/cj-client";
+import { CjQuotaError, createCjClient } from "@/lib/automation/cj-client";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+export const maxDuration = 60;
 
 async function run(request: Request) {
   if (!hasValidCronAuthorization(request.headers.get("authorization"))) return NextResponse.json({ message: "No autorizado" }, { status: 401 });
@@ -23,9 +24,10 @@ async function run(request: Request) {
         ? rotateCatalogByNiche(catalog.byNiche, client)
         : Promise.resolve({ replacements: [], persistence: { status: "skipped", store: "catalog.json versionado", reason: discovery.reason } }),
     ]);
-    return NextResponse.json({ status: "planned", supplier, catalog, rotation });
+    return NextResponse.json({ status: "planned", supplier, catalog, rotation }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     console.error("Catalog automation failed", error);
+    if (error instanceof CjQuotaError) return NextResponse.json({ message: error.message, status: "rate-limited" }, { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } });
     return NextResponse.json({ message: "Falló la automatización del catálogo." }, { status: 502 });
   }
 }

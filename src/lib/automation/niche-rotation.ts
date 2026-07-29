@@ -1,5 +1,6 @@
 import "server-only";
 
+import { isOfficialCjImageUrl } from "@/lib/cj-assets";
 import { niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
@@ -110,15 +111,6 @@ function normalizeText(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-function isHttpsUrl(value: unknown): value is string {
-  if (typeof value !== "string") return false;
-  try {
-    return new URL(value).protocol === "https:";
-  } catch {
-    return false;
-  }
-}
-
 function numberOrZero(value: unknown) {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
@@ -147,7 +139,7 @@ function materialFrom(detail: CjProductDetail) {
 }
 
 function imageFrom(detail: CjProductDetail, fallback: CjListProduct) {
-  return [detail.bigImage, ...(detail.productImageSet || []), fallback.bigImage].find(isHttpsUrl);
+  return [detail.bigImage, ...(detail.productImageSet || []), fallback.bigImage].find(isOfficialCjImageUrl);
 }
 
 function categoryPath(item: CjListProduct) {
@@ -201,7 +193,9 @@ type ProductListCriteria = {
 function productListUrl({ categoryId, keyWord, trendingOnly }: ProductListCriteria) {
   const url = new URL(productListV2Endpoint);
   url.searchParams.set("page", "1");
-  url.searchParams.set("size", "100");
+  // List v2 consumes points independently of the page size. Twenty results
+  // are enough for the capped validation pool and avoid processing noise.
+  url.searchParams.set("size", "20");
   if (categoryId) url.searchParams.set("categoryId", categoryId);
   if (keyWord) url.searchParams.set("keyWord", keyWord);
   if (trendingOnly) url.searchParams.set("productFlag", "0");
@@ -234,7 +228,7 @@ function normalizeListedCandidate(item: CjListProduct, fallbackCategory: CjCateg
   const stock = Math.floor(numberOrZero(item.totalVerifiedInventory ?? item.warehouseInventoryNum));
   const saleStatus = String(item.saleStatus ?? "");
   const authorityStatus = String(item.authorityStatus ?? "");
-  if (!id || !sku || !name || supplierCostUsd <= 0 || stock < 1 || !isHttpsUrl(item.bigImage) || saleStatus !== "3" || authorityStatus !== "1") return undefined;
+  if (!id || !sku || !name || supplierCostUsd <= 0 || stock < 1 || !isOfficialCjImageUrl(item.bigImage) || saleStatus !== "3" || authorityStatus !== "1") return undefined;
   return {
     id,
     sku,
@@ -314,8 +308,11 @@ export async function fetchTrendingProductsForNiche(
   if (!matchingCategories.length) throw new Error(`CJ no devolvió una categoría compatible con ${niches[niche].label}. No se importarán productos sin clasificación verificable.`);
 
   const candidates = new Map<string, ListedCandidate>();
-  const candidatePoolTarget = Math.max(limit * 2, 10);
+  // A bounded plan keeps one import below the function timeout and CJ points
+  // budget even when a category has few valid products.
+  const candidatePoolTarget = Math.min(12, Math.max(limit + 3, 8));
   for (const category of matchingCategories.slice(0, 3)) {
+    client.assertPointsAvailable(50);
     const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: true }));
     addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
     if (candidates.size >= candidatePoolTarget) break;
@@ -324,12 +321,13 @@ export async function fetchTrendingProductsForNiche(
   // Hay categorías CJ sin productos marcados Trending. Se conserva la
   // clasificación del nicho usando la categoría que CJ devuelve en la búsqueda.
   if (candidates.size < candidatePoolTarget) {
-    for (const searchTerm of nicheSearchTerms[niche]) {
+    for (const searchTerm of nicheSearchTerms[niche].slice(0, 2)) {
       const keywordCategory: CjCategoryLeaf = {
         id: `keyword-${niche}-${slugify(searchTerm)}`,
         name: searchTerm,
         path: `Búsqueda oficial CJ › ${niches[niche].label}`,
       };
+      client.assertPointsAvailable(50);
       const payload = await client.getJson<CjProductListResponse>(productListUrl({ keyWord: searchTerm, trendingOnly: true }));
       addListedCandidates(extractProducts(payload), keywordCategory, candidates, excludedSkus, niche);
       if (candidates.size >= candidatePoolTarget) break;
@@ -339,7 +337,8 @@ export async function fetchTrendingProductsForNiche(
   // Último respaldo: la misma categoría, sin productFlag, pero ordenada por
   // número de listados y con inventario verificado. No se afirma que sean ventas.
   if (candidates.size < candidatePoolTarget) {
-    for (const category of matchingCategories.slice(0, 6)) {
+    for (const category of matchingCategories.slice(0, 1)) {
+      client.assertPointsAvailable(50);
       const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: false }));
       addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
       if (candidates.size >= candidatePoolTarget) break;
@@ -347,8 +346,13 @@ export async function fetchTrendingProductsForNiche(
   }
 
   const selected: CjTrendingCandidate[] = [];
+  const detailAttemptLimit = Math.min(10, Math.max(limit + 3, 8));
+  let detailAttempts = 0;
   for (const candidate of [...candidates.values()].sort((left, right) => right.listedNum - left.listedNum || left.sku.localeCompare(right.sku))) {
+    if (detailAttempts >= detailAttemptLimit) break;
+    client.assertPointsAvailable(10);
     const enriched = await enrichCandidate(candidate, client);
+    detailAttempts += 1;
     if (enriched && !excludedSkus.has(enriched.sku) && !selected.some((entry) => entry.sku === enriched.sku)) selected.push(enriched);
     if (selected.length >= limit) break;
   }
@@ -411,7 +415,7 @@ export function candidateToProduct(candidate: CjTrendingCandidate, niche: Produc
   };
 }
 
-export async function collectInitialCatalog(perNiche = 5): Promise<{ products: Product[]; selection: CatalogSelection }> {
+export async function collectInitialCatalog(perNiche = 5): Promise<{ products: Product[]; selection: CatalogSelection; telemetry: ReturnType<CjClient["getTelemetry"]> }> {
   const limit = Math.min(10, Math.max(5, Math.floor(perNiche)));
   const client = createCjClient();
   const categories = await fetchCategoryLeaves(client);
@@ -429,6 +433,7 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
 
   return {
     products,
+    telemetry: client.getTelemetry(),
     selection: {
       source: "cj-product-list-v2",
       endpoint: productListV2Endpoint,
@@ -457,5 +462,5 @@ export async function rotateCatalogByNiche(decisions: readonly NicheCatalogDecis
     }
     replacements.push({ niche: decision.niche, removeSlugs: decision.paused, replacementSku: candidate.sku, reason: "Reemplazo del mismo nicho preparado desde Product List v2 de CJ." });
   }
-  return { replacements, persistence: { status: "planned", store: "catalog.json versionado" } };
+  return { replacements, persistence: { status: "planned", store: "catalog.json versionado" }, telemetry: client.getTelemetry() };
 }

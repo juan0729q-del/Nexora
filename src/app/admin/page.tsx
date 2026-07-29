@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { AdminProductsTable } from "@/components/admin/admin-products-table";
+import { AdminCatalogRefresh } from "@/components/admin/admin-catalog-refresh";
 import { isAdmin } from "@/lib/admin-auth";
 import { getDashboardSnapshot } from "@/lib/dashboard";
 import { formatCOP } from "@/lib/products";
@@ -27,7 +28,10 @@ export default async function AdminPage() {
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Operación y señales de negocio</h1>
           <p className="mt-2 text-xs text-silver/60">Importación: {dashboard.catalogMetadata.importedAt || "pendiente de una respuesta CJ verificada"}</p>
         </div>
-        <form action={logout}><button className="rounded-full border border-silver/25 px-4 py-2 text-sm text-silver/80 hover:border-silver">Cerrar sesión</button></form>
+        <div className="flex flex-wrap items-center gap-3 sm:justify-end">
+          <AdminCatalogRefresh version={dashboard.catalogMetadata.version} importedAt={dashboard.catalogMetadata.importedAt} />
+          <form action={logout}><button className="rounded-full border border-silver/25 px-4 py-2 text-sm text-silver/80 hover:border-silver">Cerrar sesión</button></form>
+        </div>
       </header>
       <section className="mt-8 grid gap-4 md:grid-cols-3" aria-label="Indicadores clave">
         {metrics.map((metric) => <article key={metric.label} className="rounded-2xl border border-silver/15 bg-white/[.025] p-5">

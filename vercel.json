@@ -1,8 +1,8 @@
 {
   "crons": [
     {
-      "path": "/api/automation/catalog-optimization",
-      "schedule": "0 6 * * *"
+      "path": "/api/automation/indexnow",
+      "schedule": "0 7 * * *"
     }
   ]
 }

@@ -3,6 +3,7 @@ import { PaymentConfigurationError, PaymentProviderError, createHostedCheckout }
 import { getProduct } from "@/lib/catalog-store";
 import { isStoreProductAvailable } from "@/lib/products";
 import { getSiteUrl } from "@/lib/site";
+import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -20,6 +21,12 @@ export async function POST(request: Request) {
     if (typeof body.productSlug !== "string") return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
     const product = await getProduct(body.productSlug);
     if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Este producto no está disponible temporalmente." }, { status: 400 });
+    const inventory = await verifyCheckoutInventory(product);
+    if (["unavailable", "unverified", "quota-exhausted"].includes(inventory.status)) {
+      return NextResponse.json({
+        message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro.",
+      }, { status: 409 });
+    }
     return NextResponse.json(await createHostedCheckout(product, getCheckoutSiteUrl(request)), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });

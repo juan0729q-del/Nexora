@@ -23,12 +23,18 @@ export async function getDashboardSnapshot() {
     });
   }
 
-  alerts.push(...products.filter((product) => product.stock < 5).map((product) => ({
-    id: `stock-${product.sku}`,
-    severity: "critical" as const,
-    title: "Stock crítico",
-    detail: `${product.name}: quedan ${product.stock} unidades reportadas por el proveedor.`,
-  })));
+  alerts.push(...products.filter((product) => product.stock < 5).map((product) => {
+    const decision = getCatalogDecision(product);
+    const paused = decision === "pause";
+    return {
+      id: `stock-${product.sku}`,
+      severity: "critical" as const,
+      title: paused ? "Venta pausada por stock crítico" : "Stock crítico",
+      detail: paused
+        ? `${product.name}: CJ reporta ${product.stock} unidades. El producto quedó fuera de la tienda y del checkout hasta una próxima importación verificada.`
+        : `${product.name}: quedan ${product.stock} unidades reportadas por el proveedor. El checkout consultará CJ antes de cobrar.`,
+    };
+  }));
 
   const paused = products.filter((product) => getCatalogDecision(product) === "pause");
   if (paused.length) {
@@ -36,7 +42,7 @@ export async function getDashboardSnapshot() {
       id: "catalog-performance",
       severity: "warning",
       title: "Productos pausados",
-      detail: `${paused.map((product) => product.name).join(", ")} no se muestra en la portada por stock o rendimiento.`,
+      detail: `${paused.map((product) => product.name).join(", ")} no se muestran ni se venden por stock o rendimiento.`,
     });
   }
 
@@ -46,7 +52,7 @@ export async function getDashboardSnapshot() {
       id: "cj-legacy-credential-name",
       severity: "warning",
       title: "Migración de credencial CJ pendiente",
-      detail: "CJ_DROPSHIPPING_API_TOKEN se usa únicamente como alias temporal de API Key. Renómbrala a CJ_DROPSHIPPING_API_KEY en Vercel tras validar la importación.",
+      detail: "La variable CJ_DROPSHIPPING_API_TOKEN funciona solo como alias temporal. Copia su valor a CJ_DROPSHIPPING_API_KEY en Vercel, valida una importación y luego elimina el alias heredado.",
     });
   }
   alerts.push({
@@ -54,9 +60,7 @@ export async function getDashboardSnapshot() {
     severity: automation.productDiscoveryConfigured ? "info" : "warning",
     title: "Sincronización CJ",
     detail: automation.productDiscoveryConfigured
-      ? automation.productSyncConfigured
-        ? "Product List v2 y la sincronización por SKU están configurados; el cron generará propuestas versionables."
-        : "Product List v2 puede descubrir productos trending con inventario verificado. La sincronización adicional por SKU permanece opcional."
+      ? "Product List v2 e inventario oficial por SKU se consultan con límite conservador. GitHub Actions solo versiona cambios reales del catálogo."
       : "Falta CJ_DROPSHIPPING_API_KEY. No se consultará ni se inventará catálogo del proveedor.",
   });
   alerts.push({
@@ -64,7 +68,7 @@ export async function getDashboardSnapshot() {
     severity: automation.adminSessionConfigured && automation.cronConfigured ? "info" : "warning",
     title: "Automatización",
     detail: automation.adminSessionConfigured && automation.cronConfigured
-      ? "La sesión administrativa y el cron están protegidos; los cambios se deben versionar para persistir."
+      ? "La sesión, el cron y la actualización manual están protegidos. El botón del panel solo recarga la versión ya publicada y no consume cuota de CJ."
       : "Revisa ADMIN_PASSWORD, ADMIN_SESSION_SECRET y CRON_SECRET en Vercel.",
   });
 

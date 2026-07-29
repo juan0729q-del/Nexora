@@ -3,7 +3,9 @@ name: Sync Nexora CJ catalog
 on:
   workflow_dispatch:
   schedule:
-    - cron: "*/15 * * * *"
+    # Un único orquestador CJ: importación diaria automática y ejecución manual
+    # inmediata cuando el administrador necesite una nueva versión verificada.
+    - cron: "0 6 * * *"
 
 permissions:
   contents: write

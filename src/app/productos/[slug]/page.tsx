@@ -3,13 +3,19 @@ import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/store/product-card";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
-import { getProduct } from "@/lib/catalog-store";
+import { getCatalog, getProduct } from "@/lib/catalog-store";
 import { getProductPresentation, toStorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP, isStoreProductAvailable } from "@/lib/products";
 import { siteUrlFor } from "@/lib/site";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
+
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateStaticParams() {
+  const products = await getCatalog();
+  return products.filter(isStoreProductAvailable).map((product) => ({ slug: product.slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
@@ -20,17 +26,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const presentation = getProductPresentation(product);
+  const url = siteUrlFor(`/productos/${product.slug}`);
 
   return {
-    title: `${presentation.title} — ${product.category}`,
+    title: `${presentation.title} | ${product.category}`,
     description: presentation.cardDescription,
     alternates: { canonical: `/productos/${product.slug}` },
     openGraph: {
       title: presentation.title,
       description: presentation.cardDescription,
       type: "website",
-      url: siteUrlFor(`/productos/${product.slug}`),
+      url,
       images: [{ url: product.image.src, alt: presentation.imageAlt }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: presentation.title,
+      description: presentation.cardDescription,
+      images: [product.image.src],
     },
   };
 }
@@ -42,21 +55,27 @@ export default async function ProductPage({ params }: Props) {
 
   const presentation = getProductPresentation(product);
   const storefrontProduct = toStorefrontProduct(product);
+  const canonicalUrl = siteUrlFor(`/productos/${product.slug}`);
   const schema = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": `${canonicalUrl}#product`,
+    url: canonicalUrl,
     name: presentation.title,
     description: presentation.detailDescription,
     image: product.image.src,
     sku: product.sku,
+    category: product.category,
     material: product.material,
-    brand: { "@type": "Brand", name: "Nexora" },
+    mainEntityOfPage: canonicalUrl,
     offers: {
       "@type": "Offer",
+      url: canonicalUrl,
       priceCurrency: "COP",
       price: product.price,
-      availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url: siteUrlFor(`/productos/${product.slug}`),
+      availability: "https://schema.org/InStock",
+      itemCondition: "https://schema.org/NewCondition",
+      seller: { "@type": "Organization", name: "Nexora", url: siteUrlFor() },
     },
   };
   const schemaJson = JSON.stringify(schema).replace(/</g, "\\u003c");
