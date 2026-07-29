@@ -1,6 +1,6 @@
 {
-  "version": 38,
-  "importedAt": "2026-07-29T03:40:38.373Z",
+  "version": 39,
+  "importedAt": "2026-07-29T13:18:36.797Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
     {
@@ -38,6 +38,51 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/8d4af980-1734-45c0-b668-203bd561dd0f.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e5a04f54-2e7b-4921-9024-b8e8c5632d91.png",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3e3f3911-5e69-467a-b9d8-9da1ff2e5619.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/12/31/05/338ffb46-399e-42b6-abcd-532be64f34d1.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/cce3a1d1-3164-49ac-8dc6-b18f09228b30.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/12/31/05/2e982bc8-9e37-43ed-b649-23a4df733525.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5e337fb8-d12e-4622-915a-96a20aedaafd.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1448f784-17ee-4c09-8e43-122bc9c493ce.jpg",
+          "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
           "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace",
           "source": "provider"
         },
@@ -138,9 +183,237 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJLX123783801AZ",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 1PCS",
+          "options": "White-1PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 1PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 53
+        },
+        {
+          "sku": "CJLX123783802BY",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 2PCS",
+          "options": "White-2PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 2PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 94
+        },
+        {
+          "sku": "CJLX123783803CX",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 3PCS",
+          "options": "White-3PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 3PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 141
+        },
+        {
+          "sku": "CJLX123783804DW",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 4PCS",
+          "options": "White-4PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 4PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 188
+        },
+        {
+          "sku": "CJLX123783805EV",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 8PCS",
+          "options": "White-8PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 8PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 376
+        },
+        {
+          "sku": "CJLX123783806FU",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 10PCS",
+          "options": "White-10PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a135642f-8f37-4b53-9f0e-1ffae03fefc6.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace White 10PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 470
+        },
+        {
+          "sku": "CJLX123783807GT",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 1PCS",
+          "options": "Colorful-1PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 1PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 53
+        },
+        {
+          "sku": "CJLX123783808HS",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 2PCS",
+          "options": "Colorful-2PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 2PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 86
+        },
+        {
+          "sku": "CJLX123783809IR",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 3PCS",
+          "options": "Colorful-3PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 3PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 129
+        },
+        {
+          "sku": "CJLX123783810JQ",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 4PCS",
+          "options": "Colorful-4PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 4PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 172
+        },
+        {
+          "sku": "CJLX123783811KP",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 8PCS",
+          "options": "Colorful-8PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 8PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 344
+        },
+        {
+          "sku": "CJLX123783812LO",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 10PCS",
+          "options": "Colorful-10PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6f478c68-2cf0-4591-abf5-3ad55c142766.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful 10PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 430
+        },
+        {
+          "sku": "CJLX123783814NM",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Carnelian Stone 1PCS",
+          "options": "Carnelian Stone-1PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/e5a04f54-2e7b-4921-9024-b8e8c5632d91.png",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Carnelian Stone 1PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 53
+        },
+        {
+          "sku": "CJLX123783819SH",
+          "label": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful chain 1PCS",
+          "options": "Colorful chain-1PCS",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/cce3a1d1-3164-49ac-8dc6-b18f09228b30.jpg",
+            "alt": "Hot Selling Stone Crystal Pillar Tree Of Life Pendant Ins Fashion Necklace Colorful chain 1PCS",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 30
+          },
+          "weightGrams": 53
+        }
+      ]
     },
     {
       "slug": "retro-reiki-healing-energy-crystal-pendant-natural-stone-for-yoga-medita-cjlx1206870",
@@ -177,6 +450,291 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/17470944/1922232439078653952.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232465863479296.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/338bd4cd-3201-4925-9adf-91883133337d.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095244364484608.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232443956629504.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232451028226048.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472386075299840.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472385781698560.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232445005205504.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472384309497856.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232463170736128.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232451548319744.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232457776861184.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/421d5664-23a2-4086-b738-d38f7add4507.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095249343123456.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/5fc09eb1-d0ad-42a8-a40d-8cf0b8b767ac.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232452152299520.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095242355412992.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232448570363904.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232458049490944.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472386356318208.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095242695151616.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/b2174059-1157-4aed-a654-c29793476760.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095246801375232.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/b2e7dc84-e361-43e5-8223-9b7f07767d5c.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232457562951680.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472386817691648.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232450835288064.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232439351283712.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095247048839168.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/2036b7ba-32f0-4fef-a358-f945c1a07c15.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/46f144fc-f3fb-417b-85f9-8f47455c22eb.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472385538428928.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232459429416960.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095245484363776.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232440609574912.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232441767202816.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232467843190784.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232443008716800.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/0905a97c-ef76-4ecf-9229-961e8dcfae2c.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232458317926400.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/71747d53-ad3b-4209-8a8e-f6d437a0223f.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095243869556736.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095249565421568.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232456774422528.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232467054661632.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232455407079424.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472381142798336.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472384653430784.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472387245510656.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232455100895232.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232474583437312.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232451867086848.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/9600f7a4-7ddc-471a-b31c-dced883efd1c.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232462906494976.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17471808/1922472385215467520.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17470944/1922232451305050112.jpg",
+          "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17489952/1930095244129603584.jpg",
           "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet",
           "source": "provider"
         },
@@ -392,9 +950,77 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJLX120687001AZ",
+          "label": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet A 1PC",
+          "options": "A-1PC",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/b2174059-1157-4aed-a654-c29793476760.jpg",
+            "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet A 1PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 150,
+            "heightMm": 40
+          },
+          "weightGrams": 15
+        },
+        {
+          "sku": "CJLX120687002BY",
+          "label": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet B 1PC",
+          "options": "B-1PC",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/0905a97c-ef76-4ecf-9229-961e8dcfae2c.jpg",
+            "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet B 1PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 150,
+            "heightMm": 40
+          },
+          "weightGrams": 15
+        },
+        {
+          "sku": "CJLX120687044RI",
+          "label": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet H 1PC",
+          "options": "H-1PC",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/b2e7dc84-e361-43e5-8223-9b7f07767d5c.jpg",
+            "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet H 1PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 150,
+            "heightMm": 40
+          },
+          "weightGrams": 19
+        },
+        {
+          "sku": "CJLX120687050XC",
+          "label": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet I 1PC",
+          "options": "I-1PC",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/03/14/02/46f144fc-f3fb-417b-85f9-8f47455c22eb.jpg",
+            "alt": "Retro Reiki Healing Energy Crystal Pendant Natural Stone For Yoga Meditation Spiritual 7 Chakra Jewelry Necklace Amulet I 1PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 150,
+            "heightMm": 40
+          },
+          "weightGrams": 27
+        }
+      ]
     },
     {
       "slug": "kabala-life-tree-necklace-cjzblxlx06494",
@@ -431,6 +1057,91 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/15687360/1926191792896.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/603930465970.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/1300758483456.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/4585159857549.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/1359591053016.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190918/2273064710240.png",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/18d1a443-368d-4508-a4fd-9ab37dee8f61.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190918/10557144251367.png",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2831f3c7-40bc-49b3-9875-117a96d2fc6a.png",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/360170560065.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190918/2631868989238.png",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/343174300326.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/2184503194250.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190918/476069467660.png",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/1421631801824.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/2089837943700.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/18765307093300.jpg",
+          "alt": "Kabala Life Tree necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15687360/1221016917048.jpg",
           "alt": "Kabala Life Tree necklace",
           "source": "provider"
         },
@@ -554,9 +1265,302 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJZBLXLX06494-Green-Rope",
+          "label": "Kabala Life Tree necklace Green Rope",
+          "options": "Green-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/360170560065.jpg",
+            "alt": "Kabala Life Tree necklace Green Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Blue-Chain",
+          "label": "Kabala Life Tree necklace Blue Chain",
+          "options": "Blue-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/1300758483456.jpg",
+            "alt": "Kabala Life Tree necklace Blue Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-White-Chain",
+          "label": "Kabala Life Tree necklace White Chain",
+          "options": "White-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/2089837943700.jpg",
+            "alt": "Kabala Life Tree necklace White Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Black crystal-Chain",
+          "label": "Kabala Life Tree necklace Black crystal Chain",
+          "options": "Black crystal-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/18d1a443-368d-4508-a4fd-9ab37dee8f61.jpg",
+            "alt": "Kabala Life Tree necklace Black crystal Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Garnet-Pendant",
+          "label": "Kabala Life Tree necklace Garnet Pendant",
+          "options": "Garnet-Pendant",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/2831f3c7-40bc-49b3-9875-117a96d2fc6a.png",
+            "alt": "Kabala Life Tree necklace Garnet Pendant",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 32
+        },
+        {
+          "sku": "CJZBLXLX06494-Agate-Rope",
+          "label": "Kabala Life Tree necklace Agate Rope",
+          "options": "Agate-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/343174300326.jpg",
+            "alt": "Kabala Life Tree necklace Agate Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Yellow-Chain",
+          "label": "Kabala Life Tree necklace Yellow Chain",
+          "options": "Yellow-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190918/2631868989238.png",
+            "alt": "Kabala Life Tree necklace Yellow Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-White-Rope",
+          "label": "Kabala Life Tree necklace White Rope",
+          "options": "White-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/2184503194250.jpg",
+            "alt": "Kabala Life Tree necklace White Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-7 Colorful-Chain",
+          "label": "Kabala Life Tree necklace 7 Colorful Chain",
+          "options": "7 Colorful-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/1926191792896.jpg",
+            "alt": "Kabala Life Tree necklace 7 Colorful Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-7 Colorful-Rope",
+          "label": "Kabala Life Tree necklace 7 Colorful Rope",
+          "options": "7 Colorful-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/603930465970.jpg",
+            "alt": "Kabala Life Tree necklace 7 Colorful Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Blue-Rope",
+          "label": "Kabala Life Tree necklace Blue Rope",
+          "options": "Blue-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/1221016917048.jpg",
+            "alt": "Kabala Life Tree necklace Blue Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Green-Chain",
+          "label": "Kabala Life Tree necklace Green Chain",
+          "options": "Green-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190918/10557144251367.png",
+            "alt": "Kabala Life Tree necklace Green Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Purple-Chain",
+          "label": "Kabala Life Tree necklace Purple Chain",
+          "options": "Purple-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/4585159857549.jpg",
+            "alt": "Kabala Life Tree necklace Purple Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Yellow-Rope",
+          "label": "Kabala Life Tree necklace Yellow Rope",
+          "options": "Yellow-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190918/2273064710240.png",
+            "alt": "Kabala Life Tree necklace Yellow Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Agate-Chain",
+          "label": "Kabala Life Tree necklace Agate Chain",
+          "options": "Agate-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/18765307093300.jpg",
+            "alt": "Kabala Life Tree necklace Agate Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Red-Chain",
+          "label": "Kabala Life Tree necklace Red Chain",
+          "options": "Red-Chain",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/1421631801824.jpg",
+            "alt": "Kabala Life Tree necklace Red Chain",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Red-Rope",
+          "label": "Kabala Life Tree necklace Red Rope",
+          "options": "Red-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/15687360/1359591053016.jpg",
+            "alt": "Kabala Life Tree necklace Red Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        },
+        {
+          "sku": "CJZBLXLX06494-Purple-Rope",
+          "label": "Kabala Life Tree necklace Purple Rope",
+          "options": "Purple-Rope",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190918/476069467660.png",
+            "alt": "Kabala Life Tree necklace Purple Rope",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 50
+          },
+          "weightGrams": 38
+        }
+      ]
     },
     {
       "slug": "creative-heart-shaped-cardinal-pendant-necklace-exquisite-party-commemor-cjlx1214580",
@@ -593,6 +1597,61 @@
       "images": [
         {
           "src": "https://oss-cf.cjdropshipping.com/product/2025/01/20/04/d673b779-fc4b-4a80-adb0-8e937f649211.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e7bd5ec1-a38b-43a2-b891-7c51faaf0cd3.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3f262658-a7b0-4a81-8931-4fb48a34c774.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/9caf2527-a7f5-420d-8096-85846330f7a1.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1913c80b-f8bf-4e5f-a319-917c50784fb1.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5d323f70-184f-4c3a-b4ac-63c80220a2bc.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c8641a82-a0db-49e5-874d-beee21521b68.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/a20fa6ba-0770-4743-b323-60c2ec79760a.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/814bed04-1477-4b51-b1af-ab8c8f4ce36e.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/64595c16-1144-48f4-85f4-4b169d037a86.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3943ad4a-de5a-40d8-986c-af8de0b31dd1.jpg",
+          "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/404ef051-4dce-459b-9165-28c27b8eaa27.jpg",
           "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift",
           "source": "provider"
         },
@@ -688,9 +1747,110 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "packingWeightGrams": 27,
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJLX121458001AZ",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift Silver",
+          "options": "Silver",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/a20fa6ba-0770-4743-b323-60c2ec79760a.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift Silver",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        },
+        {
+          "sku": "CJLX121458002BY",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 1style",
+          "options": "1style",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/814bed04-1477-4b51-b1af-ab8c8f4ce36e.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 1style",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        },
+        {
+          "sku": "CJLX121458003CX",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 2style",
+          "options": "2style",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/c8641a82-a0db-49e5-874d-beee21521b68.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 2style",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        },
+        {
+          "sku": "CJLX121458004DW",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 3style",
+          "options": "3style",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/1913c80b-f8bf-4e5f-a319-917c50784fb1.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 3style",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        },
+        {
+          "sku": "CJLX121458005EV",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 4style",
+          "options": "4style",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/e7bd5ec1-a38b-43a2-b891-7c51faaf0cd3.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 4style",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        },
+        {
+          "sku": "CJLX121458006FU",
+          "label": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 5style",
+          "options": "5style",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/3f262658-a7b0-4a81-8931-4fb48a34c774.jpg",
+            "alt": "Creative Heart Shaped Cardinal Pendant Necklace, Exquisite Party Commemorative Accessory Gift Jewelry Anniversary Party Gifts, Valentine's Day Gift 5style",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 27
+        }
+      ]
     },
     {
       "slug": "simple-moon-star-necklace-clavicle-chain-short-necklace-cjzblxlx02215",
@@ -729,6 +1889,26 @@
           "src": "https://cf.cjdropshipping.com/20180929/1633464062415.png",
           "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
           "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20180929/1151415766896.png",
+          "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20180929/1316135007904.png",
+          "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20180929/776189501666.png",
+          "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20180929/9307373568347.png",
+          "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace",
+          "source": "provider"
         }
       ],
       "providerDetails": {
@@ -765,9 +1945,48 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "productWeightGrams": 2,
+        "packingWeightGrams": 15,
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJZBLXLX02215-Golden",
+          "label": "Simple Moon Star Necklace Clavicle Chain Short Necklace Golden",
+          "options": "Golden",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20180929/1633464062415.png",
+            "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace Golden",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 15
+        },
+        {
+          "sku": "CJZBLXLX02215-Silver",
+          "label": "Simple Moon Star Necklace Clavicle Chain Short Necklace Silver",
+          "options": "Silver",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20180929/1316135007904.png",
+            "alt": "Simple Moon Star Necklace Clavicle Chain Short Necklace Silver",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 100,
+            "heightMm": 20
+          },
+          "weightGrams": 15
+        }
+      ]
     },
     {
       "slug": "air-purifier-humidifier-cjxfznzn00558",
@@ -804,6 +2023,36 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/15819552/564835242744.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/745514388201.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/1671392795170.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/408901537133.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/20114340747896.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/2858755523564.jpg",
+          "alt": "Air Purifier Humidifier",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200228/24639574360605.jpg",
           "alt": "Air Purifier Humidifier",
           "source": "provider"
         },
@@ -916,9 +2165,46 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "BATTERY",
+          "OVERSIZE"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJXFZNZN00558-Black",
+          "label": "Air Purifier Humidifier Black",
+          "options": "Black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200228/2858755523564.jpg",
+            "alt": "Air Purifier Humidifier Black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 240,
+            "widthMm": 155,
+            "heightMm": 150
+          },
+          "weightGrams": 467
+        },
+        {
+          "sku": "CJXFZNZN00558-White",
+          "label": "Air Purifier Humidifier White",
+          "options": "White",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200228/745514388201.jpg",
+            "alt": "Air Purifier Humidifier White",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 75,
+            "widthMm": 75,
+            "heightMm": 120
+          },
+          "weightGrams": 465
+        }
+      ]
     },
     {
       "slug": "creative-tool-holder-large-capacity-holder-multifunctional-kitchen-tool-cjjjcfcf00469",
@@ -955,6 +2241,41 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/203007/6153672711.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190801/1368686979970.png",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/09/12/02/ea63433b-52dc-4771-b4c6-973349be4a9e.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/203007/2831478847439.jpg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190801/282337233626.png",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/09/12/02/6305c0ce-ad6e-47cc-b7b5-a763671d248e_trans.jpeg",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190801/6020162695558.png",
+          "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15645888/2327151153270.jpg",
           "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool",
           "source": "provider"
         },
@@ -1062,9 +2383,78 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON",
+          "OVERSIZE"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJJJCFCF00469-A",
+          "label": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool A",
+          "options": "A",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/203007/6153672711.jpg",
+            "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool A",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 110,
+            "widthMm": 230,
+            "heightMm": 230
+          },
+          "weightGrams": 942
+        },
+        {
+          "sku": "CJJJCFCF00469-C",
+          "label": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool C",
+          "options": "C",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/09/12/02/6305c0ce-ad6e-47cc-b7b5-a763671d248e_trans.jpeg",
+            "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool C",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 110,
+            "widthMm": 230,
+            "heightMm": 230
+          },
+          "weightGrams": 324
+        },
+        {
+          "sku": "CJJJCFCF00469-B",
+          "label": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool B",
+          "options": "B",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/203007/2831478847439.jpg",
+            "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool B",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 110,
+            "widthMm": 230,
+            "heightMm": 230
+          },
+          "weightGrams": 1147
+        },
+        {
+          "sku": "CJJJCFCF00469-8 inches",
+          "label": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool 8 inches",
+          "options": "8 inches",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2025/09/12/02/ea63433b-52dc-4771-b4c6-973349be4a9e.jpg",
+            "alt": "Creative Tool Holder Large Capacity Holder Multifunctional Kitchen Tool 8 inches",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 250,
+            "widthMm": 160,
+            "heightMm": 160
+          },
+          "weightGrams": 541
+        }
+      ]
     },
     {
       "slug": "multifunctional-slotted-spoon-grinding-cooking-spoon-mashed-auxiliary-fo-cjjjjtcf01196",
@@ -1101,6 +2491,66 @@
       "images": [
         {
           "src": "https://oss-cf.cjdropshipping.com/product/2024/08/26/07/79350ee1-7117-43b5-805b-554f58210351.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3d597328-6add-4717-9762-9ec6af720542.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200302/1918721094329.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/7fc7944f-5c79-4f58-90aa-931120aa3867.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200302/1626469354869.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200302/1413563794079.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1c9b9df3-0b55-4d7c-8986-d22f7425fef7.png",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/def9dac6-7cf9-4403-9f30-423aec89393c.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/fbaea78b-15ff-4ea6-b41b-668d59cd4bd2.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200302/449209624413.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c0e411f6-9f33-4e7a-8de7-117156892c1a.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200302/1650397162933.jpg",
+          "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/5497b9cd-b61d-4f3a-9c6a-c1155f5af154.jpg",
           "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget",
           "source": "provider"
         },
@@ -1190,9 +2640,157 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJJJJTCF01196-Set",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Set",
+          "options": "Set",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/1c9b9df3-0b55-4d7c-8986-d22f7425fef7.png",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Set",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 400
+          },
+          "weightGrams": 108
+        },
+        {
+          "sku": "CJJJJTCF01196-Black 2pcs",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black 2pcs",
+          "options": "Black 2pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/3d597328-6add-4717-9762-9ec6af720542.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black 2pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 150,
+            "heightMm": 232
+          },
+          "weightGrams": 108
+        },
+        {
+          "sku": "CJJJJTCF01196-Red 2pcs",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red 2pcs",
+          "options": "Red 2pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/7fc7944f-5c79-4f58-90aa-931120aa3867.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red 2pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 150,
+            "heightMm": 232
+          },
+          "weightGrams": 108
+        },
+        {
+          "sku": "CJJJJTCF01196-Black 3pcs",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black 3pcs",
+          "options": "Black 3pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/def9dac6-7cf9-4403-9f30-423aec89393c.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black 3pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 500
+          },
+          "weightGrams": 162
+        },
+        {
+          "sku": "CJJJJTCF01196-Red 3pcs",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red 3pcs",
+          "options": "Red 3pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/5497b9cd-b61d-4f3a-9c6a-c1155f5af154.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red 3pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 500
+          },
+          "weightGrams": 162
+        },
+        {
+          "sku": "CJJJJTCF01196-2pcs black and 1pcs red",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget 2pcs black and 1pcs red",
+          "options": "2pcs black and 1pcs red",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/c0e411f6-9f33-4e7a-8de7-117156892c1a.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget 2pcs black and 1pcs red",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 500
+          },
+          "weightGrams": 162
+        },
+        {
+          "sku": "CJJJJTCF01196-2pcs red and 1pc black",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget 2pcs red and 1pc black",
+          "options": "2pcs red and 1pc black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/fbaea78b-15ff-4ea6-b41b-668d59cd4bd2.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget 2pcs red and 1pc black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 500
+          },
+          "weightGrams": 162
+        },
+        {
+          "sku": "CJJJJTCF01196-Red",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red",
+          "options": "Red",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200302/1918721094329.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Red",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 232
+          },
+          "weightGrams": 65
+        },
+        {
+          "sku": "CJJJJTCF01196-Black",
+          "label": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black",
+          "options": "Black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200302/1626469354869.jpg",
+            "alt": "Multifunctional Slotted Spoon Grinding Cooking Spoon Mashed Auxiliary Food Ginger Garlic Spoon Press Potatoe Stir-frying Spatula Kitchen Gadget Black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 72,
+            "widthMm": 72,
+            "heightMm": 232
+          },
+          "weightGrams": 65
+        }
+      ]
     },
     {
       "slug": "creative-noodle-potentiometer-pasta-measurer-noodle-maker-selector-measu-cjjjjtcf00671",
@@ -1229,6 +2827,41 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/15605280/352925190104.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15605280/1733662099912.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190615/98978754902.png",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190615/676333614142.png",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15605280/1323646792600.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15605280/4440380585472.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15605280/1790194967550.jpg",
+          "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20190615/1000185711791.png",
           "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget",
           "source": "provider"
         },
@@ -1306,9 +2939,32 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "productWeightGrams": 23,
+        "packingWeightGrams": 50,
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJJJJTCF00671-8x9x1cm",
+          "label": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget 8x9x1cm",
+          "options": "8x9x1cm",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190615/98978754902.png",
+            "alt": "Creative Noodle Potentiometer Pasta Measurer Noodle Maker Selector Measurer Kitchen Gadget 8x9x1cm",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 90,
+            "heightMm": 20
+          },
+          "weightGrams": 50
+        }
+      ]
     },
     {
       "slug": "tool-storage-rack-cjjjcfcf00523",
@@ -1345,6 +3001,51 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/2044/3041969909565.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2044/1086059043294.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/15709824/2229988698045.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1613469673902.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2044/2290699738392.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2043/934325131983.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2043/201449919772.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2044/1008727960917.png",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1613469673878.jpg",
+          "alt": "Tool storage rack",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/2043/3573390062240.jpg",
           "alt": "Tool storage rack",
           "source": "provider"
         },
@@ -1435,9 +3136,77 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "HAVE_MAGNETISM"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJJJCFCF00523-Black2pcs",
+          "label": "Tool storage rack Black2pcs",
+          "options": "Black2pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/1613469673878.jpg",
+            "alt": "Tool storage rack Black2pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 250,
+            "widthMm": 220,
+            "heightMm": 60
+          },
+          "weightGrams": 2630
+        },
+        {
+          "sku": "CJJJCFCF00523-Black3pcs",
+          "label": "Tool storage rack Black3pcs",
+          "options": "Black3pcs",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/1613469673902.jpg",
+            "alt": "Tool storage rack Black3pcs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 250,
+            "widthMm": 220,
+            "heightMm": 90
+          },
+          "weightGrams": 3930
+        },
+        {
+          "sku": "CJJJCFCF00523-Snowflake point",
+          "label": "Tool storage rack Snowflake point",
+          "options": "Snowflake point",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/2043/201449919772.jpg",
+            "alt": "Tool storage rack Snowflake point",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 250,
+            "widthMm": 220,
+            "heightMm": 30
+          },
+          "weightGrams": 1330
+        },
+        {
+          "sku": "CJJJCFCF00523-Black",
+          "label": "Tool storage rack Black",
+          "options": "Black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/2043/3573390062240.jpg",
+            "alt": "Tool storage rack Black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 250,
+            "widthMm": 220,
+            "heightMm": 30
+          },
+          "weightGrams": 1330
+        }
+      ]
     },
     {
       "slug": "silicone-ice-face-roller-contour-shrink-pores-remove-dark-circles-massag-cjmj1980349",
@@ -1474,6 +3243,91 @@
       "images": [
         {
           "src": "https://oss-cf.cjdropshipping.com/product/2025/05/05/06/fae6d7ea-92d4-4869-8bdf-77f4d86a634d.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/bab01418-9540-4b61-bfc9-0b4fea3f1393.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/6b79c0dd-c3a7-4c09-9acb-aa451c6c6e18.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/32540146-1512-4c6e-9ee2-74b5ea315203.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/29fa192a-cc2b-42d0-965c-5af7c653917e.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/aff1bb9f-34bc-47c0-b672-6a062da19067.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/2f114ee9-0474-4a27-8113-4369d25432c5.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/9fdcaa4b-183b-457b-a924-19cdad620b00.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/69a4f603-28f3-4656-b4f7-25211264f40f.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/3221af1b-ec12-4780-96a9-159c0ed50161.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/c822e2dd-dbc1-4391-b4e4-e579cd8f8dc1.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/238adaf6-147b-413f-be39-e00639ebc574.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/e7ff8c5e-11a1-4d33-a8d2-0c6870f80914.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/069b9b14-5b1c-4be8-bf83-a07da29c877a.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/1c022a27-089f-44fd-b010-902e6f6078c4.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/b4e89540-bcad-4a90-a157-88f724b5c113.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/7585d2f3-e456-498c-a05d-260742ffa079.jpg",
+          "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/quick/product/85cdd747-05cd-4539-8072-ffc08cf83697.jpg",
           "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool",
           "source": "provider"
         },
@@ -1571,9 +3425,93 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "packingWeightGrams": 127,
+        "logisticsProperties": [
+          "COMMON"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJMJ198034901AZ",
+          "label": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Pink 1",
+          "options": "Pink 1",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/quick/product/29fa192a-cc2b-42d0-965c-5af7c653917e.jpg",
+            "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Pink 1",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 100,
+            "heightMm": 60
+          },
+          "weightGrams": 127
+        },
+        {
+          "sku": "CJMJ198034902BY",
+          "label": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Green 1",
+          "options": "Green 1",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/quick/product/e7ff8c5e-11a1-4d33-a8d2-0c6870f80914.jpg",
+            "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Green 1",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 100,
+            "heightMm": 60
+          },
+          "weightGrams": 127
+        },
+        {
+          "sku": "CJMJ198034903CX",
+          "label": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Yellow 1",
+          "options": "Yellow 1",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/quick/product/c822e2dd-dbc1-4391-b4e4-e579cd8f8dc1.jpg",
+            "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Yellow 1",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 100,
+            "heightMm": 60
+          },
+          "weightGrams": 127
+        },
+        {
+          "sku": "CJMJ198034904DW",
+          "label": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Purple 1",
+          "options": "Purple 1",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/quick/product/1c022a27-089f-44fd-b010-902e6f6078c4.jpg",
+            "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Purple 1",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 100,
+            "heightMm": 60
+          },
+          "weightGrams": 127
+        },
+        {
+          "sku": "CJMJ198034905EV",
+          "label": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Red 1",
+          "options": "Red 1",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/quick/product/b4e89540-bcad-4a90-a157-88f724b5c113.jpg",
+            "alt": "Silicone Ice Face Roller Contour Shrink Pores Remove Dark Circles Massage Skin Beauty Facial Roller For Eyes Neck Skin Care Tool Red 1",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 100,
+            "heightMm": 60
+          },
+          "weightGrams": 127
+        }
+      ]
     },
     {
       "slug": "konjac-sponge-for-washing-face-round-konjac-konnyaku-sponge-facial-clean-cjbjmrpf00214",
@@ -1610,6 +3548,61 @@
       "images": [
         {
           "src": "https://oss-cf.cjdropshipping.com/product/2024/09/06/06/6e4a3bd6-b5b3-480e-a48a-28245bf3a6b7.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/925301996682.png",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/2479840175581.png",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/835371867149.png",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200229/59925575273773.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200229/10885758364877.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200229/4700382035154.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/1568263659365.png",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/09/06/06/8d0c7b7a-739f-40ab-824d-d04796e04319.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/09/06/06/8cba0a6f-c39e-48fe-b660-e8a601853ce2.jpg",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/2906094415916.png",
+          "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/20200207/378791592148.png",
           "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff",
           "source": "provider"
         },
@@ -1658,9 +3651,95 @@
         "packageContents": []
       },
       "shipping": {
-        "logisticsProperties": []
+        "packingWeightGrams": 30,
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON",
+          "THIN"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJBJMRPF00214-Black",
+          "label": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Black",
+          "options": "Black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200207/1568263659365.png",
+            "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 30
+        },
+        {
+          "sku": "CJBJMRPF00214-Yellow",
+          "label": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Yellow",
+          "options": "Yellow",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200207/2479840175581.png",
+            "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Yellow",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 30
+        },
+        {
+          "sku": "CJBJMRPF00214-White",
+          "label": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff White",
+          "options": "White",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200207/925301996682.png",
+            "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff White",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 30
+        },
+        {
+          "sku": "CJBJMRPF00214-Light Green",
+          "label": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Light Green",
+          "options": "Light Green",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200207/2906094415916.png",
+            "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Light Green",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 30
+        },
+        {
+          "sku": "CJBJMRPF00214-Pink",
+          "label": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Pink",
+          "options": "Pink",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200207/378791592148.png",
+            "alt": "Konjac Sponge For Washing Face Round Konjac Konnyaku Sponge Facial Cleansing Exfoliator Bathing Puff Face Wash Puff Pink",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 30
+        }
+      ]
     },
     {
       "slug": "wheat-complexion-body-tanning-moisturizing-cjpf1516421",
@@ -1697,6 +3776,76 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/c8c46af2-8f23-4eb0-b06a-dfbc08da0976.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/8838118b-68b9-4369-abc1-d59003be26ef.png",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/f5b37997-1cdb-4e41-8e9d-e23e2e5215a6.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/caf6cae7-27d3-4eb6-be57-77070d9c0bc8.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/d777710b-bb72-49b2-8a99-be5c70152274.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6d8b4622-2149-46c1-b0d8-87aa1ecd3ffc.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3c3860a6-4317-454c-85f2-bc6b32ac63d3.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/4006e710-12c4-487e-81cb-c505fadb7c4c.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/d7518f81-a322-44f3-b989-3eaff49e48f5.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/1280c26e-f20e-4cc4-9a90-a27f869c11c7.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/58c36ae6-398f-4b56-81db-87534c842d7e.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/265ed7be-dd05-4348-a88e-3e1555739efe.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/cee0b85b-acb0-4205-b580-a34bad6cff5d.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/932cf2a7-e1c4-479e-83b1-834b4a907e04.jpg",
+          "alt": "Wheat Complexion Body Tanning Moisturizing",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/3d649e62-2640-4c2a-a004-b5d7bbf638eb.jpg",
           "alt": "Wheat Complexion Body Tanning Moisturizing",
           "source": "provider"
         },
@@ -1788,9 +3937,140 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "logisticsProperties": [
+          "HAVE_CREAM"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJPF151642101AZ",
+          "label": "Wheat Complexion Body Tanning Moisturizing Tanning cream",
+          "options": "Tanning cream",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/3c3860a6-4317-454c-85f2-bc6b32ac63d3.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Tanning cream",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 70,
+            "heightMm": 60
+          },
+          "weightGrams": 88
+        },
+        {
+          "sku": "CJPF151642102BY",
+          "label": "Wheat Complexion Body Tanning Moisturizing 2PCS Set",
+          "options": "2PCS Set",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/3d649e62-2640-4c2a-a004-b5d7bbf638eb.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing 2PCS Set",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 70,
+            "heightMm": 120
+          },
+          "weightGrams": 164
+        },
+        {
+          "sku": "CJPF151642103CX",
+          "label": "Wheat Complexion Body Tanning Moisturizing Aloe gel",
+          "options": "Aloe gel",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/4006e710-12c4-487e-81cb-c505fadb7c4c.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Aloe gel",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 70,
+            "heightMm": 60
+          },
+          "weightGrams": 88
+        },
+        {
+          "sku": "CJPF151642104DW",
+          "label": "Wheat Complexion Body Tanning Moisturizing Sunshine repair cream",
+          "options": "Sunshine repair cream",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/6d8b4622-2149-46c1-b0d8-87aa1ecd3ffc.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Sunshine repair cream",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 70,
+            "heightMm": 60
+          },
+          "weightGrams": 88
+        },
+        {
+          "sku": "CJPF151642105EV",
+          "label": "Wheat Complexion Body Tanning Moisturizing 3PCS Set",
+          "options": "3PCS Set",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/8838118b-68b9-4369-abc1-d59003be26ef.png",
+            "alt": "Wheat Complexion Body Tanning Moisturizing 3PCS Set",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 120,
+            "widthMm": 120,
+            "heightMm": 120
+          },
+          "weightGrams": 248
+        },
+        {
+          "sku": "CJPF151642106FU",
+          "label": "Wheat Complexion Body Tanning Moisturizing Tanning cream 3PC",
+          "options": "Tanning cream 3PC",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/f5b37997-1cdb-4e41-8e9d-e23e2e5215a6.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Tanning cream 3PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 140,
+            "heightMm": 120
+          },
+          "weightGrams": 246
+        },
+        {
+          "sku": "CJPF151642107GT",
+          "label": "Wheat Complexion Body Tanning Moisturizing Tanning cream 2PC",
+          "options": "Tanning cream 2PC",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/58c36ae6-398f-4b56-81db-87534c842d7e.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Tanning cream 2PC",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 70,
+            "widthMm": 70,
+            "heightMm": 120
+          },
+          "weightGrams": 164
+        },
+        {
+          "sku": "CJPF151642108HS",
+          "label": "Wheat Complexion Body Tanning Moisturizing Tanning cream 100g",
+          "options": "Tanning cream 100g",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/cee0b85b-acb0-4205-b580-a34bad6cff5d.jpg",
+            "alt": "Wheat Complexion Body Tanning Moisturizing Tanning cream 100g",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 120,
+            "widthMm": 120,
+            "heightMm": 50
+          },
+          "weightGrams": 160
+        }
+      ]
     },
     {
       "slug": "24k-gold-collagen-protein-lifting-cjpf1675580",
@@ -1827,6 +4107,41 @@
       "images": [
         {
           "src": "https://cf.cjdropshipping.com/0c7c6687-fe1e-4493-a0e0-accbf7fa5048.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/07/02/5c267cbf-99ce-460d-9bbc-6b2bd4e4b38b.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/8538a888-0bd1-44ac-8488-bff5bda55f4b.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/9e603970-5121-4316-b018-6699694f81c2.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/6004b000-4e8a-4302-80b7-b181ea385048.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/30c0b937-3c5a-423c-8a79-1af958c94ff2.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/81545698-c0be-412e-a04b-428848cccf85.jpg",
+          "alt": "24K Gold Collagen Protein Lifting",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/08/06/08/b66c7cdc-84bb-4964-b356-0e069a846e58.jpg",
           "alt": "24K Gold Collagen Protein Lifting",
           "source": "provider"
         },
@@ -1908,9 +4223,30 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "productWeightGrams": 45,
+        "packingWeightGrams": 70,
+        "logisticsProperties": [
+          "HAVE_LIQUID"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJPF167558001AZ",
+          "label": "24K Gold Collagen Protein Lifting 30ml box 1pc",
+          "options": "30ml box-1pc",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/9e603970-5121-4316-b018-6699694f81c2.jpg",
+            "alt": "24K Gold Collagen Protein Lifting 30ml box 1pc",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 108,
+            "widthMm": 30,
+            "heightMm": 30
+          },
+          "weightGrams": 70
+        }
+      ]
     },
     {
       "slug": "4-colors-electric-eye-massager-red-blue-light-massage-eye-beautification-cjyd2021218",
@@ -1947,6 +4283,51 @@
       "images": [
         {
           "src": "https://oss-cf.cjdropshipping.com/product/2024/06/18/01/3e75a820-9597-4553-a1f6-a9005cb5828b.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/4d4bd869-cd67-4633-a47c-2b32a63820c9.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/8a414945-3a40-4493-a7e7-b5ed558641c5_trans.jpeg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/180ede89-64de-48f6-9d00-8045c38a427b.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/8be3d334-6e23-4abb-ba27-83c2860ba2fc_trans.jpeg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/12/26/01/40dc84da-6f4d-4ebf-9213-3a4549bec45e.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/726e92d6-5cc3-4dca-94fa-005f9096f73a.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/6c0cfafa-0d7c-4b1a-a276-5a578e4ec8e1.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/09/b96bb3e2-7f49-49a8-a86c-16ff44ef2141.jpg",
+          "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
+          "source": "provider"
+        },
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/66fffa72-b822-4328-b824-da5ec02421ba_trans.jpeg",
           "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage",
           "source": "provider"
         },
@@ -2077,9 +4458,77 @@
         ]
       },
       "shipping": {
-        "logisticsProperties": []
+        "packingWeightGrams": 100,
+        "logisticsProperties": [
+          "BATTERY"
+        ]
       },
-      "variants": []
+      "variants": [
+        {
+          "sku": "CJYD202121801AZ",
+          "label": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Rose Gold",
+          "options": "English-Rose Gold",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/180ede89-64de-48f6-9d00-8045c38a427b.jpg",
+            "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Rose Gold",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 160,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 100
+        },
+        {
+          "sku": "CJYD202121802BY",
+          "label": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Silvery",
+          "options": "English-Silvery",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2024/12/26/01/40dc84da-6f4d-4ebf-9213-3a4549bec45e.jpg",
+            "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Silvery",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 160,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 100
+        },
+        {
+          "sku": "CJYD202121803CX",
+          "label": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Blue",
+          "options": "English-Blue",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/726e92d6-5cc3-4dca-94fa-005f9096f73a.jpg",
+            "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Blue",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 160,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 100
+        },
+        {
+          "sku": "CJYD202121804DW",
+          "label": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Purple",
+          "options": "English-Purple",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2024/05/23/08/6c0cfafa-0d7c-4b1a-a276-5a578e4ec8e1.jpg",
+            "alt": "4 Colors Electric Eye Massager Red Blue Light Massage Eye Beautification Instrument Therapeutic Warmth Face Massage English Purple",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 160,
+            "widthMm": 50,
+            "heightMm": 20
+          },
+          "weightGrams": 100
+        }
+      ]
     }
   ]
 }
