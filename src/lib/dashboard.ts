@@ -47,14 +47,6 @@ export async function getDashboardSnapshot() {
   }
 
   const automation = getAutomationConfiguration();
-  if (automation.supplierUsingLegacyCredentialName) {
-    alerts.push({
-      id: "cj-legacy-credential-name",
-      severity: "warning",
-      title: "Migración de credencial CJ pendiente",
-      detail: "La variable CJ_DROPSHIPPING_API_TOKEN funciona solo como alias temporal. Copia su valor a CJ_DROPSHIPPING_API_KEY en Vercel, valida una importación y luego elimina el alias heredado.",
-    });
-  }
   alerts.push({
     id: "supplier-sync",
     severity: automation.productDiscoveryConfigured ? "info" : "warning",

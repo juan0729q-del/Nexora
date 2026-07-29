@@ -170,7 +170,6 @@ export function getAutomationConfiguration() {
   return {
     cronConfigured: Boolean(process.env.CRON_SECRET),
     supplierConfigured: cjCredential.configured,
-    supplierUsingLegacyCredentialName: cjCredential.usingLegacyName,
     productDiscoveryConfigured: cjCredential.configured,
     productSyncConfigured: Boolean(process.env.CJ_DROPSHIPPING_PRODUCT_SYNC_URL && cjCredential.configured),
     adminSessionConfigured: Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_SESSION_SECRET),

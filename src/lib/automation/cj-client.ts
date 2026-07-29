@@ -51,28 +51,19 @@ export type CjTelemetry = {
   points?: CjPointsInfo;
 };
 
-let loggedLegacyCredentialName = false;
 let sharedRequestQueue: Promise<void> = Promise.resolve();
 let sharedNextRequestAt = 0;
 
 export function getCjCredentialConfiguration() {
   const apiKey = process.env.CJ_DROPSHIPPING_API_KEY?.trim();
-  const legacyApiKey = process.env.CJ_DROPSHIPPING_API_TOKEN?.trim();
   return {
-    configured: Boolean(apiKey || legacyApiKey),
-    usingLegacyName: !apiKey && Boolean(legacyApiKey),
+    configured: Boolean(apiKey),
   };
 }
 
 function apiKey() {
-  const preferred = process.env.CJ_DROPSHIPPING_API_KEY?.trim();
-  if (preferred) return preferred;
-  const value = process.env.CJ_DROPSHIPPING_API_TOKEN?.trim();
-  if (!value) throw new CjAuthenticationError("Falta CJ_DROPSHIPPING_API_KEY. Nexora ya no acepta un access token fijo como credencial de CJ.");
-  if (!loggedLegacyCredentialName) {
-    console.warn("CJ_DROPSHIPPING_API_TOKEN is deprecated. Rename it to CJ_DROPSHIPPING_API_KEY after confirming it is a CJ API Key.");
-    loggedLegacyCredentialName = true;
-  }
+  const value = process.env.CJ_DROPSHIPPING_API_KEY?.trim();
+  if (!value) throw new CjAuthenticationError("Falta CJ_DROPSHIPPING_API_KEY. Nexora requiere una API Key vigente de CJ para autenticarse.");
   return value;
 }
 
