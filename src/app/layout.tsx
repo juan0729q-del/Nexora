@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { CartProvider } from "@/components/store/cart-context";
 import { NexyProvider } from "@/components/store/nexy-context";
 import { NexyMascot } from "@/components/store/nexy-mascot";
 import { getSiteUrl, siteUrlFor } from "@/lib/site";
@@ -76,10 +77,12 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full bg-onyx font-sans text-white antialiased">
-        <NexyProvider>
-          {children}
-          <NexyMascot />
-        </NexyProvider>
+        <CartProvider>
+          <NexyProvider>
+            {children}
+            <NexyMascot />
+          </NexyProvider>
+        </CartProvider>
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: organizationSchemaJson }} />
       </body>
     </html>

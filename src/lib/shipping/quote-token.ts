@@ -4,9 +4,11 @@ import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes }
 import type { CjShippingQuoteOption, ShippingDestinationInput } from "./types";
 
 type QuoteTokenPayload = {
-  version: 1;
+  version: 2;
   productSlug: string;
   productPriceCop: number;
+  productSubtotalCop: number;
+  quantity: number;
   variantSku: string;
   destinationFingerprint: string;
   issuedAt: string;
@@ -85,8 +87,11 @@ export function readShippingQuoteToken(token: unknown): QuoteTokenPayload {
     decipher.setAuthTag(packed.subarray(12, 28));
     const parsed = JSON.parse(Buffer.concat([decipher.update(packed.subarray(28)), decipher.final()]).toString("utf8")) as Partial<QuoteTokenPayload>;
     const expiresAt = typeof parsed.expiresAt === "string" ? Date.parse(parsed.expiresAt) : NaN;
-    if (parsed.version !== 1 || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
+    if (parsed.version !== 2 || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
       || typeof parsed.destinationFingerprint !== "string" || !Number.isFinite(parsed.productPriceCop)
+      || !Number.isSafeInteger(parsed.productSubtotalCop) || (parsed.productSubtotalCop || 0) <= 0
+      || !Number.isSafeInteger(parsed.quantity) || (parsed.quantity || 0) < 1 || (parsed.quantity || 0) > 10
+      || parsed.productSubtotalCop !== (parsed.productPriceCop || 0) * (parsed.quantity || 0)
       || !Number.isFinite(parsed.supplierCostUsd) || !Number.isFinite(parsed.exchangeRateCopPerUsd)
       || !Array.isArray(parsed.selectedOptions) || !parsed.selectedOptions.every(validOption)
       || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {

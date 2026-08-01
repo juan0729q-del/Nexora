@@ -128,19 +128,22 @@ async function getSupplementalCostUsd(sku: string, client: CjClient) {
  */
 export async function verifyCheckoutInventory(
   product: Pick<Product, "sku" | "stock">,
-  { variantSku, forceLiveCheck = false }: { variantSku?: string; forceLiveCheck?: boolean } = {},
+  { variantSku, quantity = 1, forceLiveCheck = false }: { variantSku?: string; quantity?: number; forceLiveCheck?: boolean } = {},
 ): Promise<SupplierStockVerification> {
   const sku = variantSku?.trim() || product.sku;
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+    return { status: "unavailable", stock: product.stock, reason: "La cantidad solicitada no es válida." };
+  }
   // Una variante puede tener inventario distinto al producto principal. Si el
   // cliente acaba de cotizar una variante específica, se valida ese SKU antes
   // del cobro incluso cuando el agregado del producto parezca saludable.
-  if (!forceLiveCheck && product.stock > checkoutVerificationThreshold()) return { status: "not-required", stock: product.stock };
+  if (!forceLiveCheck && product.stock >= quantity + checkoutSafetyBuffer() && product.stock > checkoutVerificationThreshold()) return { status: "not-required", stock: product.stock };
   if (!getCjCredentialConfiguration().configured) return { status: "snapshot", stock: product.stock };
 
   try {
     const stock = await getOfficialCjStock(sku);
     if (stock === undefined) return { status: "unverified", stock: product.stock, reason: "CJ no devolvió un inventario interpretable para este SKU." };
-    if (stock <= checkoutSafetyBuffer()) return { status: "unavailable", stock, reason: "CJ reportó inventario insuficiente para confirmar una nueva compra." };
+    if (stock < quantity + checkoutSafetyBuffer()) return { status: "unavailable", stock, reason: `CJ reportó inventario insuficiente para confirmar ${quantity} unidad${quantity === 1 ? "" : "es"}.` };
     return { status: "available", stock };
   } catch (error) {
     if (error instanceof CjQuotaError) return { status: "quota-exhausted", stock: product.stock, reason: "CJ no tiene cuota disponible para verificar este SKU ahora." };

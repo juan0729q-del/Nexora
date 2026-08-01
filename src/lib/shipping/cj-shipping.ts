@@ -66,6 +66,7 @@ export class CjShippingQuoteError extends Error {}
 export type ResolvedCjShippingQuote = {
   productSlug: string;
   variantSku: string;
+  quantity: number;
   supplierCostUsd: number;
   exchangeRateCopPerUsd: number;
   quotedAt: string;
@@ -130,10 +131,11 @@ export function normalizeCjShippingDestination(destination: ShippingDestinationI
   };
 }
 
-function cacheKey(product: Product, variantSku: string, destination: ShippingDestinationInput) {
+function cacheKey(product: Product, variantSku: string, quantity: number, destination: ShippingDestinationInput) {
   const canonical = [
     product.slug,
     variantSku.toUpperCase(),
+    String(quantity),
     destination.recipientName,
     destination.address1,
     destination.address2 || "",
@@ -339,9 +341,10 @@ function parseOptions(payload: CjFreightResponse, sourceCountryCode: string, exc
   return options;
 }
 
-export async function quoteCjShipping({ product, variantSku, destination, client = createCjClient() }: {
+export async function quoteCjShipping({ product, variantSku, quantity = 1, destination, client = createCjClient() }: {
   product: Product;
   variantSku?: string;
+  quantity?: number;
   destination: ShippingDestinationInput;
   client?: CjClient;
 }): Promise<ResolvedCjShippingQuote> {
@@ -349,8 +352,11 @@ export async function quoteCjShipping({ product, variantSku, destination, client
     throw new CjShippingConfigurationError("La cotización de envío de CJ aún no está configurada. Intenta nuevamente cuando Nexora confirme la conexión del proveedor.");
   }
   const normalizedDestination = normalizeCjShippingDestination(destination);
+  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
+    throw new CjShippingQuoteError("La cantidad por producto debe estar entre 1 y 10 unidades.");
+  }
   const catalogVariant = selectedVariant(product, variantSku);
-  const key = cacheKey(product, catalogVariant.sku, normalizedDestination);
+  const key = cacheKey(product, catalogVariant.sku, quantity, normalizedDestination);
   const cached = quoteCache.get(key);
   if (cached && cached.expiresAtMs > Date.now()) return cached.quote;
 
@@ -382,16 +388,16 @@ export async function quoteCjShipping({ product, variantSku, destination, client
       length: dimensions.lengthCm,
       width: dimensions.widthCm,
       height: dimensions.heightCm,
-      volume: Number(dimensions.volumeCm3.toFixed(3)),
-      weight: weight.unitWeightGrams,
-      wrapWeight: weight.wrapWeightGrams,
-      totalGoodsAmount: supplierCostUsd,
+      volume: Number((dimensions.volumeCm3 * quantity).toFixed(3)),
+      weight: weight.unitWeightGrams * quantity,
+      wrapWeight: weight.wrapWeightGrams * quantity,
+      totalGoodsAmount: supplierCostUsd * quantity,
       productProp: properties,
       skuList: [catalogVariant.sku],
       freightTrialSkuList: [{
         vid: variantId,
         sku: catalogVariant.sku,
-        skuQuantity: 1,
+        skuQuantity: quantity,
         skuWeight: weight.unitWeightGrams,
         skuVolume: Number(dimensions.volumeCm3.toFixed(3)),
         productPropList: properties,
@@ -413,6 +419,7 @@ export async function quoteCjShipping({ product, variantSku, destination, client
   const quote: ResolvedCjShippingQuote = {
     productSlug: product.slug,
     variantSku: catalogVariant.sku,
+    quantity,
     supplierCostUsd,
     exchangeRateCopPerUsd: exchangeRate,
     quotedAt: quotedAt.toISOString(),

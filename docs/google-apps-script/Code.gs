@@ -41,6 +41,8 @@ const ORDER_HEADERS = [
   // Variante concreta elegida al cotizar. Se agrega al final para no mover
   // datos existentes ni confundir despachos ya registrados.
   "SKU variante CJ", "Variante elegida",
+  // Detalle estructurado del carrito para preparar cada línea exacta en CJ.
+  "Artículos JSON",
 ];
 
 const EVENT_HEADERS = [
@@ -161,6 +163,9 @@ function mergeOrder_(current, event, receivedAt, isNew) {
   setIfPresent_(out, "Producto", order.productName);
   setIfPresent_(out, "Nicho", order.niche);
   setIfPresent_(out, "Cantidad", order.quantity);
+  if (event.type === "checkout.created" && order.items && order.items.length) {
+    setIfBlank_(out, "Artículos JSON", JSON.stringify(order.items));
+  }
   // El checkout es la fuente de verdad para contacto y entrega porque esos
   // datos fueron usados para cotizar CJ. Wompi puede complementar un pedido
   // antiguo/incompleto, pero nunca reemplazar el correo o la dirección ya
@@ -344,6 +349,7 @@ function sendAdminEmail_(config, order, event) {
   const text = [
     "Referencia: " + value_(order["Referencia Wompi"]),
     "Producto: " + value_(order["Producto"]),
+    "Artículos del carrito:\n" + orderItemsText_(order),
     "SKU: " + value_(order["SKU"]),
     "SKU variante CJ: " + value_(order["SKU variante CJ"]),
     "Variante elegida: " + value_(order["Variante elegida"]),
@@ -384,7 +390,8 @@ function sendCustomerEmail_(config, order, event) {
   const approved = event.type === "payment.updated" && (event.payment || {}).status === "APPROVED";
   const text = approved ? [
     "Hola " + value_(order["Cliente"] || "cliente") + ",", "",
-    "Confirmamos la recepción de tu pago para " + value_(order["Producto"]) + ".",
+    "Confirmamos la recepción de tu pago para los siguientes artículos:",
+    orderItemsText_(order),
     "Referencia: " + value_(order["Referencia Wompi"]),
     order["Variante elegida"] ? "Variante: " + value_(order["Variante elegida"]) : "",
     "Productos: " + cop_(order["Subtotal productos COP"]),
@@ -525,7 +532,7 @@ function normalizeEvent_(input) {
     eventId: requiredText_(input.eventId, 140), type: type, occurredAt: requiredDate_(input.occurredAt), source: cellText_(input.source || "nexora", 80), detail: cellText_(input.detail || "", 1000), needsReview: Boolean(input.needsReview),
     order: {
       variantSku: cellText_(order.variantSku, 180), variantLabel: cellText_(order.variantLabel, 300),
-      id: cellText_(order.id || input.eventId, 140), reference: requiredText_(order.reference, 140), sku: cellText_(order.sku, 140), productName: cellText_(order.productName, 300), niche: cellText_(order.niche, 80), quantity: integerOrNull_(order.quantity), currency: cellText_(order.currency || "COP", 8),
+      id: cellText_(order.id || input.eventId, 140), reference: requiredText_(order.reference, 140), sku: cellText_(order.sku, 140), productName: cellText_(order.productName, 300), niche: cellText_(order.niche, 80), quantity: integerOrNull_(order.quantity), currency: cellText_(order.currency || "COP", 8), items: normalizeItems_(order.items),
       customer: { name: cellText_(customer.name, 180), email: cellText_(customer.email, 254), phone: cellText_(customer.phone, 60) },
       shipping: {
         recipient: cellText_(shipping.recipient, 180), address1: cellText_(shipping.address1, 300), address2: cellText_(shipping.address2, 300), houseNumber: cellText_(shipping.houseNumber, 80), city: cellText_(shipping.city, 120), region: cellText_(shipping.region, 120), country: cellText_(shipping.country, 80), postalCode: cellText_(shipping.postalCode, 40),
@@ -634,12 +641,37 @@ function rawText_(value, maximum) { return String(value === undefined || value =
 function requiredDate_(value) { const date = dateOrNull_(value); if (!date) throw new Error("invalid date"); return date; }
 function dateOrNull_(value) { if (!value) return null; const date = value instanceof Date ? value : new Date(value); return Number.isNaN(date.getTime()) ? null : date; }
 function integerOrNull_(value) { if (value === "" || value === null || value === undefined) return null; const number = Number(value); if (!Number.isInteger(number) || number < 1) throw new Error("invalid quantity"); return number; }
+function normalizeItems_(value) {
+  if (value === undefined || value === null) return [];
+  if (!Array.isArray(value) || value.length < 1 || value.length > 6) throw new Error("invalid items");
+  return value.map(function (item) {
+    if (!item || typeof item !== "object") throw new Error("invalid item");
+    return {
+      sku: cellText_(item.sku, 140), variantSku: cellText_(item.variantSku, 180), variantLabel: cellText_(item.variantLabel, 300),
+      productName: requiredText_(item.productName, 300), niche: cellText_(item.niche, 80), quantity: integerOrNull_(item.quantity),
+      unitPriceCop: moneyOrNull_(item.unitPriceCop), subtotalCop: moneyOrNull_(item.subtotalCop), supplierCostUsd: decimalOrNull_(item.supplierCostUsd),
+      shippingMethod: cellText_(item.shippingMethod, 160), shippingCarrier: cellText_(item.shippingCarrier, 160), shippingEstimatedDelivery: cellText_(item.shippingEstimatedDelivery, 180),
+      shippingOriginCountryCode: cellText_(item.shippingOriginCountryCode, 12), shippingOptionId: cellText_(item.shippingOptionId, 180), shippingCostCop: moneyOrNull_(item.shippingCostCop),
+    };
+  });
+}
 function moneyOrNull_(value) { if (value === "" || value === null || value === undefined) return null; const number = Number(value); if (!Number.isFinite(number)) throw new Error("invalid amount"); return Math.round(number); }
 function decimalOrNull_(value) { if (value === "" || value === null || value === undefined) return null; const number = Number(value); if (!Number.isFinite(number)) throw new Error("invalid decimal"); return Math.round(number * 1000000) / 1000000; }
 function ratioOrNull_(value) { if (value === "" || value === null || value === undefined) return null; let number = Number(value); if (!Number.isFinite(number)) throw new Error("invalid ratio"); if (Math.abs(number) > 1) number = number / 100; return number; }
 function looksLikeEmail_(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 function eventSubject_(event) { if (event.type === "fulfillment.updated") return "actualización de postventa"; return (event.payment || {}).status === "APPROVED" ? "pago aprobado" : "actualización de pago"; }
 function shippingText_(order) { return [value_(order["Destinatario envío"]), [value_(order["Dirección envío 1"]), value_(order["Número de casa envío"])].filter(Boolean).join(" #"), value_(order["Dirección envío 2"]), value_(order["Ciudad envío"]), value_(order["Departamento/estado"]), value_(order["País envío"]), value_(order["Código postal"])].filter(Boolean).join(", "); }
+function orderItemsText_(order) {
+  try {
+    const items = JSON.parse(String(order["Artículos JSON"] || "[]"));
+    if (Array.isArray(items) && items.length) return items.map(function (item) {
+      return "- " + value_(item.quantity) + " x " + value_(item.productName) + " | variante " + value_(item.variantLabel || item.variantSku) + " | " + cop_(item.subtotalCop) + " | envío " + value_(item.shippingMethod) + " " + cop_(item.shippingCostCop);
+    }).join("\n");
+  } catch (error) {
+    console.error("items text failure");
+  }
+  return "- " + value_(order["Cantidad"] || 1) + " x " + value_(order["Producto"]);
+}
 function value_(value) { return value === null || value === undefined ? "" : String(value); }
 function string_(value) { return value_(value).trim(); }
 function numberOrNull_(value) { if (value === "" || value === null || value === undefined) return null; const number = Number(value); return Number.isFinite(number) ? number : null; }

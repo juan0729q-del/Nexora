@@ -2,6 +2,7 @@ import "server-only";
 
 import { createHash, createHmac, randomUUID } from "crypto";
 import { estimateContribution, getFulfillmentReserveCop, usdToCop } from "@/lib/commerce-finance";
+import { getProductPresentation } from "@/lib/product-presentation";
 import { niches, type Product } from "@/lib/products";
 import type { CheckoutSession } from "@/lib/payments/hosted-checkout";
 import type { VerifiedWompiTransaction } from "@/lib/payments/webhooks";
@@ -42,6 +43,23 @@ type LedgerFinance = {
   contributionCop?: number;
   contributionMargin?: number;
 };
+type LedgerOrderItem = {
+  sku: string;
+  variantSku: string;
+  variantLabel?: string;
+  productName: string;
+  niche: string;
+  quantity: number;
+  unitPriceCop: number;
+  subtotalCop: number;
+  supplierCostUsd: number;
+  shippingMethod: string;
+  shippingCarrier?: string;
+  shippingEstimatedDelivery?: string;
+  shippingOriginCountryCode: string;
+  shippingOptionId: string;
+  shippingCostCop: number;
+};
 type LedgerOrder = {
   id: string;
   reference: string;
@@ -56,6 +74,7 @@ type LedgerOrder = {
   customer?: LedgerCustomer;
   shipping?: LedgerShipping;
   finance?: LedgerFinance;
+  items?: LedgerOrderItem[];
 };
 type LedgerPayment = {
   id?: string;
@@ -216,12 +235,11 @@ async function send(event: LedgerEvent) {
   }, configuration.timeoutMs);
 }
 
-function makeFinance({ checkout, supplierCostUsd, exchangeRateCopPerUsd }: {
-  checkout: CheckoutSession;
-  supplierCostUsd: number;
-  exchangeRateCopPerUsd: number;
-}): LedgerFinance {
-  const supplierCostCop = usdToCop(supplierCostUsd, exchangeRateCopPerUsd);
+function makeFinance(checkout: CheckoutSession): LedgerFinance {
+  const supplierCostCop = checkout.items.reduce(
+    (total, item) => total + usdToCop(item.supplierCostUsd * item.quantity, item.exchangeRateCopPerUsd),
+    0,
+  );
   const supplierShippingCostCop = checkout.shippingCostCop;
   const estimate = estimateContribution({
     salePriceCop: checkout.amountCop,
@@ -233,13 +251,68 @@ function makeFinance({ checkout, supplierCostUsd, exchangeRateCopPerUsd }: {
     productSubtotalCop: checkout.productSubtotalCop,
     shippingChargedCop: checkout.shippingCostCop,
     supplierShippingCostCop,
-    shippingQuoteUsd: checkout.shipping.selected.amountUsd,
-    exchangeRateCopPerUsd,
+    shippingQuoteUsd: checkout.items.reduce((total, item) => total + item.shipping.selected.amountUsd, 0),
+    exchangeRateCopPerUsd: checkout.items[0]?.exchangeRateCopPerUsd,
     supplierCostCop,
     wompiFeeCop: estimate.totalFeeCop,
     netPayoutCop: Math.round(checkout.amountCop - estimate.totalFeeCop),
     contributionCop: estimate.contributionCop,
     contributionMargin: estimate.contributionMarginPercent / 100,
+  };
+}
+
+function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
+  const first = checkout.items[0];
+  const itemRows: LedgerOrderItem[] = checkout.items.map((item) => {
+    const selectedVariant = item.product.variants.find((variant) => variant.sku.toUpperCase() === item.shipping.selected.variantSku.toUpperCase());
+    return {
+      sku: item.product.sku,
+      variantSku: item.shipping.selected.variantSku,
+      variantLabel: selectedVariant?.options || selectedVariant?.label,
+      productName: getProductPresentation(item.product).title,
+      niche: niches[item.product.niche].menuLabel,
+      quantity: item.quantity,
+      unitPriceCop: item.product.price,
+      subtotalCop: item.product.price * item.quantity,
+      supplierCostUsd: item.supplierCostUsd * item.quantity,
+      shippingMethod: item.shipping.selected.method,
+      shippingCarrier: item.shipping.selected.carrier || undefined,
+      shippingEstimatedDelivery: item.shipping.selected.estimatedDelivery || undefined,
+      shippingOriginCountryCode: item.shipping.selected.sourceCountryCode,
+      shippingOptionId: item.shipping.selected.id,
+      shippingCostCop: item.shipping.selected.amountCop,
+    };
+  });
+  const joinUnique = (values: Array<string | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))].join(" · ").slice(0, 300);
+  return {
+    id: checkout.externalReference,
+    reference: checkout.externalReference,
+    sku: joinUnique(itemRows.map((item) => item.sku)).slice(0, 140),
+    variantSku: joinUnique(itemRows.map((item) => item.variantSku)).slice(0, 180),
+    variantLabel: joinUnique(itemRows.map((item) => item.variantLabel)).slice(0, 300),
+    productName: itemRows.map((item) => `${item.quantity}× ${item.productName}`).join("; ").slice(0, 300),
+    niche: joinUnique(itemRows.map((item) => item.niche)).slice(0, 80),
+    quantity: itemRows.reduce((total, item) => total + item.quantity, 0),
+    currency: "COP",
+    customer: { email: first.shipping.email, name: first.shipping.recipientName, phone: first.shipping.phone },
+    shipping: {
+      recipient: first.shipping.recipientName,
+      address1: first.shipping.address1,
+      address2: first.shipping.address2,
+      houseNumber: first.shipping.houseNumber,
+      city: first.shipping.city,
+      region: first.shipping.region,
+      country: first.shipping.countryCode,
+      postalCode: first.shipping.postalCode,
+      method: joinUnique(itemRows.map((item) => item.shippingMethod)),
+      carrier: joinUnique(itemRows.map((item) => item.shippingCarrier)),
+      estimatedDelivery: joinUnique(itemRows.map((item) => item.shippingEstimatedDelivery)),
+      originCountryCode: joinUnique(itemRows.map((item) => item.shippingOriginCountryCode)),
+      optionId: joinUnique(itemRows.map((item) => item.shippingOptionId)),
+      quotedAt: checkout.items.map((item) => item.shipping.selected.selectedAt).sort()[0],
+    },
+    finance: makeFinance(checkout),
+    items: itemRows,
   };
 }
 
@@ -262,33 +335,14 @@ function productOrder(product: Product, reference: string, customer?: LedgerCust
 
 export function skuFromPaymentReference(reference: string) {
   const match = /^NXR-([A-Z0-9]+)-[A-Z0-9]+$/i.exec(reference.trim());
-  return match?.[1]?.toUpperCase();
+  const value = match?.[1]?.toUpperCase();
+  // Los carritos usan una referencia agregada. No debe interpretarse "CART"
+  // como un SKU, porque los links de pago de Wompi necesitan recuperar la
+  // referencia externa real antes de conciliar el evento con Google Sheets.
+  return value && value !== "CART" ? value : undefined;
 }
 
-export function createCheckoutCreatedEvent(product: Product, checkout: CheckoutSession, pricing: { supplierCostUsd: number; exchangeRateCopPerUsd: number }): LedgerEvent {
-  const selectedVariant = product.variants.find((variant) => variant.sku.toUpperCase() === checkout.shipping.selected.variantSku.toUpperCase());
-  // El SKU se obtiene de la cotización firmada; la etiqueta sólo mejora la
-  // lectura administrativa y nunca decide el artículo a despachar.
-  const variant = {
-    sku: checkout.shipping.selected.variantSku,
-    label: selectedVariant?.options || selectedVariant?.label,
-  };
-  const shipping: LedgerShipping = {
-    recipient: checkout.shipping.recipientName,
-    address1: checkout.shipping.address1,
-    address2: checkout.shipping.address2,
-    houseNumber: checkout.shipping.houseNumber,
-    city: checkout.shipping.city,
-    region: checkout.shipping.region,
-    country: checkout.shipping.countryCode,
-    postalCode: checkout.shipping.postalCode,
-    method: checkout.shipping.selected.method,
-    carrier: checkout.shipping.selected.carrier || undefined,
-    estimatedDelivery: checkout.shipping.selected.estimatedDelivery || undefined,
-    originCountryCode: checkout.shipping.selected.sourceCountryCode,
-    optionId: checkout.shipping.selected.id,
-    quotedAt: checkout.shipping.selected.selectedAt,
-  };
+export function createCheckoutCreatedEvent(checkout: CheckoutSession): LedgerEvent {
   return {
     schemaVersion: 1,
     eventId: `checkout:${checkout.externalReference}`,
@@ -296,14 +350,7 @@ export function createCheckoutCreatedEvent(product: Product, checkout: CheckoutS
     occurredAt: new Date().toISOString(),
     source: "nexora",
     detail: "Checkout preparado; no representa una venta ni un pago aprobado.",
-    order: productOrder(
-      product,
-      checkout.externalReference,
-      { email: checkout.shipping.email, name: checkout.shipping.recipientName, phone: checkout.shipping.phone },
-      shipping,
-      makeFinance({ checkout, ...pricing }),
-      variant,
-    ),
+    order: checkoutOrder(checkout),
     // Un checkout preparado no es un intento de pago ni una venta. Wompi
     // reemplaza este estado por PENDING/APPROVED/DECLINED cuando corresponda.
     payment: { status: "CHECKOUT_PREPARADO" },
@@ -346,7 +393,10 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
   // La conciliación final compara este monto con el total (producto + flete)
   // previamente firmado y registrado en el libro privado. Compararlo sólo con
   // el precio del catálogo marcaría erróneamente todo envío como discrepancia.
-  const needsReview = !product || transaction.currency !== "COP";
+  // En un carrito la referencia ya no codifica un único SKU. El registro
+  // checkout.created conserva todas las líneas y el Apps Script concilia el
+  // monto de Wompi contra ese total antes de confirmar la postventa.
+  const needsReview = transaction.currency !== "COP";
   const eventFingerprint = createHash("sha256")
     .update([transaction.environment, transaction.id, status, transaction.webhookTimestamp].join("|"))
     .digest("hex")
@@ -360,8 +410,8 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
     occurredAt: transaction.finalizedAt || transaction.createdAt || webhookTimestampToIso(transaction.webhookTimestamp),
     source: "wompi",
     detail: needsReview
-      ? "Pago validado, pero requiere revisión: producto, moneda o monto no conciliado con el catálogo."
-      : "Evento validado mediante la firma oficial de Wompi y conciliado con el catálogo.",
+      ? "Pago validado, pero requiere revisión por moneda no compatible."
+      : "Evento validado mediante la firma oficial de Wompi; el libro privado concilia el monto con el carrito registrado.",
     needsReview,
     order: product
       ? productOrder(product, transaction.reference, paymentCustomer(transaction), paymentShipping(transaction))
@@ -377,8 +427,8 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
   };
 }
 
-export async function recordCheckoutCreated(product: Product, checkout: CheckoutSession, pricing: { supplierCostUsd: number; exchangeRateCopPerUsd: number }) {
-  return send(createCheckoutCreatedEvent(product, checkout, pricing));
+export async function recordCheckoutCreated(checkout: CheckoutSession) {
+  return send(createCheckoutCreatedEvent(checkout));
 }
 
 export async function recordWompiTransaction(transaction: VerifiedWompiTransaction, product?: Product) {

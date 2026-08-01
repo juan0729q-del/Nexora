@@ -39,9 +39,25 @@ export type ShippingQuoteResponse = {
   options: CjShippingQuoteOption[];
 };
 
+export type CartShippingQuoteLine = ShippingQuoteResponse & {
+  productSlug: string;
+  productName: string;
+  variantSku: string;
+  variantLabel: string;
+  quantity: number;
+};
+
+export type CartShippingQuoteResponse = {
+  expiresAt: string;
+  productSubtotalCop: number;
+  currency: "COP";
+  items: CartShippingQuoteLine[];
+};
+
 export type SelectedShippingQuote = CjShippingQuoteOption & {
   selectedAt: string;
   variantSku: string;
+  quantity: number;
 };
 
 export type CheckoutShipping = ShippingDestinationInput & {

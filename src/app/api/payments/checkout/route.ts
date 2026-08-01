@@ -1,7 +1,13 @@
 import { NextResponse } from "next/server";
-import { getProduct } from "@/lib/catalog-store";
 import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
-import { PaymentConfigurationError, PaymentProviderError, createHostedCheckout, toPublicCheckoutSession } from "@/lib/payments/hosted-checkout";
+import { getCatalog } from "@/lib/catalog-store";
+import {
+  PaymentConfigurationError,
+  PaymentProviderError,
+  createHostedCheckout,
+  toPublicCheckoutSession,
+  type CheckoutLineItem,
+} from "@/lib/payments/hosted-checkout";
 import { isStoreProductAvailable } from "@/lib/products";
 import { getSalesLedgerStatus, recordCheckoutCreated } from "@/lib/sales-ledger";
 import { getSiteUrl } from "@/lib/site";
@@ -11,6 +17,14 @@ import type { CheckoutShipping, ShippingDestinationInput } from "@/lib/shipping/
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+
+type CheckoutRequestItem = {
+  productSlug: string;
+  variantSku: string;
+  quantity: number;
+  shippingQuoteToken: string;
+  shippingMethodId: string;
+};
 
 function getCheckoutSiteUrl(request: Request) {
   const configuredUrl = process.env.NEXT_PUBLIC_SITE_URL;
@@ -43,61 +57,90 @@ function destinationFrom(value: unknown, fallbackEmail: string): ShippingDestina
   };
 }
 
+function checkoutItemsFrom(value: unknown): CheckoutRequestItem[] | null {
+  if (!Array.isArray(value) || value.length < 1 || value.length > 6) return null;
+  const items: CheckoutRequestItem[] = [];
+  const unique = new Set<string>();
+  for (const raw of value) {
+    if (!raw || typeof raw !== "object") return null;
+    const item = raw as Record<string, unknown>;
+    const productSlug = typeof item.productSlug === "string" ? item.productSlug.trim() : "";
+    const variantSku = typeof item.variantSku === "string" ? item.variantSku.trim() : "";
+    const shippingQuoteToken = typeof item.shippingQuoteToken === "string" ? item.shippingQuoteToken : "";
+    const shippingMethodId = typeof item.shippingMethodId === "string" ? item.shippingMethodId.trim() : "";
+    const quantity = Number(item.quantity);
+    if (!productSlug || !variantSku || !shippingQuoteToken || !shippingMethodId || !Number.isInteger(quantity) || quantity < 1 || quantity > 10) return null;
+    const identity = `${productSlug}|${variantSku}`.toLowerCase();
+    if (unique.has(identity)) return null;
+    unique.add(identity);
+    items.push({ productSlug, variantSku, quantity, shippingQuoteToken, shippingMethodId });
+  }
+  if (items.reduce((total, item) => total + item.quantity, 0) > 20) return null;
+  return items;
+}
+
 function requireSalesLedger() {
   return process.env.REQUIRE_SALES_LEDGER_FOR_CHECKOUT?.trim().toLowerCase() !== "false";
 }
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as {
-      productSlug?: unknown;
-      customerEmail?: unknown;
-      variantSku?: unknown;
-      destination?: unknown;
-      shippingQuoteToken?: unknown;
-      shippingMethodId?: unknown;
-    };
-    if (typeof body.productSlug !== "string") return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
+    const body = await request.json() as { customerEmail?: unknown; destination?: unknown; items?: unknown };
+    const requestedItems = checkoutItemsFrom(body.items);
+    if (!requestedItems) return NextResponse.json({ message: "El carrito o sus cantidades no son válidos. Vuelve a revisarlo antes de pagar." }, { status: 400 });
     const email = customerEmail(body.customerEmail);
     if (!email) return NextResponse.json({ message: "Ingresa un correo válido para recibir la confirmación y el seguimiento del pedido." }, { status: 400 });
     const rawDestination = destinationFrom(body.destination, email);
     if (!rawDestination) return NextResponse.json({ message: "Completa la dirección de entrega y vuelve a cotizar antes de pagar." }, { status: 400 });
     const destination = normalizeCjShippingDestination(rawDestination);
     if (destination.email.trim().toLowerCase() !== email) return NextResponse.json({ message: "Usa el mismo correo para la cotización y la confirmación del pedido." }, { status: 400 });
-    const product = await getProduct(body.productSlug);
-    if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Este producto no está disponible temporalmente." }, { status: 409 });
 
-    const quoteToken = readShippingQuoteToken(body.shippingQuoteToken);
-    const requestedVariantSku = typeof body.variantSku === "string" ? body.variantSku.trim().toUpperCase() : "";
-    if (quoteToken.productSlug !== product.slug || quoteToken.productPriceCop !== product.price || (requestedVariantSku && quoteToken.variantSku.toUpperCase() !== requestedVariantSku)) {
-      return NextResponse.json({ message: "El producto, la variante o el precio cambió. Vuelve a calcular el envío." }, { status: 409 });
+    const catalog = await getCatalog();
+    const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
+    const checkoutItems: CheckoutLineItem[] = [];
+    for (const requested of requestedItems) {
+      const product = productsBySlug.get(requested.productSlug);
+      if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
+      const quoteToken = readShippingQuoteToken(requested.shippingQuoteToken);
+      if (quoteToken.productSlug !== product.slug || quoteToken.productPriceCop !== product.price
+        || quoteToken.productSubtotalCop !== product.price * requested.quantity || quoteToken.quantity !== requested.quantity
+        || quoteToken.variantSku.toUpperCase() !== requested.variantSku.toUpperCase()) {
+        return NextResponse.json({ message: "Un producto, variante, cantidad o precio cambió. Vuelve a calcular el envío." }, { status: 409 });
+      }
+      const selectedShipping = selectShippingQuote(quoteToken, requested.shippingMethodId, destination);
+      const shipping: CheckoutShipping = {
+        ...destination,
+        selected: {
+          ...selectedShipping,
+          selectedAt: new Date().toISOString(),
+          variantSku: quoteToken.variantSku,
+          quantity: requested.quantity,
+        },
+        quoteExpiresAt: quoteToken.expiresAt,
+      };
+      const inventory = await verifyCheckoutInventory(product, {
+        variantSku: quoteToken.variantSku,
+        quantity: requested.quantity,
+        forceLiveCheck: true,
+      });
+      if (["unavailable", "unverified", "quota-exhausted"].includes(inventory.status)) {
+        return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: 409 });
+      }
+      checkoutItems.push({
+        product,
+        quantity: requested.quantity,
+        shipping,
+        supplierCostUsd: quoteToken.supplierCostUsd,
+        exchangeRateCopPerUsd: quoteToken.exchangeRateCopPerUsd,
+      });
     }
-    const selectedShipping = selectShippingQuote(quoteToken, body.shippingMethodId, destination);
-    const shipping: CheckoutShipping = {
-      ...destination,
-      selected: { ...selectedShipping, selectedAt: new Date().toISOString(), variantSku: quoteToken.variantSku },
-      quoteExpiresAt: quoteToken.expiresAt,
-    };
-    const inventory = await verifyCheckoutInventory(product, {
-      variantSku: quoteToken.variantSku,
-      forceLiveCheck: true,
-    });
-    if (["unavailable", "unverified", "quota-exhausted"].includes(inventory.status)) {
-      return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: 409 });
-    }
+
     const ledger = getSalesLedgerStatus();
     if (!ledger.configured && requireSalesLedger()) {
       return NextResponse.json({ message: "El registro seguro de pedidos está terminando de conectarse. Intenta nuevamente en unos minutos; no se realizará ningún cobro mientras no quede listo." }, { status: 503 });
     }
-    const checkout = await createHostedCheckout(product, getCheckoutSiteUrl(request), email, shipping);
-    // La cotización se registra antes de revelar la pasarela. Así Wompi puede
-    // conciliar exactamente producto + envío sin crear pedidos no auditados.
-    if (ledger.configured) await recordCheckoutCreated(product, checkout, {
-      supplierCostUsd: quoteToken.supplierCostUsd,
-      exchangeRateCopPerUsd: quoteToken.exchangeRateCopPerUsd,
-    });
-    // La dirección completa sólo se conserva en el registro privado firmado.
-    // No hace falta reflejarla al navegador una vez que el cliente la envió.
+    const checkout = await createHostedCheckout(checkoutItems, getCheckoutSiteUrl(request), email);
+    if (ledger.configured) await recordCheckoutCreated(checkout);
     return NextResponse.json(toPublicCheckoutSession(checkout), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });

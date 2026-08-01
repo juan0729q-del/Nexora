@@ -6,6 +6,13 @@ import type { Product } from "@/lib/products";
 import type { CheckoutShipping } from "@/lib/shipping/types";
 
 export type PaymentProvider = "wompi" | "mercadopago";
+export type CheckoutLineItem = {
+  product: Product;
+  quantity: number;
+  shipping: CheckoutShipping;
+  supplierCostUsd: number;
+  exchangeRateCopPerUsd: number;
+};
 export type CheckoutSession = {
   provider: PaymentProvider;
   checkoutUrl: string;
@@ -13,7 +20,7 @@ export type CheckoutSession = {
   productSubtotalCop: number;
   shippingCostCop: number;
   amountCop: number;
-  shipping: CheckoutShipping;
+  items: CheckoutLineItem[];
 };
 
 /** Respuesta segura para el navegador: la dirección sólo vive en el evento privado. */
@@ -95,49 +102,52 @@ function resultUrl(siteUrl: string, provider: PaymentProvider, externalReference
   return url.toString();
 }
 
-function checkoutAmounts(product: Product, shipping: CheckoutShipping) {
-  const shippingCostCop = Math.round(shipping.selected.amountCop);
-  if (!Number.isFinite(shippingCostCop) || shippingCostCop < 0) throw new PaymentConfigurationError("La cotización de envío no contiene un costo válido.");
-  const amountCop = product.price + shippingCostCop;
+function checkoutAmounts(items: CheckoutLineItem[]) {
+  const productSubtotalCop = items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  const shippingCostCop = items.reduce((total, item) => total + Math.round(item.shipping.selected.amountCop), 0);
+  if (!Number.isSafeInteger(productSubtotalCop) || productSubtotalCop <= 0 || !Number.isSafeInteger(shippingCostCop) || shippingCostCop < 0) {
+    throw new PaymentConfigurationError("El carrito o la cotización de envío no contiene valores válidos.");
+  }
+  const amountCop = productSubtotalCop + shippingCostCop;
   if (!Number.isSafeInteger(amountCop) || amountCop <= 0) throw new PaymentConfigurationError("El total del pedido no es válido.");
-  return { productSubtotalCop: product.price, shippingCostCop, amountCop };
+  return { productSubtotalCop, shippingCostCop, amountCop };
 }
 
-function checkoutExpiration(shipping: CheckoutShipping) {
-  const parsed = new Date(shipping.quoteExpiresAt);
-  if (Number.isNaN(parsed.getTime()) || parsed.getTime() <= Date.now()) {
+function checkoutExpiration(items: CheckoutLineItem[]) {
+  const expirations = items.map((item) => new Date(item.shipping.quoteExpiresAt));
+  if (!expirations.length || expirations.some((date) => Number.isNaN(date.getTime()) || date.getTime() <= Date.now())) {
     throw new PaymentConfigurationError("La cotización de envío venció. Vuelve a calcularla antes de pagar.");
   }
-  return parsed.toISOString();
+  return new Date(Math.min(...expirations.map((date) => date.getTime()))).toISOString();
 }
 
-export async function createHostedCheckout(product: Product, siteUrl: string, customerEmail: string, shipping: CheckoutShipping): Promise<CheckoutSession> {
+export async function createHostedCheckout(items: CheckoutLineItem[], siteUrl: string, customerEmail: string): Promise<CheckoutSession> {
+  if (!items.length) throw new PaymentConfigurationError("El carrito está vacío.");
   const provider = getProvider();
   // Los links de pago de Wompi limitan sku a 36 caracteres. Usamos la misma
   // referencia corta y única en ambos flujos para que la conciliación posterior
   // pueda correlacionar el pago sin que el proveedor rechace el checkout.
-  const skuFragment = product.sku.replace(/[^a-zA-Z0-9]/g, "").slice(0, 18).toUpperCase() || "PRODUCTO";
   const uniqueFragment = randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
-  const externalReference = `NXR-${skuFragment}-${uniqueFragment}`.slice(0, 36);
-  const amounts = checkoutAmounts(product, shipping);
+  const externalReference = `NXR-CART-${uniqueFragment}`;
+  const amounts = checkoutAmounts(items);
   return provider === "wompi"
-    ? createWompiCheckout(product, siteUrl, externalReference, customerEmail, shipping, amounts)
-    : createMercadoPagoPreference(product, siteUrl, externalReference, customerEmail, shipping, amounts);
+    ? createWompiCheckout(items, siteUrl, externalReference, customerEmail, amounts)
+    : createMercadoPagoPreference(items, siteUrl, externalReference, customerEmail, amounts);
 }
 
-async function createWompiCheckout(product: Product, siteUrl: string, externalReference: string, customerEmail: string, shipping: CheckoutShipping, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
+async function createWompiCheckout(items: CheckoutLineItem[], siteUrl: string, externalReference: string, customerEmail: string, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
   const publicKey = getWompiPublicKey();
   const integritySecret = process.env.WOMPI_INTEGRITY_SECRET?.trim();
   if (publicKey) {
     if (!integritySecret) throw new PaymentConfigurationError("Falta WOMPI_INTEGRITY_SECRET para firmar el Checkout Web de Wompi.");
-    return createWompiWebCheckout(product, siteUrl, externalReference, publicKey, integritySecret, customerEmail, shipping, amounts);
+    return createWompiWebCheckout(items, siteUrl, externalReference, publicKey, integritySecret, customerEmail, amounts);
   }
-  return createWompiPaymentLink(product, siteUrl, externalReference, shipping, amounts);
+  return createWompiPaymentLink(items, siteUrl, externalReference, amounts);
 }
 
-function createWompiWebCheckout(product: Product, siteUrl: string, externalReference: string, publicKey: string, integritySecret: string, customerEmail: string, shipping: CheckoutShipping, amounts: ReturnType<typeof checkoutAmounts>): CheckoutSession {
+function createWompiWebCheckout(items: CheckoutLineItem[], siteUrl: string, externalReference: string, publicKey: string, integritySecret: string, customerEmail: string, amounts: ReturnType<typeof checkoutAmounts>): CheckoutSession {
   const amountInCents = Math.round(amounts.amountCop * 100);
-  const expirationTime = checkoutExpiration(shipping);
+  const expirationTime = checkoutExpiration(items);
   // Wompi exige firmar también expiration-time cuando se usa; así una tarifa
   // CJ vencida no queda utilizable a través de un checkout ya creado.
   const integrity = createHash("sha256").update(`${externalReference}${amountInCents}COP${expirationTime}${integritySecret}`).digest("hex");
@@ -157,20 +167,21 @@ function createWompiWebCheckout(product: Product, siteUrl: string, externalRefer
     // después de firmar el total.
     "collect-shipping": "false",
   });
-  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/p/?${params.toString()}`, externalReference, ...amounts, shipping };
+  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/p/?${params.toString()}`, externalReference, ...amounts, items };
 }
 
-async function createWompiPaymentLink(product: Product, siteUrl: string, externalReference: string, shipping: CheckoutShipping, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
+async function createWompiPaymentLink(items: CheckoutLineItem[], siteUrl: string, externalReference: string, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
   const privateKey = process.env.WOMPI_PRIVATE_KEY?.trim();
   if (!privateKey || !privateKey.startsWith("prv_")) throw new PaymentConfigurationError("Configura WOMPI_PRIVATE_KEY (prv_test_/prv_prod_) o NEXT_PUBLIC_WOMPI_PUBLIC_KEY junto a WOMPI_INTEGRITY_SECRET.");
-  const presentation = getProductPresentation(product);
-  const expiresAt = checkoutExpiration(shipping);
+  const totalUnits = items.reduce((total, item) => total + item.quantity, 0);
+  const itemSummary = items.map((item) => `${item.quantity}× ${getProductPresentation(item.product).title}`).join(", ").slice(0, 220);
+  const expiresAt = checkoutExpiration(items);
   const response = await fetch(`${getWompiBaseUrl(privateKey)}/v1/payment_links`, {
     method: "POST",
     headers: { Authorization: `Bearer ${privateKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      name: `Nexora — ${presentation.title}`,
-      description: `${presentation.cardDescription} Envío CJ: ${shipping.selected.method}${shipping.selected.estimatedDelivery ? ` (${shipping.selected.estimatedDelivery} días estimados)` : ""}.`,
+      name: `Nexora — pedido de ${totalUnits} unidad${totalUnits === 1 ? "" : "es"}`,
+      description: `${itemSummary}. Envío cotizado directamente con CJ por artículo y destino.`,
       single_use: true,
       collect_shipping: false,
       currency: "COP",
@@ -183,7 +194,7 @@ async function createWompiPaymentLink(product: Product, siteUrl: string, externa
   });
   const payload = await response.json().catch(() => null) as { data?: { id?: string } } | null;
   if (!response.ok || !payload?.data?.id) providerError("wompi", response, payload);
-  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/l/${payload.data.id}`, externalReference, ...amounts, shipping };
+  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/l/${payload.data.id}`, externalReference, ...amounts, items };
 }
 
 /**
@@ -203,21 +214,23 @@ export async function resolveWompiPaymentLinkSku(paymentLinkId: string) {
   return typeof payload?.data?.sku === "string" ? payload.data.sku : undefined;
 }
 
-async function createMercadoPagoPreference(product: Product, siteUrl: string, externalReference: string, customerEmail: string, shipping: CheckoutShipping, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
+async function createMercadoPagoPreference(items: CheckoutLineItem[], siteUrl: string, externalReference: string, customerEmail: string, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
   const accessToken = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
   if (!accessToken) throw new PaymentConfigurationError("Falta MERCADOPAGO_ACCESS_TOKEN en la configuración del servidor.");
   const checkoutResultUrl = resultUrl(siteUrl, "mercadopago", externalReference);
   const notificationUrl = new URL("/api/payments/mercadopago/webhook", `${siteUrl}/`).toString();
-  const presentation = getProductPresentation(product);
-  const expiresAt = checkoutExpiration(shipping);
+  const expiresAt = checkoutExpiration(items);
   const response = await fetch("https://api.mercadopago.com/checkout/preferences", {
     method: "POST",
     headers: { Authorization: `Bearer ${accessToken}`, "Content-Type": "application/json", "X-Idempotency-Key": externalReference },
     body: JSON.stringify({
-      items: [
-        { id: product.sku, title: presentation.title, description: presentation.cardDescription, quantity: 1, unit_price: amounts.productSubtotalCop, currency_id: "COP" },
-        { id: `shipping-${shipping.selected.id}`, title: `Envío CJ — ${shipping.selected.method}`, description: shipping.selected.estimatedDelivery ? `Entrega estimada por CJ: ${shipping.selected.estimatedDelivery} días.` : "Método de envío cotizado por CJ.", quantity: 1, unit_price: amounts.shippingCostCop, currency_id: "COP" },
-      ],
+      items: items.flatMap((item) => {
+        const presentation = getProductPresentation(item.product);
+        return [
+          { id: item.product.sku, title: presentation.title, description: presentation.cardDescription, quantity: item.quantity, unit_price: item.product.price, currency_id: "COP" },
+          { id: `shipping-${item.shipping.selected.id}`, title: `Envío CJ — ${presentation.title}`, description: `${item.shipping.selected.method}${item.shipping.selected.estimatedDelivery ? ` · ${item.shipping.selected.estimatedDelivery}` : ""}`, quantity: 1, unit_price: item.shipping.selected.amountCop, currency_id: "COP" },
+        ];
+      }),
       external_reference: externalReference,
       expires: true,
       expiration_date_from: new Date().toISOString(),
@@ -231,5 +244,5 @@ async function createMercadoPagoPreference(product: Product, siteUrl: string, ex
   });
   const payload = await response.json().catch(() => null) as { init_point?: string; sandbox_init_point?: string } | null;
   if (!response.ok || !(payload?.init_point || payload?.sandbox_init_point)) providerError("mercadopago", response, payload);
-  return { provider: "mercadopago", checkoutUrl: payload.init_point || payload.sandbox_init_point!, externalReference, ...amounts, shipping };
+  return { provider: "mercadopago", checkoutUrl: payload.init_point || payload.sandbox_init_point!, externalReference, ...amounts, items };
 }
