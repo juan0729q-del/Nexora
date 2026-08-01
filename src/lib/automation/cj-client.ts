@@ -142,8 +142,8 @@ function requestTimeout() {
   return Math.min(30_000, Math.max(2_000, Number.isFinite(configured) ? configured : 12_000));
 }
 
-function minimumPointsReserve() {
-  const configured = Number(process.env.CJ_MINIMUM_POINTS_RESERVE || 200);
+function minimumPointsReserve(override?: number) {
+  const configured = override ?? Number(process.env.CJ_MINIMUM_POINTS_RESERVE || 200);
   return Number.isFinite(configured) && configured >= 0 ? Math.floor(configured) : 200;
 }
 
@@ -201,6 +201,8 @@ export class CjClient {
   private refreshPromise: Promise<CjSession> | undefined;
   private telemetry: CjTelemetry = {};
 
+  constructor(private readonly pointsReserveOverride?: number) {}
+
   getTelemetry(): CjTelemetry {
     return {
       requestId: this.telemetry.requestId,
@@ -210,9 +212,10 @@ export class CjClient {
 
   assertPointsAvailable(nextRequestCost = 0) {
     const remaining = this.telemetry.points?.remaining;
-    const required = minimumPointsReserve() + Math.max(0, nextRequestCost);
+    const reserve = minimumPointsReserve(this.pointsReserveOverride);
+    const required = reserve + Math.max(0, nextRequestCost);
     if (remaining !== undefined && remaining < required) {
-      throw new CjQuotaError(`CJ reportó ${remaining} puntos disponibles; Nexora reservó ${minimumPointsReserve()} puntos y detuvo la consulta antes de exceder la cuota.`);
+      throw new CjQuotaError(`CJ reportó ${remaining} puntos disponibles; Nexora reservó ${reserve} puntos y detuvo la consulta antes de exceder la cuota.`);
     }
   }
 
@@ -380,6 +383,6 @@ export class CjClient {
   }
 }
 
-export function createCjClient() {
-  return new CjClient();
+export function createCjClient(options?: { minimumPointsReserve?: number }) {
+  return new CjClient(options?.minimumPointsReserve);
 }

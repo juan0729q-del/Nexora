@@ -3,7 +3,6 @@ import {
   CjAuthenticationError,
   CjQuotaError,
   CjRequestError,
-  createCjClient,
 } from "@/lib/automation/cj-client";
 import { getCatalog } from "@/lib/catalog-store";
 import { getProductPresentation } from "@/lib/product-presentation";
@@ -11,6 +10,7 @@ import { isStoreProductAvailable } from "@/lib/products";
 import {
   CjShippingConfigurationError,
   CjShippingQuoteError,
+  createCjShippingClient,
   normalizeCjShippingDestination,
   quoteCjShipping,
 } from "@/lib/shipping/cj-shipping";
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     const destination = normalizeCjShippingDestination(rawDestination);
     const catalog = await getCatalog();
     const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
-    const client = createCjClient();
+    const client = createCjShippingClient();
     const lines: CartShippingQuoteLine[] = [];
 
     // Se cotiza cada línea de forma independiente. CJ puede despachar artículos
