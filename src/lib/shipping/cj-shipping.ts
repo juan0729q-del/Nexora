@@ -13,14 +13,14 @@ const variantByIdEndpoint = `${cjOrigin}/api2.0/v1/product/variant/queryByVid`;
 const freightTipEndpoint = `${cjOrigin}/api2.0/v1/logistic/freightCalculateTip`;
 
 function checkoutPointsReserve() {
-  const configured = Number(process.env.CJ_CHECKOUT_MINIMUM_POINTS_RESERVE || 20);
-  return Number.isFinite(configured) && configured >= 0 ? Math.min(200, Math.floor(configured)) : 20;
+  const configured = Number(process.env.CJ_CHECKOUT_MINIMUM_POINTS_RESERVE || 0);
+  return Number.isFinite(configured) && configured >= 0 ? Math.min(200, Math.floor(configured)) : 0;
 }
 
 /**
  * El checkout comparte una sola sesión CJ entre todas las líneas del carrito.
- * Su reserva es menor que la de importación para no bloquear ventas después
- * del sync diario, pero cada solicitud mantiene el ritmo y coste preventivo.
+ * La importación conserva una reserva propia; el checkout puede usar el saldo
+ * restante solo cuando cubre los costes preventivos de toda la cotización.
  */
 export function createCjShippingClient() {
   return createCjClient({ minimumPointsReserve: checkoutPointsReserve() });
