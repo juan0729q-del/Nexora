@@ -11,7 +11,7 @@
  */
 
 const NEXORA = Object.freeze({
-  CONTRACT_VERSION: "2026-08-01.2",
+  CONTRACT_VERSION: "2026-08-01.3",
   ORDERS_SHEET: "Pedidos",
   EVENTS_SHEET: "Eventos",
   // Conserva la pestaña creada en la primera configuración de Nexora.
@@ -94,7 +94,37 @@ function doPost(e) {
 
 /** Comprobación no sensible para monitorización; no entrega pedidos ni clientes. */
 function doGet(e) {
-  return json_({ ok: true, service: "nexora-sales-ledger", contractVersion: NEXORA.CONTRACT_VERSION, at: isoNow_() });
+  return json_({
+    ok: true,
+    service: "nexora-sales-ledger",
+    contractVersion: NEXORA.CONTRACT_VERSION,
+    workbookReady: workbookReady_(),
+    at: isoNow_(),
+  });
+}
+
+function workbookReady_() {
+  const cache = CacheService.getScriptCache();
+  const cached = cache.get("nexora_workbook_ready");
+  if (cached === "true" || cached === "false") return cached === "true";
+  let ready = false;
+  try {
+    const config = getConfig_();
+    const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+    const requirements = [
+      [NEXORA.ORDERS_SHEET, ORDER_HEADERS.length],
+      [NEXORA.EVENTS_SHEET, EVENT_HEADERS.length],
+      [NEXORA.DASHBOARD_SHEET, 2],
+    ];
+    ready = requirements.every(function (requirement) {
+      const sheet = spreadsheet.getSheetByName(requirement[0]);
+      return Boolean(sheet && sheet.getLastRow() >= 1 && sheet.getMaxColumns() >= requirement[1]);
+    });
+  } catch (error) {
+    ready = false;
+  }
+  cache.put("nexora_workbook_ready", String(ready), ready ? 300 : 30);
+  return ready;
 }
 
 function processEvent_(event, raw, receivedAt) {

@@ -170,7 +170,7 @@ export type SalesLedgerDashboard = {
 
 export class SalesLedgerError extends Error {}
 
-const EXPECTED_LEDGER_CONTRACT = "2026-08-01.2";
+const EXPECTED_LEDGER_CONTRACT = "2026-08-01.3";
 type LedgerContractCache = { endpoint: string; checkedAt: number; ok: boolean };
 let ledgerContractCache: LedgerContractCache | null = null;
 
@@ -237,11 +237,13 @@ async function ensureLedgerContract(configuration: SalesLedgerConfiguration) {
       ok?: unknown;
       service?: unknown;
       contractVersion?: unknown;
+      workbookReady?: unknown;
     } | null;
     const compatible = response.ok
       && payload?.ok === true
       && payload.service === "nexora-sales-ledger"
-      && payload.contractVersion === EXPECTED_LEDGER_CONTRACT;
+      && payload.contractVersion === EXPECTED_LEDGER_CONTRACT
+      && payload.workbookReady === true;
     ledgerContractCache = { endpoint, checkedAt: Date.now(), ok: compatible };
     if (!compatible) throw new SalesLedgerError("El Apps Script de ventas no tiene el contrato Nexora vigente.");
   } catch (error) {
