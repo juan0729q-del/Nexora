@@ -38,6 +38,8 @@ export type VerifiedWompiTransaction = {
   environment: "test" | "prod";
   /** Timestamp del evento firmado; se usa sólo para idempotencia. */
   webhookTimestamp: string;
+  /** Fuente oficial usada para verificar la transacción. */
+  verificationSource: "webhook" | "api";
 };
 
 function nestedValue(value: unknown, path: string) {
@@ -99,6 +101,7 @@ function transactionFrom(data: Record<string, unknown>, environment: "test" | "p
     shippingAddress: addressValue(transaction.shipping_address ?? transaction.shippingAddress),
     environment,
     webhookTimestamp,
+    verificationSource: "webhook",
   };
 }
 
@@ -112,7 +115,7 @@ function expectedWompiEnvironment(): "test" | "prod" {
   return configuredKey?.startsWith("pub_test_") || configuredKey?.startsWith("prv_test_") ? "test" : "prod";
 }
 
-const allowedTransactionStatuses = new Set(["PENDING", "APPROVED", "DECLINED", "VOIDED", "ERROR", "REFUNDED"]);
+const allowedTransactionStatuses = new Set(["PENDING", "APPROVED", "DECLINED", "VOIDED", "ERROR"]);
 
 export function verifyWompiWebhook(payload: unknown):
   | { ok: false; reason: string }

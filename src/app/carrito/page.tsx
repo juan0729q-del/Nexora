@@ -16,7 +16,7 @@ export default async function CartPage() {
   const products = (await getCatalog()).map(toStorefrontProduct);
   return <>
     <StoreHeader />
-    <main className="mx-auto min-h-[70vh] max-w-7xl px-5 py-10 sm:px-8 lg:px-12">
+    <main id="page-content" tabIndex={-1} className="mx-auto min-h-[70vh] max-w-7xl px-5 py-10 outline-none sm:px-8 lg:px-12">
       <CartCheckout products={products} />
     </main>
     <StoreFooter />

@@ -460,6 +460,12 @@ function priceInCop(supplierCostUsd: number) {
   return recommendedPriceForContribution({ supplierCostCop, roundingCop: 100 });
 }
 
+function ensureSustainablePrice(product: Product): Product {
+  const minimumPrice = priceInCop(product.supplier.costUsd);
+  if (product.price >= minimumPrice) return product;
+  return { ...product, price: minimumPrice, compareAtPrice: undefined };
+}
+
 function categoryFor(niche: ProductNiche) {
   if (niche === "jewelry") return "Joyería";
   if (niche === "technologyHome") return "Tecnología y hogar";
@@ -599,6 +605,7 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
     if (selected.length < 5) {
       const recovered = verifiedCatalog
         .filter((product) => product.niche === niche && product.active && product.stock > 0 && !excludedSkus.has(product.sku) && !selected.some((entry) => entry.sku === product.sku))
+        .map(ensureSustainablePrice)
         .slice(0, 5 - selected.length);
       if (recovered.length) {
         selected.push(...recovered);

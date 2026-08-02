@@ -11,6 +11,7 @@
  */
 
 const NEXORA = Object.freeze({
+  CONTRACT_VERSION: "2026-08-01.2",
   ORDERS_SHEET: "Pedidos",
   EVENTS_SHEET: "Eventos",
   // Conserva la pestaña creada en la primera configuración de Nexora.
@@ -93,7 +94,7 @@ function doPost(e) {
 
 /** Comprobación no sensible para monitorización; no entrega pedidos ni clientes. */
 function doGet(e) {
-  return json_({ ok: true, service: "nexora-sales-ledger", at: isoNow_() });
+  return json_({ ok: true, service: "nexora-sales-ledger", contractVersion: NEXORA.CONTRACT_VERSION, at: isoNow_() });
 }
 
 function processEvent_(event, raw, receivedAt) {
@@ -121,7 +122,13 @@ function processEvent_(event, raw, receivedAt) {
     const eventRow = duplicateRow || appendEvent_(events, event, raw, receivedAt);
     retryNotifications_(config, orders, upserted.row, upserted.order, events, eventRow, event);
 
-    return { reference: event.order.reference, paymentStatus: String(upserted.order["Estado pago"] || "PENDING"), duplicate: Boolean(duplicateRow) };
+    return {
+      reference: event.order.reference,
+      paymentStatus: String(upserted.order["Estado pago"] || "PENDING"),
+      fulfillmentStatus: String(upserted.order["Estado postventa"] || "PENDIENTE"),
+      needsReview: String(upserted.order["Revisar"] || "").toUpperCase() === "SÍ",
+      duplicate: Boolean(duplicateRow),
+    };
   } finally {
     lock.releaseLock();
   }
@@ -242,7 +249,11 @@ function mergeOrder_(current, event, receivedAt, isNew) {
       if (amountMismatch) appendNote_(out, "Conciliación pendiente: total esperado " + cop_(expectedTotal) + ", total reportado " + cop_(paidTotal) + ".");
     } else if (payment.status === "APPROVED" && ["PENDIENTE DE PAGO", "CHECKOUT_PREPARADO"].indexOf(String(out["Estado postventa"])) !== -1) {
       out["Estado postventa"] = "PAGO CONFIRMADO";
-    } else if (["DECLINED", "VOIDED", "ERROR"].indexOf(payment.status) !== -1 && ["PENDIENTE DE PAGO", "CHECKOUT_PREPARADO"].indexOf(String(out["Estado postventa"])) !== -1) {
+    } else if (payment.status === "VOIDED") {
+      // Una anulación oficial es terminal incluso si Wompi la comunica después
+      // de una aprobación. Nunca debe permanecer como pago confirmado.
+      out["Estado postventa"] = "CANCELADO";
+    } else if (["DECLINED", "ERROR"].indexOf(payment.status) !== -1 && ["PENDIENTE DE PAGO", "CHECKOUT_PREPARADO"].indexOf(String(out["Estado postventa"])) !== -1) {
       out["Estado postventa"] = "PAGO NO COMPLETADO";
     }
   }
@@ -288,7 +299,7 @@ function retryNotifications_(config, orders, orderRow, order, events, eventRow, 
 
 function shouldNotifyAdmin_(event) {
   if (event.type === "fulfillment.updated") return true;
-  return event.type === "payment.updated" && ["APPROVED", "DECLINED", "VOIDED", "ERROR", "REFUNDED"].indexOf(String((event.payment || {}).status)) !== -1;
+  return event.type === "payment.updated" && ["APPROVED", "DECLINED", "VOIDED", "ERROR"].indexOf(String((event.payment || {}).status)) !== -1;
 }
 
 function shouldNotifyCustomer_(event, order) {
@@ -458,6 +469,11 @@ function readAdminSnapshot_() {
       shippingEstimatedDelivery: string_(row["Entrega estimada CJ"]) || null,
       shippingOriginCountryCode: string_(row["Origen envío CJ"]) || null,
       shippingQuotedAt: isoValue_(row["Cotizado envío (UTC)"]) || null,
+      cjOrderId: string_(row["ID pedido CJ"]) || null,
+      carrier: string_(row["Transportadora"]) || null,
+      trackingNumber: string_(row["Guía"]) || null,
+      trackingUrl: string_(row["URL rastreo"]) || null,
+      fulfillmentNote: string_(row["Notas"]) || null,
       needsReview: String(row["Revisar"] || "").toUpperCase() === "SÍ",
     };
   });

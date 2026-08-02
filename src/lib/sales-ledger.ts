@@ -106,6 +106,14 @@ type LedgerEvent = {
   fulfillment?: LedgerFulfillment;
 };
 
+export type SalesLedgerWriteResult = {
+  reference?: string;
+  paymentStatus?: string;
+  fulfillmentStatus?: string;
+  needsReview?: boolean;
+  duplicate?: boolean;
+};
+
 export type SalesLedgerOrder = {
   reference: string;
   createdAt: string;
@@ -128,6 +136,11 @@ export type SalesLedgerOrder = {
   shippingEstimatedDelivery: string | null;
   shippingOriginCountryCode: string | null;
   shippingQuotedAt: string | null;
+  cjOrderId: string | null;
+  carrier: string | null;
+  trackingNumber: string | null;
+  trackingUrl: string | null;
+  fulfillmentNote: string | null;
   needsReview: boolean;
 };
 
@@ -157,9 +170,13 @@ export type SalesLedgerDashboard = {
 
 export class SalesLedgerError extends Error {}
 
+const EXPECTED_LEDGER_CONTRACT = "2026-08-01.2";
+type LedgerContractCache = { endpoint: string; checkedAt: number; ok: boolean };
+let ledgerContractCache: LedgerContractCache | null = null;
+
 function configuredTimeoutMs() {
-  const value = Number(process.env.GOOGLE_SHEETS_REQUEST_TIMEOUT_MS || 8000);
-  return Number.isFinite(value) ? Math.max(1000, Math.min(15000, Math.floor(value))) : 8000;
+  const value = Number(process.env.GOOGLE_SHEETS_REQUEST_TIMEOUT_MS || 25000);
+  return Number.isFinite(value) ? Math.max(1000, Math.min(30000, Math.floor(value))) : 25000;
 }
 
 function getConfiguration(): SalesLedgerConfiguration | null {
@@ -182,7 +199,7 @@ export function getSalesLedgerStatus() {
   return {
     configured: Boolean(configuration),
     detail: configuration
-      ? "Google Sheets privado está conectado mediante Apps Script firmado."
+      ? `Google Sheets privado está configurado; cada operación exige el contrato Apps Script ${EXPECTED_LEDGER_CONTRACT}.`
       : "Faltan GOOGLE_SHEETS_WEBHOOK_URL y/o GOOGLE_SHEETS_WEBHOOK_SECRET; Wompi seguirá siendo la fuente de pago, pero no se persistirán pedidos privados todavía.",
   };
 }
@@ -197,6 +214,41 @@ function nonSensitiveErrorMessage(status: number, response: unknown) {
   return typeof error === "string" && error.length < 180
     ? `El registro privado rechazó la operación: ${error}`
     : `El registro privado respondió HTTP ${status}.`;
+}
+
+async function ensureLedgerContract(configuration: SalesLedgerConfiguration) {
+  const endpoint = configuration.endpoint.toString();
+  const now = Date.now();
+  if (ledgerContractCache?.endpoint === endpoint) {
+    const ttl = ledgerContractCache.ok ? 5 * 60_000 : 30_000;
+    if (now - ledgerContractCache.checkedAt < ttl) {
+      if (ledgerContractCache.ok) return;
+      throw new SalesLedgerError("El contrato del registro privado no está disponible.");
+    }
+  }
+
+  try {
+    const response = await fetch(configuration.endpoint, {
+      method: "GET",
+      cache: "no-store",
+      signal: AbortSignal.timeout(Math.min(configuration.timeoutMs, 10_000)),
+    });
+    const payload = await response.json().catch(() => null) as {
+      ok?: unknown;
+      service?: unknown;
+      contractVersion?: unknown;
+    } | null;
+    const compatible = response.ok
+      && payload?.ok === true
+      && payload.service === "nexora-sales-ledger"
+      && payload.contractVersion === EXPECTED_LEDGER_CONTRACT;
+    ledgerContractCache = { endpoint, checkedAt: Date.now(), ok: compatible };
+    if (!compatible) throw new SalesLedgerError("El Apps Script de ventas no tiene el contrato Nexora vigente.");
+  } catch (error) {
+    ledgerContractCache = { endpoint, checkedAt: Date.now(), ok: false };
+    if (error instanceof SalesLedgerError) throw error;
+    throw new SalesLedgerError("No fue posible validar el contrato del registro privado de ventas.");
+  }
 }
 
 async function fetchSigned<T>(endpoint: URL, init: RequestInit, timeoutMs: number): Promise<T> {
@@ -219,6 +271,7 @@ async function fetchSigned<T>(endpoint: URL, init: RequestInit, timeoutMs: numbe
 async function send(event: LedgerEvent) {
   const configuration = getConfiguration();
   if (!configuration) throw new SalesLedgerError("El registro privado de ventas no está configurado.");
+  await ensureLedgerContract(configuration);
   const rawPayload = JSON.stringify(event);
   const timestamp = String(Math.floor(Date.now() / 1000));
   // Apps Script no expone encabezados HTTP en doPost. La envoltura mantiene la
@@ -228,7 +281,7 @@ async function send(event: LedgerEvent) {
     sig: hmac(`${timestamp}.${rawPayload}`, configuration.secret),
     payload: rawPayload,
   });
-  return fetchSigned<{ reference?: string; paymentStatus?: string }>(configuration.endpoint, {
+  return fetchSigned<SalesLedgerWriteResult>(configuration.endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: envelope,
@@ -398,7 +451,7 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
   // monto de Wompi contra ese total antes de confirmar la postventa.
   const needsReview = transaction.currency !== "COP";
   const eventFingerprint = createHash("sha256")
-    .update([transaction.environment, transaction.id, status, transaction.webhookTimestamp].join("|"))
+    .update([transaction.verificationSource, transaction.environment, transaction.id, status, transaction.webhookTimestamp].join("|"))
     .digest("hex")
     .slice(0, 24);
   return {
@@ -411,7 +464,9 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
     source: "wompi",
     detail: needsReview
       ? "Pago validado, pero requiere revisión por moneda no compatible."
-      : "Evento validado mediante la firma oficial de Wompi; el libro privado concilia el monto con el carrito registrado.",
+      : transaction.verificationSource === "webhook"
+        ? "Evento validado mediante la firma oficial de Wompi; el libro privado concilia el monto con el carrito registrado."
+        : "Transacción consultada directamente en la API oficial de Wompi; el libro privado concilia el monto con el carrito registrado.",
     needsReview,
     order: product
       ? productOrder(product, transaction.reference, paymentCustomer(transaction), paymentShipping(transaction))
@@ -512,6 +567,11 @@ function parseOrder(value: unknown): SalesLedgerOrder | null {
     shippingEstimatedDelivery: nullableString(row.shippingEstimatedDelivery),
     shippingOriginCountryCode: nullableString(row.shippingOriginCountryCode),
     shippingQuotedAt: nullableString(row.shippingQuotedAt),
+    cjOrderId: nullableString(row.cjOrderId),
+    carrier: nullableString(row.carrier),
+    trackingNumber: nullableString(row.trackingNumber),
+    trackingUrl: nullableString(row.trackingUrl),
+    fulfillmentNote: nullableString(row.fulfillmentNote),
     needsReview: row.needsReview === true,
   };
 }
@@ -553,6 +613,7 @@ function parseDashboard(value: unknown): SalesLedgerDashboard | null {
 export async function getPersistedSalesDashboard() {
   const configuration = getConfiguration();
   if (!configuration) return null;
+  await ensureLedgerContract(configuration);
   const timestamp = String(Math.floor(Date.now() / 1000));
   const payload = JSON.stringify({ action: "admin.read" });
   const envelope = JSON.stringify({

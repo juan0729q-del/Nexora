@@ -91,7 +91,7 @@ function usdToCop(costUsd: number) {
 
 /** Consulta el endpoint oficial CJ de inventario por SKU y suma sus bodegas. */
 export async function getOfficialCjStock(sku: string, client: CjClient = createCjClient()) {
-  client.assertPointsAvailable(10);
+  await client.authenticateAndAssertPoints(10);
   const payload = await client.getJson<SupplierResponse>(stockUrlFor(sku));
   const inventories = extractSupplierItems(payload);
   if (!inventories.length) return 0;
@@ -128,7 +128,12 @@ async function getSupplementalCostUsd(sku: string, client: CjClient) {
  */
 export async function verifyCheckoutInventory(
   product: Pick<Product, "sku" | "stock">,
-  { variantSku, quantity = 1, forceLiveCheck = false }: { variantSku?: string; quantity?: number; forceLiveCheck?: boolean } = {},
+  {
+    variantSku,
+    quantity = 1,
+    forceLiveCheck = false,
+    client = createCjClient(),
+  }: { variantSku?: string; quantity?: number; forceLiveCheck?: boolean; client?: CjClient } = {},
 ): Promise<SupplierStockVerification> {
   const sku = variantSku?.trim() || product.sku;
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
@@ -141,7 +146,7 @@ export async function verifyCheckoutInventory(
   if (!getCjCredentialConfiguration().configured) return { status: "snapshot", stock: product.stock };
 
   try {
-    const stock = await getOfficialCjStock(sku);
+    const stock = await getOfficialCjStock(sku, client);
     if (stock === undefined) return { status: "unverified", stock: product.stock, reason: "CJ no devolvió un inventario interpretable para este SKU." };
     if (stock < quantity + checkoutSafetyBuffer()) return { status: "unavailable", stock, reason: `CJ reportó inventario insuficiente para confirmar ${quantity} unidad${quantity === 1 ? "" : "es"}.` };
     return { status: "available", stock };

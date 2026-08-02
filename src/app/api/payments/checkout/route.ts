@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
+import { createCjClient } from "@/lib/automation/cj-client";
 import { getCatalog } from "@/lib/catalog-store";
 import {
   PaymentConfigurationError,
@@ -14,6 +15,7 @@ import { getSiteUrl } from "@/lib/site";
 import { CjShippingQuoteError, normalizeCjShippingDestination } from "@/lib/shipping/cj-shipping";
 import { readShippingQuoteToken, selectShippingQuote, ShippingQuoteTokenError } from "@/lib/shipping/quote-token";
 import type { CheckoutShipping, ShippingDestinationInput } from "@/lib/shipping/types";
+import { CheckoutRateLimitError, enforceCheckoutRateLimit } from "@/lib/shipping/quote-rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -94,10 +96,12 @@ export async function POST(request: Request) {
     if (!rawDestination) return NextResponse.json({ message: "Completa la dirección de entrega y vuelve a cotizar antes de pagar." }, { status: 400 });
     const destination = normalizeCjShippingDestination(rawDestination);
     if (destination.email.trim().toLowerCase() !== email) return NextResponse.json({ message: "Usa el mismo correo para la cotización y la confirmación del pedido." }, { status: 400 });
+    enforceCheckoutRateLimit(request, `${email}|${requestedItems.map((item) => item.shippingQuoteToken).sort().join("|")}`);
 
     const catalog = await getCatalog();
     const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
     const checkoutItems: CheckoutLineItem[] = [];
+    const inventoryClient = createCjClient({ minimumPointsReserve: 0 });
     for (const requested of requestedItems) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
@@ -122,9 +126,13 @@ export async function POST(request: Request) {
         variantSku: quoteToken.variantSku,
         quantity: requested.quantity,
         forceLiveCheck: true,
+        client: inventoryClient,
       });
-      if (["unavailable", "unverified", "quota-exhausted"].includes(inventory.status)) {
-        return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: 409 });
+      if (inventory.status === "quota-exhausted") {
+        return NextResponse.json({ message: inventory.reason || "CJ no tiene cuota para confirmar el inventario antes del cobro." }, { status: 429, headers: { "Retry-After": "900" } });
+      }
+      if (["snapshot", "unavailable", "unverified"].includes(inventory.status)) {
+        return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: inventory.status === "unavailable" ? 409 : 503 });
       }
       checkoutItems.push({
         product,
@@ -144,6 +152,7 @@ export async function POST(request: Request) {
     return NextResponse.json(toPublicCheckoutSession(checkout), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
+    if (error instanceof CheckoutRateLimitError) return NextResponse.json({ message: error.message }, { status: 429, headers: { "Retry-After": "60" } });
     if (error instanceof ShippingQuoteTokenError) return NextResponse.json({ message: error.message }, { status: 409 });
     if (error instanceof CjShippingQuoteError) return NextResponse.json({ message: error.message }, { status: 400 });
     if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: error.message }, { status: 503 });

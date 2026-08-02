@@ -11,6 +11,7 @@ export type CartItem = {
 type CartContextValue = {
   items: CartItem[];
   itemCount: number;
+  hydrated: boolean;
   addItem: (item: CartItem) => void;
   updateQuantity: (productSlug: string, variantSku: string, quantity: number) => void;
   removeItem: (productSlug: string, variantSku: string) => void;
@@ -64,6 +65,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, [hydrated, items]);
 
   const addItem = useCallback((item: CartItem) => {
+    if (!hydrated) return;
     setItems((current) => {
       const index = current.findIndex((entry) => entry.productSlug === item.productSlug && entry.variantSku === item.variantSku);
       const total = current.reduce((sum, entry) => sum + entry.quantity, 0);
@@ -77,7 +79,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         ? { ...entry, quantity: nextQuantity }
         : entry);
     });
-  }, []);
+  }, [hydrated]);
 
   const updateQuantity = useCallback((productSlug: string, variantSku: string, quantity: number) => {
     if (!Number.isInteger(quantity) || quantity < 1 || quantity > maxUnitsPerLine) return;
@@ -98,11 +100,12 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<CartContextValue>(() => ({
     items,
     itemCount: items.reduce((total, item) => total + item.quantity, 0),
+    hydrated,
     addItem,
     updateQuantity,
     removeItem,
     clearCart,
-  }), [addItem, clearCart, items, removeItem, updateQuantity]);
+  }), [addItem, clearCart, hydrated, items, removeItem, updateQuantity]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

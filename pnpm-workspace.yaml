@@ -1,6 +1,9 @@
 allowBuilds:
-  sharp: set this to true or false
-  unrs-resolver: set this to true or false
-ignoredBuiltDependencies:
-  - sharp
-  - unrs-resolver
+  sharp: true
+  unrs-resolver: false
+overrides:
+  brace-expansion: 1.1.17
+  postcss: 8.5.22
+  # Next aún declara ^0.34.5, pero <0.35.0 hereda CVE críticas de libvips.
+  # El override se conserva hasta que Next amplíe su rango opcional.
+  sharp: 0.35.0

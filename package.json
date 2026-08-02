@@ -2,18 +2,21 @@
   "name": "nexora",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "pnpm catalog:validate",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "catalog:apply-import": "node scripts/persist-catalog-import.mjs",
-    "catalog:enrich-provider-details": "node scripts/enrich-catalog-provider-details.mjs"
+    "catalog:enrich-provider-details": "node scripts/enrich-catalog-provider-details.mjs",
+    "catalog:validate": "node scripts/validate-catalog.mjs"
   },
   "dependencies": {
-    "next": "16.2.11",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "next": "16.2.12",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -21,7 +24,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
-    "eslint-config-next": "16.2.11",
+    "eslint-config-next": "16.2.12",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

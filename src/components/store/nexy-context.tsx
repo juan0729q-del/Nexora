@@ -90,14 +90,7 @@ function getActiveAnnouncement(): StoredNexyAnnouncement | null {
 const NexyContext = createContext<NexyContextValue | null>(null);
 
 export function NexyProvider({ children }: Readonly<{ children: React.ReactNode }>) {
-  const [announcement, setAnnouncement] = useState<NexyAnnouncement | null>(() => {
-    if (typeof window === "undefined") return null;
-
-    const storedAnnouncement = getActiveAnnouncement();
-    return storedAnnouncement
-      ? { id: storedAnnouncement.id, message: storedAnnouncement.message }
-      : null;
-  });
+  const [announcement, setAnnouncement] = useState<NexyAnnouncement | null>(null);
   const timeoutRef = useRef<number | null>(null);
 
   const clearAnnouncement = useCallback(() => {
@@ -134,7 +127,11 @@ export function NexyProvider({ children }: Readonly<{ children: React.ReactNode 
     const storedAnnouncement = getActiveAnnouncement();
     if (!storedAnnouncement) return;
 
-    scheduleAnnouncementExpiry(storedAnnouncement.expiresAt);
+    const restoreHandle = window.setTimeout(() => {
+      setAnnouncement({ id: storedAnnouncement.id, message: storedAnnouncement.message });
+      scheduleAnnouncementExpiry(storedAnnouncement.expiresAt);
+    }, 0);
+    return () => window.clearTimeout(restoreHandle);
   }, [scheduleAnnouncementExpiry]);
 
   useEffect(() => () => {

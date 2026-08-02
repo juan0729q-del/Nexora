@@ -6,5 +6,55 @@ import { StoreHeader } from "@/components/store/store-header";
 export const revalidate = 3600;
 
 export default function Home() {
-  return <><StoreHeader /><main><section className="relative isolate overflow-hidden border-b border-silver/20 px-5 py-16 sm:px-8 sm:py-24 lg:px-12"><div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center"><div><p className="mb-5 inline-flex rounded-full border border-emerald/40 bg-emerald/10 px-3 py-1 text-xs font-bold tracking-[0.16em] text-emerald uppercase">Selección inteligente</p><h1 className="max-w-3xl text-4xl leading-[1.04] font-semibold tracking-tight text-white sm:text-6xl">Diseño que eleva tu rutina.</h1><p className="mt-6 max-w-xl text-base leading-7 text-silver/80 sm:text-lg">Joyería, tecnología para el hogar y bienestar. Explora cada nicho con una curaduría independiente.</p><div className="mt-8 flex flex-wrap gap-3"><a className="rounded-full bg-emerald px-5 py-3 text-sm font-bold text-onyx transition hover:bg-emerald/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" href="#joyeria">Explorar joyería</a><a className="rounded-full border border-silver/35 px-5 py-3 text-sm font-semibold text-white transition hover:border-silver" href="#tecnologia-hogar">Ver tecnología</a></div><dl className="mt-12 grid max-w-md grid-cols-3 gap-4 border-t border-silver/20 pt-5 text-sm"><div><dt className="text-silver/65">Catálogo</dt><dd className="mt-1 font-semibold text-white">Verificado</dd></div><div><dt className="text-silver/65">Pago</dt><dd className="mt-1 font-semibold text-white">Protegido</dd></div><div><dt className="text-silver/65">Imágenes</dt><dd className="mt-1 font-semibold text-white">Originales</dd></div></dl></div><div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-[2rem] border border-silver/20 bg-[radial-gradient(circle_at_55%_40%,rgba(0,148,115,0.28),transparent_31%),linear-gradient(135deg,#181818,#090909)] p-8 shadow-2xl shadow-black/50"><div className="absolute inset-6 rounded-[1.4rem] border border-silver/15" /><div className="absolute inset-0 grid place-items-center"><div className="nexora-hero-logo" aria-label="Emblema Nexora"><span className="nexora-spark nexora-spark-one" /><span className="nexora-spark nexora-spark-two" /><span className="nexora-spark nexora-spark-three" /><div className="nexora-hero-logo-rotate"><Image src="/brand/nexora-logo.png" alt="Nexora" fill priority sizes="(min-width: 1024px) 400px, 70vw" className="object-contain" /></div></div></div><p className="absolute right-8 bottom-8 text-right text-xs leading-5 tracking-[0.16em] text-silver/80 uppercase">Utilidad<br />con intención</p></div></div></section><NicheCatalogSection niche="jewelry" /><NicheCatalogSection niche="technologyHome" /><NicheCatalogSection niche="wellbeing" /><section id="proposito" className="border-y border-silver/15 bg-white/[0.025] px-5 py-16 sm:px-8 lg:px-12"><div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-3"><div><p className="text-xs font-bold tracking-[0.16em] text-emerald uppercase">Nuestro estándar</p><h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">Menos ruido. Más intención.</h2></div><p className="text-sm leading-7 text-silver/75">Evaluamos calidad, utilidad y estética antes de sumar un producto a Nexora. Cada nicho rota de forma independiente.</p><p className="text-sm leading-7 text-silver/75">Las automatizaciones vigilan rendimiento, proveedor y stock para sostener una selección relevante.</p></div></section></main><StoreFooter /></>;
+  return <>
+    <StoreHeader />
+    <main id="page-content" tabIndex={-1} className="outline-none">
+      <section className="relative isolate overflow-hidden border-b border-silver/20 px-5 py-16 sm:px-8 sm:py-24 lg:px-12">
+        <div className="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+          <div>
+            <p className="mb-5 inline-flex rounded-full border border-emerald/40 bg-emerald/10 px-3 py-1 text-xs font-bold tracking-[0.16em] text-emerald uppercase">Selección inteligente</p>
+            <h1 className="max-w-3xl text-4xl leading-[1.04] font-semibold tracking-tight text-white sm:text-6xl">Diseño que eleva tu rutina.</h1>
+            <p className="mt-6 max-w-xl text-base leading-7 text-silver/80 sm:text-lg">Joyería, tecnología para el hogar y bienestar. Explora cada nicho con una curaduría independiente.</p>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a className="rounded-full bg-emerald px-5 py-3 text-sm font-bold text-onyx transition hover:bg-emerald/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" href="#joyeria">Explorar joyería</a>
+              <a className="rounded-full border border-silver/35 px-5 py-3 text-sm font-semibold text-white transition hover:border-silver" href="#tecnologia-hogar">Ver tecnología</a>
+            </div>
+            <dl className="mt-12 grid max-w-md grid-cols-3 gap-4 border-t border-silver/20 pt-5 text-sm">
+              <div><dt className="text-silver/65">Catálogo</dt><dd className="mt-1 font-semibold text-white">Verificado</dd></div>
+              <div><dt className="text-silver/65">Pago</dt><dd className="mt-1 font-semibold text-white">Protegido</dd></div>
+              <div><dt className="text-silver/65">Imágenes</dt><dd className="mt-1 font-semibold text-white">Originales</dd></div>
+            </dl>
+          </div>
+          <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-[2rem] border border-silver/20 bg-[radial-gradient(circle_at_55%_40%,rgba(0,148,115,0.28),transparent_31%),linear-gradient(135deg,#181818,#090909)] p-8 shadow-2xl shadow-black/50">
+            <div className="absolute inset-6 rounded-[1.4rem] border border-silver/15" />
+            <div className="absolute inset-0 grid place-items-center">
+              <div className="nexora-hero-logo" aria-label="Emblema Nexora">
+                <span className="nexora-spark nexora-spark-one" />
+                <span className="nexora-spark nexora-spark-two" />
+                <span className="nexora-spark nexora-spark-three" />
+                <div className="nexora-hero-logo-rotate">
+                  <Image src="/brand/nexora-logo.png" alt="Nexora" fill priority sizes="(min-width: 1024px) 400px, 70vw" className="object-contain" />
+                </div>
+              </div>
+            </div>
+            <p className="absolute right-8 bottom-8 text-right text-xs leading-5 tracking-[0.16em] text-silver/80 uppercase">Utilidad<br />con intención</p>
+          </div>
+        </div>
+      </section>
+      <NicheCatalogSection niche="jewelry" />
+      <NicheCatalogSection niche="technologyHome" />
+      <NicheCatalogSection niche="wellbeing" />
+      <section id="proposito" className="border-y border-silver/15 bg-white/[0.025] px-5 py-16 sm:px-8 lg:px-12">
+        <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-3">
+          <div>
+            <p className="text-xs font-bold tracking-[0.16em] text-emerald uppercase">Nuestro estándar</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white">Menos ruido. Más intención.</h2>
+          </div>
+          <p className="text-sm leading-7 text-silver/75">Evaluamos calidad, utilidad y estética antes de sumar un producto a Nexora. Cada nicho rota de forma independiente.</p>
+          <p className="text-sm leading-7 text-silver/75">Las automatizaciones vigilan rendimiento, proveedor y stock para sostener una selección relevante.</p>
+        </div>
+      </section>
+    </main>
+    <StoreFooter />
+  </>;
 }

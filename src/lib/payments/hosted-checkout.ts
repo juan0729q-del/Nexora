@@ -124,10 +124,10 @@ function checkoutExpiration(items: CheckoutLineItem[]) {
 export async function createHostedCheckout(items: CheckoutLineItem[], siteUrl: string, customerEmail: string): Promise<CheckoutSession> {
   if (!items.length) throw new PaymentConfigurationError("El carrito está vacío.");
   const provider = getProvider();
-  // Los links de pago de Wompi limitan sku a 36 caracteres. Usamos la misma
-  // referencia corta y única en ambos flujos para que la conciliación posterior
-  // pueda correlacionar el pago sin que el proveedor rechace el checkout.
-  const uniqueFragment = randomUUID().replace(/-/g, "").slice(0, 12).toUpperCase();
+  // Wompi exige una referencia única por transacción. Checkout Web no crea un
+  // recurso remoto al preparar esta URL, por lo que cada intento puede recibir
+  // una referencia nueva sin duplicar cobros ni payment links en el proveedor.
+  const uniqueFragment = randomUUID().replace(/-/g, "").slice(0, 24).toUpperCase();
   const externalReference = `NXR-CART-${uniqueFragment}`;
   const amounts = checkoutAmounts(items);
   return provider === "wompi"
@@ -138,11 +138,11 @@ export async function createHostedCheckout(items: CheckoutLineItem[], siteUrl: s
 async function createWompiCheckout(items: CheckoutLineItem[], siteUrl: string, externalReference: string, customerEmail: string, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
   const publicKey = getWompiPublicKey();
   const integritySecret = process.env.WOMPI_INTEGRITY_SECRET?.trim();
-  if (publicKey) {
-    if (!integritySecret) throw new PaymentConfigurationError("Falta WOMPI_INTEGRITY_SECRET para firmar el Checkout Web de Wompi.");
-    return createWompiWebCheckout(items, siteUrl, externalReference, publicKey, integritySecret, customerEmail, amounts);
-  }
-  return createWompiPaymentLink(items, siteUrl, externalReference, amounts);
+  // Checkout Web se construye localmente: preparar la URL no crea todavía una
+  // transacción ni otro recurso remoto en Wompi.
+  if (!publicKey) throw new PaymentConfigurationError("Falta NEXT_PUBLIC_WOMPI_PUBLIC_KEY para abrir el Checkout Web seguro de Wompi.");
+  if (!integritySecret) throw new PaymentConfigurationError("Falta WOMPI_INTEGRITY_SECRET para firmar el Checkout Web de Wompi.");
+  return createWompiWebCheckout(items, siteUrl, externalReference, publicKey, integritySecret, customerEmail, amounts);
 }
 
 function createWompiWebCheckout(items: CheckoutLineItem[], siteUrl: string, externalReference: string, publicKey: string, integritySecret: string, customerEmail: string, amounts: ReturnType<typeof checkoutAmounts>): CheckoutSession {
@@ -168,33 +168,6 @@ function createWompiWebCheckout(items: CheckoutLineItem[], siteUrl: string, exte
     "collect-shipping": "false",
   });
   return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/p/?${params.toString()}`, externalReference, ...amounts, items };
-}
-
-async function createWompiPaymentLink(items: CheckoutLineItem[], siteUrl: string, externalReference: string, amounts: ReturnType<typeof checkoutAmounts>): Promise<CheckoutSession> {
-  const privateKey = process.env.WOMPI_PRIVATE_KEY?.trim();
-  if (!privateKey || !privateKey.startsWith("prv_")) throw new PaymentConfigurationError("Configura WOMPI_PRIVATE_KEY (prv_test_/prv_prod_) o NEXT_PUBLIC_WOMPI_PUBLIC_KEY junto a WOMPI_INTEGRITY_SECRET.");
-  const totalUnits = items.reduce((total, item) => total + item.quantity, 0);
-  const itemSummary = items.map((item) => `${item.quantity}× ${getProductPresentation(item.product).title}`).join(", ").slice(0, 220);
-  const expiresAt = checkoutExpiration(items);
-  const response = await fetch(`${getWompiBaseUrl(privateKey)}/v1/payment_links`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${privateKey}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      name: `Nexora — pedido de ${totalUnits} unidad${totalUnits === 1 ? "" : "es"}`,
-      description: `${itemSummary}. Envío cotizado directamente con CJ por artículo y destino.`,
-      single_use: true,
-      collect_shipping: false,
-      currency: "COP",
-      amount_in_cents: Math.round(amounts.amountCop * 100),
-      expires_at: expiresAt,
-      sku: externalReference,
-      redirect_url: resultUrl(siteUrl, "wompi", externalReference),
-    }),
-    cache: "no-store",
-  });
-  const payload = await response.json().catch(() => null) as { data?: { id?: string } } | null;
-  if (!response.ok || !payload?.data?.id) providerError("wompi", response, payload);
-  return { provider: "wompi", checkoutUrl: `https://checkout.wompi.co/l/${payload.data.id}`, externalReference, ...amounts, items };
 }
 
 /**

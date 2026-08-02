@@ -104,7 +104,7 @@ export default async function ProductPage({ params }: Props) {
   return (
     <>
       <StoreHeader />
-      <main className="px-5 py-12 sm:px-8 sm:py-20 lg:px-12">
+      <main id="page-content" tabIndex={-1} className="px-5 py-12 outline-none sm:px-8 sm:py-20 lg:px-12">
         <article className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
           <ProductGallery product={product} />
           <div>
@@ -179,7 +179,7 @@ export default async function ProductPage({ params }: Props) {
           {product.variants.length > 0 && (
             <section className="mt-5 rounded-2xl border border-silver/15 bg-white/[0.025] p-5" aria-labelledby="variants-title">
               <h3 id="variants-title" className="text-base font-semibold text-white">Opciones indicadas por el proveedor</h3>
-              <p className="mt-2 text-xs leading-5 text-silver/60">Se muestran como referencia de medidas y acabados. Nexora validará el SKU correcto antes de habilitar selección individual de variantes en checkout.</p>
+              <p className="mt-2 text-xs leading-5 text-silver/60">Estas son las variantes oficiales de CJ. Elige el acabado o medida en el control de compra; Nexora conservará y validará su SKU exacto al cotizar el envío y preparar el pago.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {product.variants.map((variant) => (
                   <div key={variant.sku} className="rounded-xl border border-silver/10 p-3 text-sm">

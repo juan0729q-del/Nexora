@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { beginCheckout } from "@/lib/payments";
 import type { StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
@@ -26,12 +26,48 @@ function lineId(productSlug: string, variantSku: string) {
   return `${productSlug}|${variantSku}`;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object";
+}
+
+function validShippingOption(value: unknown): value is CjShippingQuoteOption {
+  if (!isRecord(value)) return false;
+  return typeof value.id === "string"
+    && typeof value.method === "string"
+    && (value.carrier === null || typeof value.carrier === "string")
+    && (value.estimatedDelivery === null || typeof value.estimatedDelivery === "string")
+    && typeof value.amountCop === "number"
+    && Number.isFinite(value.amountCop)
+    && value.amountCop >= 0
+    && typeof value.sourceCountryCode === "string"
+    && ["cheapest", "fastest", "none"].includes(String(value.recommendation))
+    && (value.remoteFeeCop === null || (typeof value.remoteFeeCop === "number" && Number.isFinite(value.remoteFeeCop)))
+    && Array.isArray(value.notices)
+    && value.notices.every((notice) => typeof notice === "string");
+}
+
 function validQuotePayload(value: unknown): value is CartShippingQuoteResponse {
-  if (!value || typeof value !== "object") return false;
-  const quote = value as Partial<CartShippingQuoteResponse>;
-  return typeof quote.expiresAt === "string" && typeof quote.productSubtotalCop === "number"
-    && Array.isArray(quote.items) && quote.items.length > 0
-    && quote.items.every((item) => typeof item.quoteToken === "string" && item.options.length > 0);
+  if (!isRecord(value)) return false;
+  return typeof value.expiresAt === "string"
+    && Number.isFinite(Date.parse(value.expiresAt))
+    && typeof value.productSubtotalCop === "number"
+    && Number.isFinite(value.productSubtotalCop)
+    && value.productSubtotalCop >= 0
+    && value.currency === "COP"
+    && Array.isArray(value.items)
+    && value.items.length > 0
+    && value.items.every((item) => isRecord(item)
+      && typeof item.productSlug === "string"
+      && typeof item.productName === "string"
+      && typeof item.variantSku === "string"
+      && typeof item.variantLabel === "string"
+      && Number.isInteger(item.quantity)
+      && Number(item.quantity) > 0
+      && typeof item.quoteToken === "string"
+      && item.quoteToken.length > 0
+      && Array.isArray(item.options)
+      && item.options.length > 0
+      && item.options.every(validShippingOption));
 }
 
 function deliveryText(option: CjShippingQuoteOption) {
@@ -47,22 +83,43 @@ function optionBadge(option: CjShippingQuoteOption) {
 }
 
 export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
-  const { items, itemCount, updateQuantity, removeItem } = useCart();
+  const { items, itemCount, hydrated, updateQuantity, removeItem } = useCart();
   const [destination, setDestination] = useState<ShippingDestinationInput>(emptyDestination);
   const [quote, setQuote] = useState<CartShippingQuoteResponse | null>(null);
   const [selectedMethods, setSelectedMethods] = useState<Record<string, string>>({});
   const [status, setStatus] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
+  const [quoteExpired, setQuoteExpired] = useState(false);
+  const requestControllerRef = useRef<AbortController | null>(null);
   const productsBySlug = useMemo(() => new Map(products.map((product) => [product.slug, product])), [products]);
   const visibleItems = items.flatMap((item) => {
     const product = productsBySlug.get(item.productSlug);
     return product ? [{ ...item, product }] : [];
   });
+  const orphanedItems = items.filter((item) => !productsBySlug.has(item.productSlug));
+  const invalidItems = items.filter((item) => {
+    const product = productsBySlug.get(item.productSlug);
+    return !product || !product.available || product.stock < item.quantity
+      || !product.variants.some((variant) => variant.sku === item.variantSku);
+  });
+
+  useEffect(() => () => requestControllerRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (!quote) return;
+    const remaining = Date.parse(quote.expiresAt) - Date.now();
+    const timeout = window.setTimeout(() => setQuoteExpired(true), Math.max(0, remaining));
+    return () => window.clearTimeout(timeout);
+  }, [quote]);
 
   function clearQuote() {
+    requestControllerRef.current?.abort();
+    requestControllerRef.current = null;
     setQuote(null);
     setSelectedMethods({});
     setStatus(null);
+    setQuoteExpired(false);
+    setIsPreparing(false);
   }
 
   function updateDestination(field: keyof ShippingDestinationInput, value: string) {
@@ -74,6 +131,8 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
     event.preventDefault();
     if (!visibleItems.length || isPreparing) return;
     clearQuote();
+    const controller = new AbortController();
+    requestControllerRef.current = controller;
     try {
       setIsPreparing(true);
       setStatus("Consultando tarifas reales de CJ para cada artículo del carrito…");
@@ -84,10 +143,12 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
           items: visibleItems.map((item) => ({ productSlug: item.productSlug, variantSku: item.variantSku, quantity: item.quantity })),
           destination,
         }),
+        signal: controller.signal,
       });
       const payload = await response.json().catch(() => null) as ({ message?: string } & Partial<CartShippingQuoteResponse>) | null;
       if (!response.ok) throw new Error(payload?.message || "No fue posible cotizar el envío.");
       if (!validQuotePayload(payload)) throw new Error("CJ no devolvió una cotización completa. Intenta de nuevo antes de pagar.");
+      if (requestControllerRef.current !== controller) return;
       const suggestions = Object.fromEntries(payload.items.map((line) => [
         lineId(line.productSlug, line.variantSku),
         (line.options.find((option) => option.recommendation === "cheapest") || line.options[0]).id,
@@ -96,14 +157,23 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       setSelectedMethods(suggestions);
       setStatus("Cotización lista. Revisa o cambia el método de cada envío antes de pagar.");
     } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
       setStatus(error instanceof Error ? error.message : "No fue posible cotizar el envío.");
     } finally {
-      setIsPreparing(false);
+      if (requestControllerRef.current === controller) {
+        requestControllerRef.current = null;
+        setIsPreparing(false);
+      }
     }
   }
 
   async function pay() {
     if (!quote || isPreparing) return;
+    if (quoteExpired || Date.parse(quote.expiresAt) <= Date.now()) {
+      setQuoteExpired(true);
+      setStatus("La cotización de CJ venció. Vuelve a calcular el envío antes de pagar.");
+      return;
+    }
     const checkoutItems = quote.items.map((line) => ({
       productSlug: line.productSlug,
       variantSku: line.variantSku,
@@ -139,14 +209,21 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
         <h1 id="cart-title" className="mt-2 text-3xl font-semibold text-white sm:text-4xl">Tu carrito</h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-silver/70">Ajusta cantidades, agrega otros productos y después consulta las opciones oficiales de CJ. El costo de envío corre por cuenta del cliente y queda incluido en el total de Wompi.</p>
       </div>
-      <Link href="/#catalogo" className="rounded-full border border-silver/25 px-4 py-2 text-sm font-semibold text-white hover:border-emerald hover:text-emerald">Seguir comprando</Link>
+      <Link href="/#joyeria" className="rounded-full border border-silver/25 px-4 py-2 text-sm font-semibold text-white hover:border-emerald hover:text-emerald">Seguir comprando</Link>
     </div>
 
-    {!visibleItems.length ? <div className="mt-10 rounded-2xl border border-silver/15 bg-white/[.025] p-8 text-center">
+    {!hydrated ? <div className="mt-10 rounded-2xl border border-silver/15 bg-white/[.025] p-8 text-center" role="status">
+      <p className="text-lg font-semibold text-white">Restaurando tu carrito…</p>
+      <p className="mt-2 text-sm text-silver/70">Estamos recuperando los artículos guardados en este dispositivo.</p>
+    </div> : !items.length ? <div className="mt-10 rounded-2xl border border-silver/15 bg-white/[.025] p-8 text-center">
       <p className="text-lg font-semibold text-white">Tu carrito está vacío.</p>
       <p className="mt-2 text-sm text-silver/65">Elige una variante y cantidad desde cualquier producto.</p>
       <Link href="/" className="mt-5 inline-flex rounded-full bg-emerald px-5 py-2.5 text-sm font-bold text-onyx">Explorar productos</Link>
     </div> : <>
+      {invalidItems.length > 0 && <div className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/[.07] p-4" role="alert">
+        <p className="font-semibold text-amber-100">Revisa {invalidItems.length === 1 ? "un artículo" : `${invalidItems.length} artículos`} antes de cotizar.</p>
+        <p className="mt-1 text-sm leading-6 text-silver/75">Alguna variante cambió, perdió disponibilidad o ya no está en el catálogo. Retírala del carrito y elige una opción vigente.</p>
+      </div>}
       <div className="mt-8 space-y-3">
         {visibleItems.map((item) => {
           const variant = item.product.variants.find((entry) => entry.sku === item.variantSku);
@@ -161,6 +238,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
               <h2 className="font-semibold text-white">{item.product.name}</h2>
               <p className="mt-1 text-xs text-silver/60">Variante: {variant?.options || variant?.label || item.variantSku}</p>
               <p className="mt-2 text-sm font-semibold text-emerald">{formatCOP(item.product.price)} por unidad</p>
+              {!item.product.available || !variant || item.product.stock < item.quantity ? <p className="mt-2 text-xs font-semibold text-amber-100">No disponible para esta cantidad o variante.</p> : null}
             </div>
             <div className="flex items-end gap-3">
               <label className="text-xs font-semibold text-white">Cantidad
@@ -170,6 +248,14 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             </div>
           </article>;
         })}
+        {orphanedItems.map((item) => <article key={lineId(item.productSlug, item.variantSku)} className="grid gap-4 rounded-2xl border border-amber-300/30 bg-amber-300/[.06] p-4 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div>
+            <h2 className="font-semibold text-white">Artículo retirado del catálogo</h2>
+            <p className="mt-1 text-xs text-silver/70">Referencia guardada: {item.productSlug} · {item.variantSku}</p>
+            <p className="mt-2 text-xs font-semibold text-amber-100">Ya no puede cotizarse ni pagarse. Quítalo para continuar.</p>
+          </div>
+          <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); clearQuote(); }} className="w-fit rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
+        </article>)}
       </div>
 
       <form onSubmit={calculateShipping} className="mt-8 space-y-5 rounded-2xl border border-emerald/30 bg-emerald/[.05] p-5">
@@ -194,7 +280,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
           <Field label="Código postal"><input value={destination.postalCode} onChange={(event) => updateDestination("postalCode", event.target.value)} required autoComplete="postal-code" /></Field>
         </div>
         <p className="text-[11px] leading-4 text-silver/55">Estos datos se usan para la cotización real, el registro privado del pedido y su seguimiento. Nexora nunca recibe ni almacena datos de tarjeta.</p>
-        <button type="submit" disabled={isPreparing} className="rounded-lg bg-emerald px-4 py-2.5 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing && !quote ? "Cotizando con CJ…" : "Cotizar envío real del carrito"}</button>
+        <button type="submit" disabled={isPreparing || invalidItems.length > 0} className="rounded-lg bg-emerald px-4 py-2.5 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing && !quote ? "Cotizando con CJ…" : quoteExpired ? "Volver a cotizar el envío" : "Cotizar envío real del carrito"}</button>
 
         {quote && <div className="space-y-5 border-t border-emerald/20 pt-5">
           {quote.items.map((line) => <fieldset key={lineId(line.productSlug, line.variantSku)} className="space-y-2 rounded-xl border border-silver/15 bg-onyx/45 p-4">
@@ -222,8 +308,8 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             <div className="flex justify-between text-silver/70"><span>Productos</span><span>{formatCOP(quote.productSubtotalCop)}</span></div>
             <div className="mt-2 flex justify-between text-silver/70"><span>Envíos CJ seleccionados</span><span>{formatCOP(selectedShippingTotal)}</span></div>
             <div className="mt-3 flex justify-between border-t border-silver/15 pt-3 font-semibold text-white"><span>Total en Wompi</span><span>{formatCOP(checkoutTotal)}</span></div>
-            <p className="mt-2 text-[11px] text-silver/55">Tarifas válidas hasta {new Date(quote.expiresAt).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}. Si cambias artículos, cantidades o dirección, vuelve a cotizar.</p>
-            <button type="button" onClick={pay} disabled={isPreparing} className="mt-4 w-full rounded-lg bg-emerald px-4 py-3 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing ? "Preparando pago seguro…" : `Continuar a Wompi · ${formatCOP(checkoutTotal)}`}</button>
+            <p className={`mt-2 text-[11px] ${quoteExpired ? "font-semibold text-amber-100" : "text-silver/70"}`}>{quoteExpired ? "Esta cotización venció; vuelve a consultar CJ antes de pagar." : `Tarifas válidas hasta ${new Date(quote.expiresAt).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}. Si cambias artículos, cantidades o dirección, vuelve a cotizar.`}</p>
+            <button type="button" onClick={pay} disabled={isPreparing || quoteExpired} className="mt-4 w-full rounded-lg bg-emerald px-4 py-3 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing ? "Preparando pago seguro…" : quoteExpired ? "Cotización vencida · vuelve a cotizar" : `Continuar a Wompi · ${formatCOP(checkoutTotal)}`}</button>
           </div>
         </div>}
         {status && <p aria-live="polite" className="text-sm text-silver/75">{status}</p>}

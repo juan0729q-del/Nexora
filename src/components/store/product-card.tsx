@@ -14,7 +14,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   const [variantSku, setVariantSku] = useState(product.variants.length === 1 ? product.variants[0].sku : "");
   const presentation = getProductPresentation(product);
   const { announceProduct } = useNexy();
-  const { addItem, itemCount, items } = useCart();
+  const { addItem, hydrated, itemCount, items } = useCart();
   const maximumProductQuantity = Math.min(maxUnitsPerLine, Math.max(1, product.stock));
 
   function announceInterest(intent: "view" | "buy") {
@@ -22,7 +22,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   }
 
   function addToCart() {
-    if (!product.available || !variantSku) return;
+    if (!hydrated || !product.available || !variantSku) return;
     const existing = items.find((item) => item.productSlug === product.slug && item.variantSku === variantSku);
     if (!existing && items.length >= maxCartLines) {
       setStatus(`El carrito admite hasta ${maxCartLines} variantes distintas. Finaliza este pedido o quita una antes de agregar otra.`);
@@ -44,7 +44,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   const reviewSummary = product.reviewCount > 0 && product.rating > 0
     ? `★ ${product.rating} (${product.reviewCount})`
     : "Nuevo · sin reseñas verificadas";
-  const purchaseLabel = !product.available ? product.stock < 1 ? "Agotado" : "No disponible" : "Agregar al carrito";
+  const purchaseLabel = !hydrated ? "Preparando carrito…" : !product.available ? product.stock < 1 ? "Agotado" : "No disponible" : "Agregar al carrito";
 
   return <article className="group rounded-2xl border border-silver/15 bg-white/[0.025] p-3 transition hover:border-silver/35">
     {showArt && <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} aria-label={`Ver ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"><ProductArt product={product} priority={priority} alt={presentation.imageAlt} /></Link>}
@@ -76,7 +76,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
       </div>
       {!product.variants.length && <p className="mt-3 rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-200">CJ no reportó una variante verificable; este artículo no puede añadirse al checkout todavía.</p>}
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={addToCart} disabled={!product.available || !variantSku || !product.variants.length} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
+        <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !variantSku || !product.variants.length} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
         <Link href="/carrito" className="rounded-full border border-silver/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald hover:text-emerald">Ver carrito</Link>
       </div>
       {status && <p aria-live="polite" className="mt-3 text-xs text-emerald">{status}</p>}

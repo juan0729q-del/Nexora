@@ -158,6 +158,8 @@ function cacheKey(product: Product, variantSku: string, quantity: number, destin
     destination.countryCode,
     destination.postalCode,
     destination.phone,
+    destination.email,
+    destination.houseNumber || "",
   ].map((value) => value.normalize("NFKC").trim().toLowerCase()).join("|");
   return createHash("sha256").update(canonical).digest("hex");
 }
@@ -424,7 +426,7 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     client.assertPointsAvailable(10);
     response = await client.postJson<CjFreightResponse>(freightTipEndpoint, freightPayload);
   } catch (error) {
-    if (error instanceof CjQuotaError) throw new CjShippingQuoteError("CJ alcanzó temporalmente su cuota de cotizaciones. Intenta de nuevo en unos minutos.");
+    if (error instanceof CjQuotaError) throw error;
     if (error instanceof CjRequestError) throw new CjShippingQuoteError("CJ no pudo cotizar el envío en este momento. No se cobrará ningún envío hasta que puedas elegir una opción válida.");
     throw error;
   }

@@ -77,6 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="es" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
       <body className="min-h-full bg-onyx font-sans text-white antialiased">
+        <a href="#page-content" className="fixed left-4 top-4 z-50 -translate-y-24 rounded-lg bg-emerald px-4 py-2 text-sm font-bold text-onyx transition focus:translate-y-0">Saltar al contenido</a>
         <CartProvider>
           <NexyProvider>
             {children}

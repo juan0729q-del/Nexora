@@ -37,10 +37,12 @@ export type NicheEconomics = {
  */
 export async function getSalesDashboardSnapshot({ includePersistedSales = true }: { includePersistedSales?: boolean } = {}) {
   const ledger = getSalesLedgerStatus();
+  let ledgerReadFailed = false;
   const [products, persistedSales] = await Promise.all([
     getCatalog(),
     includePersistedSales && ledger.configured
       ? getPersistedSalesDashboard().catch((error) => {
+        ledgerReadFailed = true;
         console.error("Private sales dashboard could not be read", { error: error instanceof Error ? error.message : "unknown" });
         return null;
       })
@@ -110,7 +112,11 @@ export async function getSalesDashboardSnapshot({ includePersistedSales = true }
     ledger: {
       configured: ledger.configured,
       connected: Boolean(persistedSales),
-      detail: persistedSales ? "Pedidos, pagos y postventa provienen del libro privado." : ledger.detail,
+      detail: persistedSales
+        ? "Pedidos, pagos y postventa provienen del libro privado."
+        : ledgerReadFailed
+          ? "Google Sheets está configurado, pero Apps Script no respondió dentro del tiempo permitido. Las cifras se muestran como pendientes y nunca se interpretan como ventas en cero."
+          : ledger.detail,
     },
     recentOrders: (persistedSales?.recentOrders || []) as SalesLedgerOrder[],
     dailySales: (persistedSales?.dailySales || []) as SalesLedgerDailyMetric[],

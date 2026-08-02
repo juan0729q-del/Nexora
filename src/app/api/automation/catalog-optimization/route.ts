@@ -15,8 +15,8 @@ async function run(request: Request) {
   try {
     const catalog = await optimizeCatalog();
     const discovery = getProductDiscoveryConfiguration();
-    // Ambas operaciones comparten la misma sesiÃ³n efÃ­mera: evita dos llamadas
-    // simultÃ¡neas a getAccessToken cuando CJ limita ese endpoint a 1 QPS.
+    // Ambas operaciones comparten la misma sesión efímera: evita dos llamadas
+    // simultáneas a getAccessToken cuando CJ limita ese endpoint a 1 QPS.
     const client = createCjClient();
     const [supplier, rotation] = await Promise.all([
       syncSupplierCatalog(client),

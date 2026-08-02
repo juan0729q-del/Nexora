@@ -21,7 +21,7 @@ export default async function AdminPage() {
     { label: "Inventario total", value: String(dashboard.inventory), note: `${dashboard.products.length} productos CJ verificados.` },
   ];
 
-  return <main className="min-h-screen px-5 py-6 sm:px-8 lg:px-12">
+  return <main id="page-content" tabIndex={-1} className="min-h-screen px-5 py-6 outline-none sm:px-8 lg:px-12">
     <div className="mx-auto max-w-7xl">
       <header className="flex flex-col justify-between gap-5 border-b border-silver/15 pb-6 sm:flex-row sm:items-center">
         <div>
