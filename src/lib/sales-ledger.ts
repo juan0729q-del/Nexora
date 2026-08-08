@@ -18,6 +18,7 @@ type LedgerShipping = {
   recipient?: string;
   address1?: string;
   address2?: string;
+  district?: string;
   houseNumber?: string;
   city?: string;
   region?: string;
@@ -353,7 +354,10 @@ function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
     shipping: {
       recipient: first.shipping.recipientName,
       address1: first.shipping.address1,
-      address2: first.shipping.address2,
+      // El despliegue actual de Apps Script ya persiste Dirección envío 2.
+      // Incluir allí el barrio mantiene compatibilidad y evita perderlo.
+      address2: [first.shipping.district, first.shipping.address2].filter(Boolean).join(" · ") || undefined,
+      district: first.shipping.district,
       houseNumber: first.shipping.houseNumber,
       city: first.shipping.city,
       region: first.shipping.region,

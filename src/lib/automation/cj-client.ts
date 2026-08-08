@@ -53,6 +53,15 @@ export type CjTelemetry = {
 
 let sharedRequestQueue: Promise<void> = Promise.resolve();
 let sharedNextRequestAt = 0;
+let sharedSessionPromise: Promise<CjSession> | undefined;
+let sharedRefreshPromise: Promise<CjSession> | undefined;
+const sharedTelemetry: CjTelemetry = {};
+
+function sessionIsFresh(session: CjSession) {
+  if (!session.accessTokenExpiryDate) return true;
+  const expiry = Date.parse(session.accessTokenExpiryDate);
+  return !Number.isFinite(expiry) || expiry - Date.now() > 5 * 60_000;
+}
 
 export function getCjCredentialConfiguration() {
   const apiKey = process.env.CJ_DROPSHIPPING_API_KEY?.trim();
@@ -197,21 +206,17 @@ async function waitForSharedRequestSlot() {
  * las instancias cálidas del proceso para respetar el límite más conservador.
  */
 export class CjClient {
-  private sessionPromise: Promise<CjSession> | undefined;
-  private refreshPromise: Promise<CjSession> | undefined;
-  private telemetry: CjTelemetry = {};
-
   constructor(private readonly pointsReserveOverride?: number) {}
 
   getTelemetry(): CjTelemetry {
     return {
-      requestId: this.telemetry.requestId,
-      points: this.telemetry.points ? { ...this.telemetry.points } : undefined,
+      requestId: sharedTelemetry.requestId,
+      points: sharedTelemetry.points ? { ...sharedTelemetry.points } : undefined,
     };
   }
 
   assertPointsAvailable(nextRequestCost = 0) {
-    const remaining = this.telemetry.points?.remaining;
+    const remaining = sharedTelemetry.points?.remaining;
     const reserve = minimumPointsReserve(this.pointsReserveOverride);
     const required = reserve + Math.max(0, nextRequestCost);
     if (remaining !== undefined && remaining < required) {
@@ -227,8 +232,8 @@ export class CjClient {
 
   private observe(payload: CjEnvelope<unknown> | undefined) {
     if (!payload) return;
-    if (payload.requestId) this.telemetry.requestId = payload.requestId;
-    if (payload.pointsInfo) this.telemetry.points = payload.pointsInfo;
+    if (payload.requestId) sharedTelemetry.requestId = payload.requestId;
+    if (payload.pointsInfo) sharedTelemetry.points = payload.pointsInfo;
   }
 
   private async authenticateWithApiKey() {
@@ -262,19 +267,21 @@ export class CjClient {
     return tokenFrom(parsed.payload, "refreshAccessToken");
   }
 
-  private getSession() {
-    if (!this.sessionPromise) {
-      this.sessionPromise = this.authenticateWithApiKey().catch((error) => {
-        this.sessionPromise = undefined;
+  private async getSession() {
+    if (!sharedSessionPromise) {
+      sharedSessionPromise = this.authenticateWithApiKey().catch((error) => {
+        sharedSessionPromise = undefined;
         throw error;
       });
     }
-    return this.sessionPromise;
+    const session = await sharedSessionPromise;
+    if (sessionIsFresh(session)) return session;
+    return this.renewSession(session);
   }
 
   private async renewSession(previous: CjSession) {
-    if (!this.refreshPromise) {
-      this.refreshPromise = (async () => {
+    if (!sharedRefreshPromise) {
+      sharedRefreshPromise = (async () => {
         if (previous.refreshToken) {
           try {
             return await this.refreshAccessToken(previous.refreshToken);
@@ -285,11 +292,11 @@ export class CjClient {
         // Si el refresh token venció o fue revocado, la API key crea otra sesión.
         return this.authenticateWithApiKey();
       })().finally(() => {
-        this.refreshPromise = undefined;
+        sharedRefreshPromise = undefined;
       });
     }
-    const renewed = await this.refreshPromise;
-    this.sessionPromise = Promise.resolve(renewed);
+    const renewed = await sharedRefreshPromise;
+    sharedSessionPromise = Promise.resolve(renewed);
     return renewed;
   }
 

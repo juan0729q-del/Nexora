@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ProductCard } from "@/components/store/product-card";
 import { ProductGallery } from "@/components/store/product-gallery";
+import { ProductVariantProvider } from "@/components/store/product-variant-context";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
 import { getCatalog, getProduct } from "@/lib/catalog-store";
@@ -105,6 +106,7 @@ export default async function ProductPage({ params }: Props) {
     <>
       <StoreHeader />
       <main id="page-content" tabIndex={-1} className="px-5 py-12 outline-none sm:px-8 sm:py-20 lg:px-12">
+        <ProductVariantProvider initialSku={product.variants.length === 1 ? product.variants[0].sku : ""}>
         <article className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-start">
           <ProductGallery product={product} />
           <div>
@@ -134,6 +136,7 @@ export default async function ProductPage({ params }: Props) {
             </div>
           </div>
         </article>
+        </ProductVariantProvider>
 
         <section className="mx-auto mt-16 max-w-7xl border-t border-silver/15 pt-12" aria-labelledby="provider-details-title">
           <div className="max-w-3xl">

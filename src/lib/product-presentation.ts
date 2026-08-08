@@ -1,4 +1,5 @@
 import { isStoreProductAvailable, type Product } from "./products";
+import type { ProviderImage } from "./provider-product-details";
 
 export type ProductPresentation = {
   title: string;
@@ -17,7 +18,7 @@ export type StorefrontProduct = Pick<
   available: boolean;
   /** Referencias de variante aptas para que el cliente cotice; el servidor
    * conserva y valida los identificadores/logística privados de CJ. */
-  variants: Array<{ sku: string; label: string; options?: string }>;
+  variants: Array<{ sku: string; label: string; options?: string; image?: ProviderImage }>;
 };
 
 /**
@@ -162,6 +163,9 @@ export function toStorefrontProduct(product: Product): StorefrontProduct {
       sku: variant.sku,
       label: variant.label,
       options: variant.options,
+      // Un producto de variante única puede reutilizar su imagen principal,
+      // que también procede de CJ. Nunca se construye una imagen sustituta.
+      image: variant.image || (product.variants.length === 1 ? product.image : undefined),
     })),
   };
 }

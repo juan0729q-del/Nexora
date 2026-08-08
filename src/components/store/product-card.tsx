@@ -7,11 +7,16 @@ import { formatCOP } from "@/lib/products";
 import { maxCartLines, maxCartUnits, maxUnitsPerLine, useCart } from "./cart-context";
 import { useNexy } from "./nexy-context";
 import { ProductArt } from "./product-art";
+import { useOptionalProductVariant } from "./product-variant-context";
 
 export function ProductCard({ product, priority = false, showArt = true }: { product: StorefrontProduct; priority?: boolean; showArt?: boolean }) {
   const [status, setStatus] = useState<string | null>(null);
   const [quantity, setQuantity] = useState(1);
-  const [variantSku, setVariantSku] = useState(product.variants.length === 1 ? product.variants[0].sku : "");
+  const variantContext = useOptionalProductVariant();
+  const [localVariantSku, setLocalVariantSku] = useState(product.variants.length === 1 ? product.variants[0].sku : "");
+  const variantSku = variantContext?.variantSku ?? localVariantSku;
+  const setVariantSku = variantContext?.setVariantSku ?? setLocalVariantSku;
+  const selectedVariant = product.variants.find((variant) => variant.sku === variantSku);
   const presentation = getProductPresentation(product);
   const { announceProduct } = useNexy();
   const { addItem, hydrated, itemCount, items } = useCart();
@@ -47,7 +52,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   const purchaseLabel = !hydrated ? "Preparando carrito…" : !product.available ? product.stock < 1 ? "Agotado" : "No disponible" : "Agregar al carrito";
 
   return <article className="group rounded-2xl border border-silver/15 bg-white/[0.025] p-3 transition hover:border-silver/35">
-    {showArt && <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} aria-label={`Ver ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"><ProductArt product={product} priority={priority} alt={presentation.imageAlt} /></Link>}
+    {showArt && <Link href={`/productos/${product.slug}`} onClick={() => announceInterest("view")} aria-label={`Ver ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"><ProductArt product={product} image={selectedVariant?.image} priority={priority} alt={selectedVariant?.image?.alt || presentation.imageAlt} /></Link>}
     <div className="px-1 pt-5 pb-2">
       <div className="flex items-start justify-between gap-4">
         <div>

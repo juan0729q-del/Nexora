@@ -51,6 +51,7 @@ function destinationFrom(value: unknown, fallbackEmail: string): ShippingDestina
     phone: string("phone"),
     address1: string("address1"),
     address2: string("address2") || undefined,
+    district: string("district") || undefined,
     city: string("city"),
     region: string("region"),
     countryCode: string("countryCode"),
@@ -85,6 +86,15 @@ function requireSalesLedger() {
   return process.env.REQUIRE_SALES_LEDGER_FOR_CHECKOUT?.trim().toLowerCase() !== "false";
 }
 
+function canTrustQuotedInventory(verifiedAt: string, verifiedStock: number, quantity: number) {
+  const configuredSeconds = Number(process.env.CJ_INVENTORY_QUOTE_TRUST_SECONDS || 120);
+  const trustSeconds = Number.isFinite(configuredSeconds) ? Math.max(30, Math.min(300, configuredSeconds)) : 120;
+  const configuredBuffer = Number(process.env.CJ_INVENTORY_SAFETY_BUFFER || 1);
+  const safetyBuffer = Number.isFinite(configuredBuffer) ? Math.max(0, Math.min(10, Math.floor(configuredBuffer))) : 1;
+  const age = Date.now() - Date.parse(verifiedAt);
+  return age >= 0 && age <= trustSeconds * 1_000 && verifiedStock >= quantity + safetyBuffer;
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json() as { customerEmail?: unknown; destination?: unknown; items?: unknown };
@@ -101,7 +111,7 @@ export async function POST(request: Request) {
     const catalog = await getCatalog();
     const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
     const checkoutItems: CheckoutLineItem[] = [];
-    const inventoryClient = createCjClient({ minimumPointsReserve: 0 });
+    let inventoryClient: ReturnType<typeof createCjClient> | undefined;
     for (const requested of requestedItems) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
@@ -122,17 +132,20 @@ export async function POST(request: Request) {
         },
         quoteExpiresAt: quoteToken.expiresAt,
       };
-      const inventory = await verifyCheckoutInventory(product, {
-        variantSku: quoteToken.variantSku,
-        quantity: requested.quantity,
-        forceLiveCheck: true,
-        client: inventoryClient,
-      });
-      if (inventory.status === "quota-exhausted") {
-        return NextResponse.json({ message: inventory.reason || "CJ no tiene cuota para confirmar el inventario antes del cobro." }, { status: 429, headers: { "Retry-After": "900" } });
-      }
-      if (["snapshot", "unavailable", "unverified"].includes(inventory.status)) {
-        return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: inventory.status === "unavailable" ? 409 : 503 });
+      if (!canTrustQuotedInventory(quoteToken.inventoryVerifiedAt, quoteToken.verifiedStock, requested.quantity)) {
+        inventoryClient ||= createCjClient({ minimumPointsReserve: 0 });
+        const inventory = await verifyCheckoutInventory(product, {
+          variantSku: quoteToken.variantSku,
+          quantity: requested.quantity,
+          forceLiveCheck: true,
+          client: inventoryClient,
+        });
+        if (inventory.status === "quota-exhausted") {
+          return NextResponse.json({ message: inventory.reason || "CJ no tiene cuota para confirmar el inventario antes del cobro." }, { status: 429, headers: { "Retry-After": "900" } });
+        }
+        if (["snapshot", "unavailable", "unverified"].includes(inventory.status)) {
+          return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: inventory.status === "unavailable" ? 409 : 503 });
+        }
       }
       checkoutItems.push({
         product,

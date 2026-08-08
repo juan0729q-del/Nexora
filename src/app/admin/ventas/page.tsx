@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { AdminNavigation } from "@/components/admin/admin-navigation";
 import { SalesOrderTable } from "@/components/admin/sales-order-table";
@@ -17,6 +18,36 @@ function formatDay(day: string) {
 
 export default async function AdminSalesPage() {
   if (!(await isAdmin())) redirect("/admin/login");
+
+  return <main id="page-content" tabIndex={-1} className="min-h-screen px-5 py-6 outline-none sm:px-8 lg:px-12">
+    <div className="mx-auto max-w-7xl">
+      <header className="flex flex-col justify-between gap-5 border-b border-silver/15 pb-6 xl:flex-row xl:items-center">
+        <div>
+          <p className="text-xs font-bold tracking-[.16em] text-emerald uppercase">Nexora / Control comercial</p>
+          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Ventas, rentabilidad y postventa</h1>
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-silver/65">Esta vista relaciona cada pago Wompi con su producto, cotización real de envío CJ, correo de entrega y seguimiento operativo. No crea ventas ni fletes de prueba.</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-3 xl:justify-end">
+          <AdminNavigation current="sales" />
+          <form action={logout}><button className="rounded-full border border-silver/25 px-4 py-2 text-sm text-silver/80 hover:border-silver">Cerrar sesión</button></form>
+        </div>
+      </header>
+      <Suspense fallback={<SalesDashboardSkeleton />}>
+        <SalesDashboardContent />
+      </Suspense>
+    </div>
+  </main>;
+}
+
+function SalesDashboardSkeleton() {
+  return <div className="mt-6 space-y-5" role="status" aria-label="Cargando ventas y postventa">
+    <div className="h-20 animate-pulse rounded-2xl border border-silver/15 bg-white/[.025]" />
+    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">{Array.from({ length: 8 }, (_, index) => <div key={index} className="h-32 animate-pulse rounded-2xl border border-silver/15 bg-white/[.025]" />)}</div>
+    <p className="text-sm text-silver/65">Abriendo el panel y consultando el registro privado de ventas…</p>
+  </div>;
+}
+
+async function SalesDashboardContent() {
   const dashboard = await getSalesDashboardSnapshot();
   const targetPercent = Math.round(dashboard.targetContributionMargin * 100);
   const standardFee = `${(dashboard.wompi.percentageRate * 100).toLocaleString("es-CO", { maximumFractionDigits: 2 })}% + ${formatCOP(dashboard.wompi.fixedFeeCop)} + IVA`;
@@ -38,20 +69,7 @@ export default async function AdminSalesPage() {
   ];
   const greatestDailyRevenue = Math.max(1, ...dashboard.dailySales.map((entry) => entry.grossRevenueCop));
 
-  return <main id="page-content" tabIndex={-1} className="min-h-screen px-5 py-6 outline-none sm:px-8 lg:px-12">
-    <div className="mx-auto max-w-7xl">
-      <header className="flex flex-col justify-between gap-5 border-b border-silver/15 pb-6 xl:flex-row xl:items-center">
-        <div>
-          <p className="text-xs font-bold tracking-[.16em] text-emerald uppercase">Nexora / Control comercial</p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Ventas, rentabilidad y postventa</h1>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-silver/65">Esta vista relaciona cada pago Wompi con su producto, cotización real de envío CJ, correo de entrega y seguimiento operativo. No crea ventas ni fletes de prueba.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 xl:justify-end">
-          <AdminNavigation current="sales" />
-          <form action={logout}><button className="rounded-full border border-silver/25 px-4 py-2 text-sm text-silver/80 hover:border-silver">Cerrar sesión</button></form>
-        </div>
-      </header>
-
+  return <>
       <section className={`mt-6 rounded-2xl border p-4 ${dashboard.ledger.connected ? "border-emerald/30 bg-emerald/[.07]" : dashboard.ledger.configured ? "border-amber-300/30 bg-amber-300/[.07]" : "border-red-300/25 bg-red-300/[.07]"}`} aria-label="Estado del registro privado">
         <p className="text-sm font-semibold text-white">Registro de ventas, envío y postventa</p>
         <p className="mt-1 text-xs leading-5 text-silver/70">{dashboard.ledger.detail}</p>
@@ -91,6 +109,5 @@ export default async function AdminSalesPage() {
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><h2 className="font-semibold text-white">Economía por producto</h2><p className="mt-1 text-xs leading-5 text-silver/60">Costo base oficial de CJ convertido a COP. “Revisar” significa que no alcanza el objetivo de contribución antes de flete por destino y adquisición.</p></div><span className={`w-fit rounded-full px-3 py-1 text-xs font-bold ${dashboard.priceReviewCount ? "bg-amber-300/10 text-amber-100" : "bg-emerald/10 text-emerald"}`}>{dashboard.priceReviewCount} por revisar</span></div>
         <div className="mt-5 overflow-x-auto"><table className="min-w-[950px] w-full text-left text-sm"><thead className="border-y border-silver/10 text-xs tracking-wide text-silver/55 uppercase"><tr><th className="px-3 py-3">Producto</th><th className="px-3 py-3">Precio</th><th className="px-3 py-3">Costo CJ</th><th className="px-3 py-3">Wompi est.</th><th className="px-3 py-3">Contribución</th><th className="px-3 py-3">Margen</th><th className="px-3 py-3">Piso sugerido</th><th className="px-3 py-3">Estado</th></tr></thead><tbody>{dashboard.unitEconomics.map((entry) => <tr key={entry.product.sku} className="border-b border-silver/10 align-top"><td className="px-3 py-4"><p className="max-w-[250px] font-medium text-white">{entry.product.name}</p><p className="mt-1 font-mono text-[11px] text-silver/45">{entry.product.sku}</p></td><td className="px-3 py-4 text-silver/80">{formatCOP(entry.product.price)}</td><td className="px-3 py-4 text-silver/80">{formatCOP(entry.supplierCostCop)}</td><td className="px-3 py-4 text-silver/80">{formatCOP(entry.wompiFeeCop)}</td><td className={`px-3 py-4 font-medium ${entry.contributionCop > 0 ? "text-emerald" : "text-red-300"}`}>{formatCOP(entry.contributionCop)}</td><td className={`px-3 py-4 font-medium ${entry.requiresPriceReview ? "text-amber-200" : "text-emerald"}`}>{entry.contributionMarginPercent.toFixed(1)}%</td><td className="px-3 py-4 text-silver/80">{formatCOP(entry.recommendedPriceCop)}</td><td className="px-3 py-4"><span className={`rounded-full px-2 py-1 text-xs font-semibold ${entry.requiresPriceReview ? "bg-amber-300/10 text-amber-100" : "bg-emerald/10 text-emerald"}`}>{entry.requiresPriceReview ? "Revisar" : "Dentro del objetivo"}</span></td></tr>)}</tbody></table></div>
       </section>
-    </div>
-  </main>;
+  </>;
 }

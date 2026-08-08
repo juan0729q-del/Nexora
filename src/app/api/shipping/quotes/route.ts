@@ -33,6 +33,7 @@ function destinationFrom(value: unknown): ShippingDestinationInput | null {
     phone: string("phone"),
     address1: string("address1"),
     address2: string("address2") || undefined,
+    district: string("district") || undefined,
     city: string("city"),
     region: string("region"),
     countryCode: string("countryCode"),
@@ -96,7 +97,7 @@ export async function POST(request: Request) {
       const selectedVariant = product.variants.find((variant) => variant.sku.toUpperCase() === quote.variantSku.toUpperCase());
       const productSubtotalCop = product.price * requested.quantity;
       const quoteToken = createShippingQuoteToken({
-        version: 2,
+        version: 3,
         productSlug: product.slug,
         productPriceCop: product.price,
         productSubtotalCop,
@@ -107,6 +108,8 @@ export async function POST(request: Request) {
         expiresAt: quote.expiresAt,
         supplierCostUsd: quote.supplierCostUsd,
         exchangeRateCopPerUsd: quote.exchangeRateCopPerUsd,
+        inventoryVerifiedAt: quote.inventoryVerifiedAt,
+        verifiedStock: quote.verifiedStock,
         selectedOptions: quote.options,
       });
       lines.push({

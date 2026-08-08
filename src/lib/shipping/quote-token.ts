@@ -4,7 +4,7 @@ import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes }
 import type { CjShippingQuoteOption, ShippingDestinationInput } from "./types";
 
 type QuoteTokenPayload = {
-  version: 2;
+  version: 3;
   productSlug: string;
   productPriceCop: number;
   productSubtotalCop: number;
@@ -15,6 +15,8 @@ type QuoteTokenPayload = {
   expiresAt: string;
   supplierCostUsd: number;
   exchangeRateCopPerUsd: number;
+  inventoryVerifiedAt: string;
+  verifiedStock: number;
   selectedOptions: CjShippingQuoteOption[];
 };
 
@@ -39,6 +41,7 @@ function destinationCanonical(destination: ShippingDestinationInput) {
     destination.phone,
     destination.address1,
     destination.address2 || "",
+    destination.district || "",
     destination.city,
     destination.region,
     destination.countryCode,
@@ -87,12 +90,14 @@ export function readShippingQuoteToken(token: unknown): QuoteTokenPayload {
     decipher.setAuthTag(packed.subarray(12, 28));
     const parsed = JSON.parse(Buffer.concat([decipher.update(packed.subarray(28)), decipher.final()]).toString("utf8")) as Partial<QuoteTokenPayload>;
     const expiresAt = typeof parsed.expiresAt === "string" ? Date.parse(parsed.expiresAt) : NaN;
-    if (parsed.version !== 2 || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
+    const inventoryVerifiedAt = typeof parsed.inventoryVerifiedAt === "string" ? Date.parse(parsed.inventoryVerifiedAt) : NaN;
+    if (parsed.version !== 3 || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
       || typeof parsed.destinationFingerprint !== "string" || !Number.isFinite(parsed.productPriceCop)
       || !Number.isSafeInteger(parsed.productSubtotalCop) || (parsed.productSubtotalCop || 0) <= 0
       || !Number.isSafeInteger(parsed.quantity) || (parsed.quantity || 0) < 1 || (parsed.quantity || 0) > 10
       || parsed.productSubtotalCop !== (parsed.productPriceCop || 0) * (parsed.quantity || 0)
       || !Number.isFinite(parsed.supplierCostUsd) || !Number.isFinite(parsed.exchangeRateCopPerUsd)
+      || !Number.isFinite(inventoryVerifiedAt) || !Number.isSafeInteger(parsed.verifiedStock) || (parsed.verifiedStock || 0) < 0
       || !Array.isArray(parsed.selectedOptions) || !parsed.selectedOptions.every(validOption)
       || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {
       throw new ShippingQuoteTokenError("La cotización de envío venció o ya no es válida. Vuelve a calcularla.");

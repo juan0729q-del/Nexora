@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { beginCheckout } from "@/lib/payments";
 import type { StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
 import type { CartShippingQuoteResponse, CjShippingQuoteOption, ShippingDestinationInput } from "@/lib/shipping/types";
 import { maxCartUnits, maxUnitsPerLine, useCart } from "./cart-context";
 import { ProductArt } from "./product-art";
+import { ColombiaLocationFields } from "./colombia-location-fields";
 
 const emptyDestination: ShippingDestinationInput = {
   recipientName: "",
@@ -15,6 +16,7 @@ const emptyDestination: ShippingDestinationInput = {
   phone: "",
   address1: "",
   address2: "",
+  district: "",
   city: "",
   region: "",
   countryCode: "CO",
@@ -112,7 +114,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
     return () => window.clearTimeout(timeout);
   }, [quote]);
 
-  function clearQuote() {
+  const clearQuote = useCallback(() => {
     requestControllerRef.current?.abort();
     requestControllerRef.current = null;
     setQuote(null);
@@ -120,12 +122,16 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
     setStatus(null);
     setQuoteExpired(false);
     setIsPreparing(false);
-  }
+  }, []);
 
-  function updateDestination(field: keyof ShippingDestinationInput, value: string) {
+  const updateDestination = useCallback((field: keyof ShippingDestinationInput, value: string) => {
     clearQuote();
-    setDestination((current) => ({ ...current, [field]: field === "countryCode" ? value.toUpperCase() : value }));
-  }
+    setDestination((current) => ({
+      ...current,
+      [field]: field === "countryCode" ? value.toUpperCase() : value,
+      ...(["address1", "houseNumber"].includes(field) ? { postalCode: "" } : {}),
+    }));
+  }, [clearQuote]);
 
   async function calculateShipping(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -233,7 +239,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             maxCartUnits - (itemCount - item.quantity),
           ));
           return <article key={lineId(item.productSlug, item.variantSku)} className="grid gap-4 rounded-2xl border border-silver/15 bg-white/[.025] p-4 sm:grid-cols-[7rem_1fr_auto] sm:items-center">
-            <div className="w-28"><ProductArt product={item.product} alt={item.product.image.alt} /></div>
+            <div className="w-28"><ProductArt product={item.product} image={variant?.image} alt={variant?.image?.alt || item.product.image.alt} /></div>
             <div>
               <h2 className="font-semibold text-white">{item.product.name}</h2>
               <p className="mt-1 text-xs text-silver/60">Variante: {variant?.options || variant?.label || item.variantSku}</p>
@@ -267,17 +273,16 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
           <Field label="Nombre de quien recibe"><input value={destination.recipientName} onChange={(event) => updateDestination("recipientName", event.target.value)} required autoComplete="name" /></Field>
           <Field label="Correo para confirmación"><input type="email" value={destination.email} onChange={(event) => updateDestination("email", event.target.value)} required autoComplete="email" placeholder="tu@correo.com" /></Field>
           <Field label="Teléfono con indicativo"><input type="tel" value={destination.phone} onChange={(event) => updateDestination("phone", event.target.value)} required autoComplete="tel" placeholder="+57…" /></Field>
-          <Field label="País (código ISO)"><input list="nexora-countries" value={destination.countryCode} onChange={(event) => updateDestination("countryCode", event.target.value)} required maxLength={2} className="uppercase" /><datalist id="nexora-countries"><option value="CO">Colombia</option><option value="US">Estados Unidos</option></datalist></Field>
+          <div className="sm:col-span-2"><p className="text-[11px] leading-4 text-silver/55">El país determina las opciones logísticas que CJ puede ofrecer.</p></div>
         </div>
         <div className="grid gap-3 sm:grid-cols-[1fr_.35fr]">
           <Field label="Dirección de entrega"><input value={destination.address1} onChange={(event) => updateDestination("address1", event.target.value)} required autoComplete="address-line1" /></Field>
-          <Field label="Número de casa"><input value={destination.houseNumber || ""} onChange={(event) => updateDestination("houseNumber", event.target.value)} placeholder="12-34" /></Field>
+          <Field label="Número de la dirección"><input value={destination.houseNumber || ""} onChange={(event) => updateDestination("houseNumber", event.target.value)} required placeholder="12-34" autoComplete="address-line1" /></Field>
         </div>
         <Field label="Complemento (opcional)"><input value={destination.address2 || ""} onChange={(event) => updateDestination("address2", event.target.value)} autoComplete="address-line2" placeholder="Torre, piso, indicaciones" /></Field>
+        <Field label="Barrio / localidad / condado"><input value={destination.district || ""} onChange={(event) => updateDestination("district", event.target.value)} required placeholder="Dato requerido por algunos métodos CJ" /></Field>
         <div className="grid gap-3 sm:grid-cols-3">
-          <Field label="Ciudad"><input value={destination.city} onChange={(event) => updateDestination("city", event.target.value)} required autoComplete="address-level2" /></Field>
-          <Field label="Departamento / estado"><input value={destination.region} onChange={(event) => updateDestination("region", event.target.value)} required autoComplete="address-level1" /></Field>
-          <Field label="Código postal"><input value={destination.postalCode} onChange={(event) => updateDestination("postalCode", event.target.value)} required autoComplete="postal-code" /></Field>
+          <ColombiaLocationFields destination={destination} onChange={updateDestination} />
         </div>
         <p className="text-[11px] leading-4 text-silver/55">Estos datos se usan para la cotización real, el registro privado del pedido y su seguimiento. Nexora nunca recibe ni almacena datos de tarjeta.</p>
         <button type="submit" disabled={isPreparing || invalidItems.length > 0} className="rounded-lg bg-emerald px-4 py-2.5 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing && !quote ? "Cotizando con CJ…" : quoteExpired ? "Volver a cotizar el envío" : "Cotizar envío real del carrito"}</button>
@@ -309,7 +314,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             <div className="mt-2 flex justify-between text-silver/70"><span>Envíos CJ seleccionados</span><span>{formatCOP(selectedShippingTotal)}</span></div>
             <div className="mt-3 flex justify-between border-t border-silver/15 pt-3 font-semibold text-white"><span>Total en Wompi</span><span>{formatCOP(checkoutTotal)}</span></div>
             <p className={`mt-2 text-[11px] ${quoteExpired ? "font-semibold text-amber-100" : "text-silver/70"}`}>{quoteExpired ? "Esta cotización venció; vuelve a consultar CJ antes de pagar." : `Tarifas válidas hasta ${new Date(quote.expiresAt).toLocaleTimeString("es-CO", { hour: "2-digit", minute: "2-digit" })}. Si cambias artículos, cantidades o dirección, vuelve a cotizar.`}</p>
-            <button type="button" onClick={pay} disabled={isPreparing || quoteExpired} className="mt-4 w-full rounded-lg bg-emerald px-4 py-3 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing ? "Preparando pago seguro…" : quoteExpired ? "Cotización vencida · vuelve a cotizar" : `Continuar a Wompi · ${formatCOP(checkoutTotal)}`}</button>
+            <button type="button" onClick={pay} disabled={isPreparing || quoteExpired} className="mt-4 w-full rounded-lg bg-emerald px-4 py-3 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing ? "Preparando pago seguro…" : quoteExpired ? "Cotización vencida · vuelve a cotizar" : `Pagar de forma segura con Wompi · ${formatCOP(checkoutTotal)}`}</button>
           </div>
         </div>}
         {status && <p aria-live="polite" className="text-sm text-silver/75">{status}</p>}

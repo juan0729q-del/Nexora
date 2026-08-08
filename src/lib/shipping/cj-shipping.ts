@@ -83,6 +83,8 @@ export type ResolvedCjShippingQuote = {
   quantity: number;
   supplierCostUsd: number;
   exchangeRateCopPerUsd: number;
+  inventoryVerifiedAt: string;
+  verifiedStock: number;
   quotedAt: string;
   expiresAt: string;
   options: CjShippingQuoteOption[];
@@ -137,11 +139,12 @@ export function normalizeCjShippingDestination(destination: ShippingDestinationI
     phone: required(destination.phone, "el teléfono de entrega", 60),
     address1: required(destination.address1, "la dirección de entrega", 300),
     address2: destination.address2?.trim().slice(0, 300) || undefined,
+    district: required(destination.district, "el barrio, localidad o condado", 120),
     city: required(destination.city, "la ciudad", 120),
     region: required(destination.region, "el departamento o estado", 120),
     countryCode: countryCode(destination.countryCode),
     postalCode: required(destination.postalCode, "el código postal", 40),
-    houseNumber: destination.houseNumber?.trim().slice(0, 80) || undefined,
+    houseNumber: required(destination.houseNumber, "el número de la dirección", 80),
   };
 }
 
@@ -153,6 +156,7 @@ function cacheKey(product: Product, variantSku: string, quantity: number, destin
     destination.recipientName,
     destination.address1,
     destination.address2 || "",
+    destination.district || "",
     destination.city,
     destination.region,
     destination.countryCode,
@@ -212,7 +216,7 @@ function inventoryQuantity(inventory: CjInventory) {
   return [...direct, ...nested].reduce((maximum, value) => Math.max(maximum, value), 0);
 }
 
-function sourceCountryFrom(variant: CjVariant) {
+function sourceInventoryFrom(variant: CjVariant) {
   const candidates = (variant.inventories || [])
     .map((inventory) => ({ country: text(inventory.countryCode)?.toUpperCase(), quantity: inventoryQuantity(inventory) }))
     .filter((inventory): inventory is { country: string; quantity: number } => Boolean(inventory.country && /^[A-Z]{2}$/.test(inventory.country)));
@@ -224,7 +228,7 @@ function sourceCountryFrom(variant: CjVariant) {
     : candidates)
     .sort((left, right) => right.quantity - left.quantity || left.country.localeCompare(right.country));
   if (!eligible.length) throw new CjShippingQuoteError("CJ no reportó un país de inventario disponible para esta variante.");
-  return eligible[0].country;
+  return { countryCode: eligible[0].country, verifiedStock: Math.max(0, Math.floor(eligible[0].quantity)) };
 }
 
 function dimensionsFrom(variant: CjVariant, catalogVariant: ProviderVariant) {
@@ -277,12 +281,12 @@ function inputForStrongRule(destination: ShippingDestinationInput, type: string 
     case "recipientName": return destination.recipientName;
     case "recipientAddress": return `${destination.address1} ${destination.address2 || ""}`.trim();
     case "city": return destination.city;
+    case "town": return destination.district || destination.city;
     // Estos campos requieren información fiscal o de identidad que Nexora no
     // solicita en un checkout estándar. El método se descarta de forma segura.
     case "dutyNo":
     case "iossNumber":
-    case "recipientId":
-    case "town": return "";
+    case "recipientId": return "";
     default: return "";
   }
 }
@@ -380,7 +384,11 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
   // existe telemetría de puntos y una comprobación local sería ilusoria.
   await client.authenticateAndAssertPoints(30);
   const { variantId, variant } = await resolveVariantFromCj(product, catalogVariant, client);
-  const originCountryCode = sourceCountryFrom(variant);
+  const sourceInventory = sourceInventoryFrom(variant);
+  const originCountryCode = sourceInventory.countryCode;
+  if (sourceInventory.verifiedStock > 0 && sourceInventory.verifiedStock < quantity) {
+    throw new CjShippingQuoteError(`CJ solo confirmó ${sourceInventory.verifiedStock} unidades disponibles de esta variante.`);
+  }
   const dimensions = dimensionsFrom(variant, catalogVariant);
   const weight = weightFrom(product, variant, catalogVariant);
   const properties = [...new Set(product.shipping.logisticsProperties.map((property) => property.trim()).filter(Boolean))];
@@ -396,6 +404,8 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
       recipientAddress: normalizedDestination.address1,
       recipientAddress1: normalizedDestination.address1,
       recipientAddress2: normalizedDestination.address2,
+      town: normalizedDestination.district,
+      county: normalizedDestination.district,
       city: normalizedDestination.city,
       province: normalizedDestination.region,
       recipientName: normalizedDestination.recipientName,
@@ -438,6 +448,8 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     quantity,
     supplierCostUsd,
     exchangeRateCopPerUsd: exchangeRate,
+    inventoryVerifiedAt: quotedAt.toISOString(),
+    verifiedStock: sourceInventory.verifiedStock,
     quotedAt: quotedAt.toISOString(),
     expiresAt: expiresAt.toISOString(),
     options: parseOptions(response, originCountryCode, exchangeRate, normalizedDestination),

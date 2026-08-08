@@ -4,6 +4,7 @@ export type ShippingDestinationInput = {
   phone: string;
   address1: string;
   address2?: string;
+  district?: string;
   city: string;
   region: string;
   countryCode: string;
