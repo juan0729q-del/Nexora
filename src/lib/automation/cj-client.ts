@@ -149,6 +149,7 @@ function responseDetail(response: Response, payload: CjEnvelope<unknown> | undef
 }
 
 function numberOrUndefined(value: unknown) {
+  if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")) return undefined;
   const number = Number(value);
   return Number.isFinite(number) ? number : undefined;
 }
