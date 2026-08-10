@@ -149,6 +149,11 @@ export async function POST(request: Request) {
     }
     if (error instanceof CjQuotaError) {
       const retryAfter = String(error.retryAfterSeconds || 60);
+      console.warn("CJ shipping points unavailable", {
+        code: error.code || null,
+        points: error.points || null,
+        retryAfterSeconds: Number(retryAfter),
+      });
       return NextResponse.json({
         message: "CJ alcanzó temporalmente su cuota de consultas. Conservamos tu carrito; intenta cotizar nuevamente cuando termine la espera indicada.",
         reason: "provider-quota",
