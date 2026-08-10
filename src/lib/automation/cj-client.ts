@@ -273,7 +273,18 @@ export class CjClient {
   /** Obtiene primero la telemetría de la sesión y luego valida la reserva. */
   async authenticateAndAssertPoints(nextRequestCost = 0) {
     await this.getSession();
-    this.assertPointsAvailable(nextRequestCost);
+    try {
+      this.assertPointsAvailable(nextRequestCost);
+    } catch (error) {
+      if (!(error instanceof CjQuotaError)) throw error;
+
+      // CJ repone los puntos de forma gradual cada minuto. Una Function cálida
+      // puede conservar en memoria un saldo bajo observado minutos antes; el
+      // endpoint de ajustes no consume puntos y permite renovar esa telemetría
+      // antes de bloquear una compra con información obsoleta.
+      await this.getJson<CjEnvelope<unknown>>(`${cjOrigin}/api2.0/v1/setting/get`);
+      this.assertPointsAvailable(nextRequestCost);
+    }
   }
 
   private observe(payload: CjEnvelope<unknown> | undefined) {
