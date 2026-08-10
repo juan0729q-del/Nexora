@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { checkoutAuditActive, downloadCheckoutAudit, readCheckoutAudit, recordCheckoutAuditEvent } from "@/lib/checkout-audit";
 import { useCart } from "./cart-context";
 
 type VerifiedStatus = "PENDING" | "APPROVED" | "DECLINED" | "VOIDED" | "ERROR" | "REVIEW";
@@ -34,6 +35,18 @@ export function CheckoutResultStatus({ provider, transactionId, reference }: { p
   const canVerify = provider === "wompi" && Boolean(transactionId && reference);
   const [status, setStatus] = useState<VerifiedStatus | "CHECKING" | "UNAVAILABLE">(canVerify ? "CHECKING" : "UNAVAILABLE");
   const [message, setMessage] = useState<string | null>(null);
+  const [auditId, setAuditId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!checkoutAuditActive()) return;
+    const snapshot = readCheckoutAudit();
+    queueMicrotask(() => setAuditId(snapshot?.auditId || null));
+    recordCheckoutAuditEvent("payment-returned", {
+      provider: provider || "unknown",
+      reference: reference || "missing",
+      transactionIdPresent: Boolean(transactionId),
+    });
+  }, [provider, reference, transactionId]);
 
   useEffect(() => {
     if (!canVerify || !transactionId || !reference) return;
@@ -63,24 +76,29 @@ export function CheckoutResultStatus({ provider, transactionId, reference }: { p
         const payload = await response.json().catch(() => null) as { status?: VerifiedStatus; message?: string } | null;
         if (!response.ok) {
           if (transientStatusCodes.has(response.status)) {
+            recordCheckoutAuditEvent("payment-status-retry", { httpStatus: response.status, attempt: attempts });
             scheduleRetry(retryDelay(response), payload?.message || "Wompi aún está preparando la confirmación oficial.");
             return;
           }
+          recordCheckoutAuditEvent("payment-status-failed", { httpStatus: response.status, attempt: attempts });
           setStatus("UNAVAILABLE");
           setMessage(payload?.message || "La respuesta de Wompi no coincide con este pedido.");
           return;
         }
         if (!payload?.status) {
+          recordCheckoutAuditEvent("payment-status-retry", { httpStatus: response.status, attempt: attempts, reason: "missing-status" });
           scheduleRetry(5000, "Wompi aún no devolvió un estado verificable.");
           return;
         }
         if (cancelled) return;
         setStatus(payload.status);
+        recordCheckoutAuditEvent("payment-status-verified", { status: payload.status, attempt: attempts });
         setMessage(null);
         if (payload.status === "APPROVED") clearCart();
         if (payload.status === "PENDING") scheduleRetry(5000);
       } catch (error) {
         if (cancelled) return;
+        recordCheckoutAuditEvent("payment-status-retry", { attempt: attempts, reason: "network-or-client" });
         const nextMessage = error instanceof Error ? error.message : "No fue posible consultar el pago.";
         scheduleRetry(5000, nextMessage);
       }
@@ -101,6 +119,7 @@ export function CheckoutResultStatus({ provider, transactionId, reference }: { p
     {message && <p className="mt-3 text-xs leading-5 text-amber-100">{message}</p>}
     {(reference || transactionId) && <p className="mt-4 break-all rounded-xl border border-silver/15 bg-black/20 px-3 py-2 font-mono text-xs text-silver/70">Referencia: {reference || transactionId}</p>}
     <p className="mt-4 text-xs leading-5 text-silver/60">El pedido sólo avanza cuando Wompi confirma el pago y el evento seguro queda conciliado con el total registrado.</p>
+    {auditId && <button type="button" onClick={() => downloadCheckoutAudit()} className="mt-5 w-full rounded-xl border border-sky-200/35 px-4 py-2.5 text-xs font-semibold text-sky-100 hover:border-sky-100">Descargar bitácora técnica de esta compra</button>}
     <Link href="/" className="mt-7 inline-flex rounded-full bg-emerald px-5 py-3 text-sm font-bold text-onyx">Volver a la tienda</Link>
   </section>;
 }

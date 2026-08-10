@@ -12,7 +12,13 @@ type GalleryProduct = Pick<Product, "name" | "image" | "images" | "variants">;
  * restantes se cargan de forma diferida y todas proceden de CJ.
  */
 export function ProductGallery({ product }: { product: GalleryProduct }) {
-  const images = useMemo(() => product.images.length ? product.images : [product.image], [product.image, product.images]);
+  const images = useMemo(() => {
+    const official = [
+      ...(product.images.length ? product.images : [product.image]),
+      ...product.variants.flatMap((variant) => variant.image ? [variant.image] : []),
+    ];
+    return [...new Map(official.map((image) => [image.src, image])).values()];
+  }, [product.image, product.images, product.variants]);
   const [manualSelection, setManualSelection] = useState({ index: 0, variantSku: "" });
   const variantContext = useOptionalProductVariant();
   const variantImage = product.variants.find((variant) => variant.sku === variantContext?.variantSku)?.image;

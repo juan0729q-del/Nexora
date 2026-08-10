@@ -7,7 +7,7 @@ const refreshEndpoint = "/api2.0/v1/authentication/refreshAccessToken";
 // El margen extra protege contra la precisión del reloj y ejecuciones cálidas.
 const cjRequestIntervalMs = 1_100;
 
-type CjPointsInfo = {
+export type CjPointsInfo = {
   usedToday?: number;
   remaining?: number;
   total?: number;
@@ -36,8 +36,30 @@ type CjResponse = {
   detail: string;
 };
 
-export class CjAuthenticationError extends Error {}
-export class CjRequestError extends Error {}
+export type CjFailureMetadata = {
+  code?: number;
+  requestId?: string;
+  points?: CjPointsInfo;
+  retryAfterSeconds?: number;
+};
+
+export class CjRequestError extends Error {
+  readonly code?: number;
+  readonly requestId?: string;
+  readonly points?: CjPointsInfo;
+  readonly retryAfterSeconds?: number;
+
+  constructor(message: string, metadata: CjFailureMetadata = {}) {
+    super(message);
+    this.name = new.target.name;
+    this.code = metadata.code;
+    this.requestId = metadata.requestId;
+    this.points = metadata.points ? { ...metadata.points } : undefined;
+    this.retryAfterSeconds = metadata.retryAfterSeconds;
+  }
+}
+
+export class CjAuthenticationError extends CjRequestError {}
 export class CjQuotaError extends CjRequestError {}
 
 export type CjSession = {
@@ -94,10 +116,31 @@ function isSuccessful(response: Response, payload: CjEnvelope<unknown> | undefin
 }
 
 function isAuthenticationFailure(response: Response, payload: CjEnvelope<unknown> | undefined) {
-  if ([1600004, 1600005, 1600006, 1600200, 1600201, 1600300, 16900500].includes(payload?.code || 0)) return false;
+  if ([1600200, 1600201, 1600300, 16900500].includes(payload?.code || 0)) return false;
   if (response.status === 401 || response.status === 403) return true;
-  if (payload?.code === 1600001 || payload?.code === 1600002 || payload?.code === 1600003) return true;
+  if ([1600001, 1600002, 1600003, 1600004, 1600005, 1600006, 1600007, 1600008, 1601000].includes(payload?.code || 0)) return true;
   return /(?:access\s*token|refresh\s*token|authentication|api\s*key)/i.test(payload?.message || "");
+}
+
+function failureMetadata(payload: CjEnvelope<unknown> | undefined, retryAfterSeconds?: number): CjFailureMetadata {
+  return {
+    code: payload?.code,
+    requestId: payload?.requestId,
+    points: payload?.pointsInfo,
+    retryAfterSeconds,
+  };
+}
+
+function quotaRetryAfterSeconds() {
+  const configured = Number(process.env.CJ_QUOTA_RETRY_AFTER_SECONDS || 60);
+  return Number.isFinite(configured) ? Math.max(60, Math.min(3_600, Math.ceil(configured))) : 60;
+}
+
+function quotaError(result: CjResponse) {
+  return new CjQuotaError(
+    result.detail,
+    failureMetadata(result.payload, quotaRetryAfterSeconds()),
+  );
 }
 
 function responseDetail(response: Response, payload: CjEnvelope<unknown> | undefined, raw: string) {
@@ -220,7 +263,10 @@ export class CjClient {
     const reserve = minimumPointsReserve(this.pointsReserveOverride);
     const required = reserve + Math.max(0, nextRequestCost);
     if (remaining !== undefined && remaining < required) {
-      throw new CjQuotaError(`CJ reportó ${remaining} puntos disponibles; Nexora reservó ${reserve} puntos y detuvo la consulta antes de exceder la cuota.`);
+      throw new CjQuotaError(
+        `CJ reportó ${remaining} puntos disponibles; Nexora reservó ${reserve} puntos y detuvo la consulta antes de exceder la cuota.`,
+        { points: this.getTelemetry().points, retryAfterSeconds: quotaRetryAfterSeconds() },
+      );
     }
   }
 
@@ -246,7 +292,7 @@ export class CjClient {
     const parsed = await parseResponse(response);
     this.observe(parsed.payload);
     if (!isSuccessful(parsed.response, parsed.payload) || !parsed.payload) {
-      throw new CjAuthenticationError(`No fue posible autenticar con CJ. ${parsed.detail}`);
+      throw new CjAuthenticationError(`No fue posible autenticar con CJ. ${parsed.detail}`, failureMetadata(parsed.payload));
     }
     return tokenFrom(parsed.payload, "getAccessToken");
   }
@@ -261,8 +307,10 @@ export class CjClient {
     const parsed = await parseResponse(response);
     this.observe(parsed.payload);
     if (!isSuccessful(parsed.response, parsed.payload) || !parsed.payload) {
-      if (!isAuthenticationFailure(parsed.response, parsed.payload)) throw new CjRequestError(`CJ no pudo renovar el access token. ${parsed.detail}`);
-      throw new CjAuthenticationError(`CJ no pudo renovar el access token. ${parsed.detail}`);
+      if (!isAuthenticationFailure(parsed.response, parsed.payload)) {
+        throw new CjRequestError(`CJ no pudo renovar el access token. ${parsed.detail}`, failureMetadata(parsed.payload));
+      }
+      throw new CjAuthenticationError(`CJ no pudo renovar el access token. ${parsed.detail}`, failureMetadata(parsed.payload));
     }
     return tokenFrom(parsed.payload, "refreshAccessToken");
   }
@@ -329,14 +377,14 @@ export class CjClient {
     let result = await this.request(url, activeSession.accessToken, init);
     if (isSuccessful(result.response, result.payload)) return result.payload as T;
 
-    if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+    if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
 
     if (canRetryWithNewToken(init) && isAuthenticationFailure(result.response, result.payload)) {
       const renewed = await this.renewSession(current);
       activeSession = renewed;
       result = await this.request(url, activeSession.accessToken, init);
       if (isSuccessful(result.response, result.payload)) return result.payload as T;
-      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+      if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
     }
 
     if (isRateLimitFailure(result.response, result.payload)) {
@@ -346,10 +394,13 @@ export class CjClient {
       await wait(retryAfterMilliseconds(result.response) + jitter);
       result = await this.request(url, activeSession.accessToken, init);
       if (isSuccessful(result.response, result.payload)) return result.payload as T;
-      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+      if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
     }
 
-    throw new CjRequestError(result.detail);
+    if (isAuthenticationFailure(result.response, result.payload)) {
+      throw new CjAuthenticationError(result.detail, failureMetadata(result.payload));
+    }
+    throw new CjRequestError(result.detail, failureMetadata(result.payload));
   }
 
   /**
@@ -367,7 +418,7 @@ export class CjClient {
     let activeSession = current;
     let result = await this.request(url, activeSession.accessToken, init);
     if (isSuccessful(result.response, result.payload)) return result.payload as T;
-    if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+    if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
 
     // La cotización no tiene efectos laterales en CJ; un único reintento con
     // token fresco evita que un access token vencido bloquee el checkout.
@@ -375,7 +426,7 @@ export class CjClient {
       activeSession = await this.renewSession(current);
       result = await this.request(url, activeSession.accessToken, init);
       if (isSuccessful(result.response, result.payload)) return result.payload as T;
-      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+      if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
     }
 
     if (isRateLimitFailure(result.response, result.payload)) {
@@ -383,10 +434,13 @@ export class CjClient {
       await wait(retryAfterMilliseconds(result.response) + jitter);
       result = await this.request(url, activeSession.accessToken, init);
       if (isSuccessful(result.response, result.payload)) return result.payload as T;
-      if (isQuotaExhausted(result.response, result.payload)) throw new CjQuotaError(result.detail);
+      if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
     }
 
-    throw new CjRequestError(result.detail);
+    if (isAuthenticationFailure(result.response, result.payload)) {
+      throw new CjAuthenticationError(result.detail, failureMetadata(result.payload));
+    }
+    throw new CjRequestError(result.detail, failureMetadata(result.payload));
   }
 }
 

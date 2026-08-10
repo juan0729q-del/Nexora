@@ -140,14 +140,29 @@ export async function POST(request: Request) {
     if (error instanceof CjShippingQuoteError) return NextResponse.json({ message: error.message }, { status: 422 });
     if (error instanceof CjAuthenticationError) {
       console.error("CJ shipping authentication failed", { error: error.message });
-      return NextResponse.json({ message: "La conexión segura con CJ requiere atención. No se realizará ningún cobro hasta restablecerla." }, { status: 503 });
+      return NextResponse.json({
+        message: "La conexión segura con CJ requiere atención. Conservamos tu carrito y no se realizará ningún cobro hasta restablecerla.",
+        reason: "provider-authentication",
+        provider: "cj",
+        code: error.code || null,
+      }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
     if (error instanceof CjQuotaError) {
-      return NextResponse.json({ message: "CJ alcanzó temporalmente su cuota de consultas. Conservamos tu carrito; intenta cotizar de nuevo más tarde." }, { status: 429, headers: { "Retry-After": "900" } });
+      const retryAfter = String(error.retryAfterSeconds || 60);
+      return NextResponse.json({
+        message: "CJ alcanzó temporalmente su cuota de consultas. Conservamos tu carrito; intenta cotizar nuevamente cuando termine la espera indicada.",
+        reason: "provider-quota",
+        provider: "cj",
+        retryAfterSeconds: Number(retryAfter),
+      }, { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": retryAfter } });
     }
     if (error instanceof CjRequestError) {
       console.error("CJ shipping request failed", { error: error.message });
-      return NextResponse.json({ message: "CJ no pudo confirmar una tarifa en este momento. No se realizará ningún cobro; intenta nuevamente más tarde." }, { status: 503 });
+      return NextResponse.json({
+        message: "CJ no pudo confirmar una tarifa en este momento. No se realizará ningún cobro; intenta nuevamente más tarde.",
+        reason: "provider-unavailable",
+        provider: "cj",
+      }, { status: 503, headers: { "Cache-Control": "no-store" } });
     }
     console.error("Unexpected CJ shipping quote error", { error: error instanceof Error ? error.message : "unknown" });
     return NextResponse.json({ message: "No fue posible cotizar el envío. Intenta nuevamente antes de pagar." }, { status: 503 });

@@ -152,7 +152,7 @@ export async function verifyCheckoutInventory(
     return { status: "available", stock };
   } catch (error) {
     if (error instanceof CjQuotaError) return { status: "quota-exhausted", stock: product.stock, reason: "CJ no tiene cuota disponible para verificar este SKU ahora." };
-    return { status: "unverified", stock: product.stock, reason: "No fue posible verificar el inventario de CJ antes del cobro." };
+    throw error;
   }
 }
 

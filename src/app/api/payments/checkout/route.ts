@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
-import { createCjClient } from "@/lib/automation/cj-client";
+import { CjAuthenticationError, CjQuotaError, CjRequestError, createCjClient } from "@/lib/automation/cj-client";
 import { getCatalog } from "@/lib/catalog-store";
 import {
   PaymentConfigurationError,
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
           client: inventoryClient,
         });
         if (inventory.status === "quota-exhausted") {
-          return NextResponse.json({ message: inventory.reason || "CJ no tiene cuota para confirmar el inventario antes del cobro." }, { status: 429, headers: { "Retry-After": "900" } });
+          return NextResponse.json({ message: inventory.reason || "CJ no tiene cuota para confirmar el inventario antes del cobro.", reason: "provider-quota", provider: "cj", retryAfterSeconds: 60 }, { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": "60" } });
         }
         if (["snapshot", "unavailable", "unverified"].includes(inventory.status)) {
           return NextResponse.json({ message: inventory.reason || "No fue posible confirmar el inventario del proveedor antes del cobro." }, { status: inventory.status === "unavailable" ? 409 : 503 });
@@ -168,6 +168,18 @@ export async function POST(request: Request) {
     if (error instanceof CheckoutRateLimitError) return NextResponse.json({ message: error.message }, { status: 429, headers: { "Retry-After": "60" } });
     if (error instanceof ShippingQuoteTokenError) return NextResponse.json({ message: error.message }, { status: 409 });
     if (error instanceof CjShippingQuoteError) return NextResponse.json({ message: error.message }, { status: 400 });
+    if (error instanceof CjAuthenticationError) {
+      console.error("CJ checkout authentication failed", { error: error.message });
+      return NextResponse.json({ message: "La conexión segura con CJ requiere atención. No se realizará ningún cobro hasta restablecerla.", reason: "provider-authentication", provider: "cj" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
+    if (error instanceof CjQuotaError) {
+      const retryAfter = String(error.retryAfterSeconds || 60);
+      return NextResponse.json({ message: "CJ no tiene cuota suficiente para confirmar el inventario antes del cobro. Conservamos tu carrito.", reason: "provider-quota", provider: "cj", retryAfterSeconds: Number(retryAfter) }, { status: 429, headers: { "Cache-Control": "no-store", "Retry-After": retryAfter } });
+    }
+    if (error instanceof CjRequestError) {
+      console.error("CJ checkout verification failed", { error: error.message });
+      return NextResponse.json({ message: "CJ no pudo confirmar el inventario antes del cobro. Conservamos tu carrito para que intentes nuevamente.", reason: "provider-unavailable", provider: "cj" }, { status: 503, headers: { "Cache-Control": "no-store" } });
+    }
     if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: error.message }, { status: 503 });
     if (error instanceof PaymentProviderError) return NextResponse.json({ message: error.message }, { status: 502 });
     console.error("Unexpected checkout error", { error: error instanceof Error ? error.message : "unknown" });

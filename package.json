@@ -9,6 +9,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "diagnose:cj": "node scripts/diagnose-cj-quota.mjs",
     "catalog:apply-import": "node scripts/persist-catalog-import.mjs",
     "catalog:enrich-provider-details": "node scripts/enrich-catalog-provider-details.mjs",
     "catalog:validate": "node scripts/validate-catalog.mjs"

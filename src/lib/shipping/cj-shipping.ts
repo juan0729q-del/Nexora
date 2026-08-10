@@ -1,10 +1,11 @@
 import "server-only";
 
 import { createHash } from "crypto";
+import { unstable_cache } from "next/cache";
 import { getUsdToCopRate, usdToCop } from "@/lib/commerce-finance";
 import type { Product } from "@/lib/products";
 import type { ProviderVariant } from "@/lib/provider-product-details";
-import { CjQuotaError, CjRequestError, createCjClient, getCjCredentialConfiguration, type CjClient } from "@/lib/automation/cj-client";
+import { CjAuthenticationError, CjQuotaError, CjRequestError, createCjClient, getCjCredentialConfiguration, type CjClient } from "@/lib/automation/cj-client";
 import type { CjShippingQuoteOption, ShippingDestinationInput } from "./types";
 
 const cjOrigin = "https://developers.cjdropshipping.com";
@@ -50,6 +51,15 @@ type CjVariant = {
 type CjVariantListResponse = { data?: CjVariant[] };
 type CjVariantByIdResponse = { data?: CjVariant };
 
+// Los detalles físicos y el inventario por variante no contienen datos del
+// cliente. Una caché compartida de 30 s absorbe ráfagas de compradores que
+// consultan la misma referencia; el checkout conserva su verificación final.
+const queryVariantByIdCached = unstable_cache(async (variantId: string) => {
+  const client = createCjShippingClient();
+  const response = await client.getJson<CjVariantByIdResponse>(`${endpointWithQuery(variantByIdEndpoint, "vid", variantId)}&features=enable_inventory`);
+  return { variant: response.data, fetchedAt: new Date().toISOString() };
+}, ["nexora-cj-checkout-variant-v1"], { revalidate: 30 });
+
 type CjFreightRule = { msgEn?: unknown; type?: unknown; interceptType?: unknown; expression?: unknown };
 type CjFreightItem = {
   error?: unknown;
@@ -92,6 +102,7 @@ export type ResolvedCjShippingQuote = {
 
 type CacheEntry = { expiresAtMs: number; quote: ResolvedCjShippingQuote };
 const quoteCache = new Map<string, CacheEntry>();
+const inFlightQuotes = new Map<string, Promise<ResolvedCjShippingQuote>>();
 
 function quoteTtlMs() {
   const configured = Number(process.env.CJ_SHIPPING_QUOTE_TTL_SECONDS || 300);
@@ -200,12 +211,11 @@ async function resolveVariantFromCj(product: Product, selected: ProviderVariant,
   }
   if (!variantId) throw new CjShippingQuoteError("CJ no devolvió el identificador logístico de la variante seleccionada.");
 
-  const response = await client.getJson<CjVariantByIdResponse>(`${endpointWithQuery(variantByIdEndpoint, "vid", variantId)}&features=enable_inventory`);
-  const variant = response.data;
+  const { variant, fetchedAt } = await queryVariantByIdCached(variantId);
   if (!variant || text(variant.variantSku)?.toUpperCase() !== selected.sku.toUpperCase()) {
     throw new CjShippingQuoteError("CJ no pudo confirmar la variante seleccionada para el envío.");
   }
-  return { variantId, variant, discovered };
+  return { variantId, variant, discovered, inventoryFetchedAt: fetchedAt };
 }
 
 function inventoryQuantity(inventory: CjInventory) {
@@ -379,84 +389,97 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
   const key = cacheKey(product, catalogVariant.sku, quantity, normalizedDestination);
   const cached = quoteCache.get(key);
   if (cached && cached.expiresAtMs > Date.now()) return cached.quote;
+  const pending = inFlightQuotes.get(key);
+  if (pending) return pending;
 
-  // La reserva se revisa después de autenticar: antes de esa respuesta aún no
-  // existe telemetría de puntos y una comprobación local sería ilusoria.
-  await client.authenticateAndAssertPoints(30);
-  const { variantId, variant } = await resolveVariantFromCj(product, catalogVariant, client);
-  const sourceInventory = sourceInventoryFrom(variant);
-  const originCountryCode = sourceInventory.countryCode;
-  if (sourceInventory.verifiedStock > 0 && sourceInventory.verifiedStock < quantity) {
-    throw new CjShippingQuoteError(`CJ solo confirmó ${sourceInventory.verifiedStock} unidades disponibles de esta variante.`);
-  }
-  const dimensions = dimensionsFrom(variant, catalogVariant);
-  const weight = weightFrom(product, variant, catalogVariant);
-  const properties = [...new Set(product.shipping.logisticsProperties.map((property) => property.trim()).filter(Boolean))];
-  if (!properties.length) throw new CjShippingQuoteError("CJ no reportó las propiedades logísticas de este producto.");
-  const supplierCostUsd = positive(variant.variantSellPrice) || catalogVariant.supplierCostUsd || product.supplier.costUsd;
-  const exchangeRate = getUsdToCopRate();
-  const freightPayload = {
-    reqDTOS: [{
-      srcAreaCode: originCountryCode,
-      destAreaCode: normalizedDestination.countryCode,
-      zip: normalizedDestination.postalCode,
-      houseNumber: normalizedDestination.houseNumber,
-      recipientAddress: normalizedDestination.address1,
-      recipientAddress1: normalizedDestination.address1,
-      recipientAddress2: normalizedDestination.address2,
-      town: normalizedDestination.district,
-      county: normalizedDestination.district,
-      city: normalizedDestination.city,
-      province: normalizedDestination.region,
-      recipientName: normalizedDestination.recipientName,
-      phone: normalizedDestination.phone,
-      email: normalizedDestination.email,
-      length: dimensions.lengthCm,
-      width: dimensions.widthCm,
-      height: dimensions.heightCm,
-      volume: Number((dimensions.volumeCm3 * quantity).toFixed(3)),
-      weight: weight.unitWeightGrams * quantity,
-      wrapWeight: weight.wrapWeightGrams * quantity,
-      totalGoodsAmount: supplierCostUsd * quantity,
-      productProp: properties,
-      skuList: [catalogVariant.sku],
-      freightTrialSkuList: [{
-        vid: variantId,
-        sku: catalogVariant.sku,
-        skuQuantity: quantity,
-        skuWeight: weight.unitWeightGrams,
-        skuVolume: Number(dimensions.volumeCm3.toFixed(3)),
-        productPropList: properties,
-        productTypeList: ["0"],
+  const quotePromise = (async () => {
+    // Una variante ya versionada requiere queryByVid + flete (20 puntos). Solo
+    // las referencias antiguas sin VID consumen la búsqueda adicional (30).
+    const requiredPoints = catalogVariant.providerVariantId?.trim() ? 20 : 30;
+    await client.authenticateAndAssertPoints(requiredPoints);
+    const { variantId, variant, inventoryFetchedAt } = await resolveVariantFromCj(product, catalogVariant, client);
+    const sourceInventory = sourceInventoryFrom(variant);
+    const originCountryCode = sourceInventory.countryCode;
+    if (sourceInventory.verifiedStock > 0 && sourceInventory.verifiedStock < quantity) {
+      throw new CjShippingQuoteError(`CJ solo confirmó ${sourceInventory.verifiedStock} unidades disponibles de esta variante.`);
+    }
+    const dimensions = dimensionsFrom(variant, catalogVariant);
+    const weight = weightFrom(product, variant, catalogVariant);
+    const properties = [...new Set(product.shipping.logisticsProperties.map((property) => property.trim()).filter(Boolean))];
+    if (!properties.length) throw new CjShippingQuoteError("CJ no reportó las propiedades logísticas de este producto.");
+    const supplierCostUsd = positive(variant.variantSellPrice) || catalogVariant.supplierCostUsd || product.supplier.costUsd;
+    const exchangeRate = getUsdToCopRate();
+    const freightPayload = {
+      reqDTOS: [{
+        srcAreaCode: originCountryCode,
+        destAreaCode: normalizedDestination.countryCode,
+        zip: normalizedDestination.postalCode,
+        houseNumber: normalizedDestination.houseNumber,
+        recipientAddress: normalizedDestination.address1,
+        recipientAddress1: normalizedDestination.address1,
+        recipientAddress2: normalizedDestination.address2,
+        town: normalizedDestination.district,
+        county: normalizedDestination.district,
+        city: normalizedDestination.city,
+        province: normalizedDestination.region,
+        recipientName: normalizedDestination.recipientName,
+        phone: normalizedDestination.phone,
+        email: normalizedDestination.email,
+        length: dimensions.lengthCm,
+        width: dimensions.widthCm,
+        height: dimensions.heightCm,
+        volume: Number((dimensions.volumeCm3 * quantity).toFixed(3)),
+        weight: weight.unitWeightGrams * quantity,
+        wrapWeight: weight.wrapWeightGrams * quantity,
+        totalGoodsAmount: supplierCostUsd * quantity,
+        productProp: properties,
+        skuList: [catalogVariant.sku],
+        freightTrialSkuList: [{
+          vid: variantId,
+          sku: catalogVariant.sku,
+          skuQuantity: quantity,
+          skuWeight: weight.unitWeightGrams,
+          skuVolume: Number(dimensions.volumeCm3.toFixed(3)),
+          productPropList: properties,
+          productTypeList: ["0"],
+        }],
       }],
-    }],
-  };
-  let response: CjFreightResponse;
+    };
+    let response: CjFreightResponse;
+    try {
+      client.assertPointsAvailable(10);
+      response = await client.postJson<CjFreightResponse>(freightTipEndpoint, freightPayload);
+    } catch (error) {
+      if (error instanceof CjAuthenticationError) throw error;
+      if (error instanceof CjQuotaError) throw error;
+      if (error instanceof CjRequestError) throw new CjShippingQuoteError("CJ no pudo cotizar el envío en este momento. No se cobrará ningún envío hasta que puedas elegir una opción válida.");
+      throw error;
+    }
+    const quotedAt = new Date();
+    const expiresAt = new Date(quotedAt.getTime() + quoteTtlMs());
+    const quote: ResolvedCjShippingQuote = {
+      productSlug: product.slug,
+      variantSku: catalogVariant.sku,
+      quantity,
+      supplierCostUsd,
+      exchangeRateCopPerUsd: exchangeRate,
+      inventoryVerifiedAt: inventoryFetchedAt,
+      verifiedStock: sourceInventory.verifiedStock,
+      quotedAt: quotedAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
+      options: parseOptions(response, originCountryCode, exchangeRate, normalizedDestination),
+    };
+    quoteCache.set(key, { expiresAtMs: expiresAt.getTime(), quote });
+    if (quoteCache.size > 200) {
+      for (const [cacheKeyValue, entry] of quoteCache) if (entry.expiresAtMs <= Date.now()) quoteCache.delete(cacheKeyValue);
+    }
+    return quote;
+  })();
+
+  inFlightQuotes.set(key, quotePromise);
   try {
-    client.assertPointsAvailable(10);
-    response = await client.postJson<CjFreightResponse>(freightTipEndpoint, freightPayload);
-  } catch (error) {
-    if (error instanceof CjQuotaError) throw error;
-    if (error instanceof CjRequestError) throw new CjShippingQuoteError("CJ no pudo cotizar el envío en este momento. No se cobrará ningún envío hasta que puedas elegir una opción válida.");
-    throw error;
+    return await quotePromise;
+  } finally {
+    if (inFlightQuotes.get(key) === quotePromise) inFlightQuotes.delete(key);
   }
-  const quotedAt = new Date();
-  const expiresAt = new Date(quotedAt.getTime() + quoteTtlMs());
-  const quote: ResolvedCjShippingQuote = {
-    productSlug: product.slug,
-    variantSku: catalogVariant.sku,
-    quantity,
-    supplierCostUsd,
-    exchangeRateCopPerUsd: exchangeRate,
-    inventoryVerifiedAt: quotedAt.toISOString(),
-    verifiedStock: sourceInventory.verifiedStock,
-    quotedAt: quotedAt.toISOString(),
-    expiresAt: expiresAt.toISOString(),
-    options: parseOptions(response, originCountryCode, exchangeRate, normalizedDestination),
-  };
-  quoteCache.set(key, { expiresAtMs: expiresAt.getTime(), quote });
-  if (quoteCache.size > 200) {
-    for (const [cacheKeyValue, entry] of quoteCache) if (entry.expiresAtMs <= Date.now()) quoteCache.delete(cacheKeyValue);
-  }
-  return quote;
 }

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { checkoutAuditActive, downloadCheckoutAudit, recordCheckoutAuditEvent, startCheckoutAudit } from "@/lib/checkout-audit";
 import { beginCheckout } from "@/lib/payments";
 import type { StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
@@ -92,7 +93,9 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
   const [status, setStatus] = useState<string | null>(null);
   const [isPreparing, setIsPreparing] = useState(false);
   const [quoteExpired, setQuoteExpired] = useState(false);
+  const [auditId, setAuditId] = useState<string | null>(null);
   const requestControllerRef = useRef<AbortController | null>(null);
+  const auditStartedRef = useRef(false);
   const productsBySlug = useMemo(() => new Map(products.map((product) => [product.slug, product])), [products]);
   const visibleItems = items.flatMap((item) => {
     const product = productsBySlug.get(item.productSlug);
@@ -106,6 +109,17 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
   });
 
   useEffect(() => () => requestControllerRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (!hydrated || auditStartedRef.current || !checkoutAuditActive()) return;
+    auditStartedRef.current = true;
+    const id = startCheckoutAudit({
+      lineCount: items.length,
+      unitCount: itemCount,
+      items: items.map((item) => ({ productSlug: item.productSlug, variantSku: item.variantSku, quantity: item.quantity })),
+    });
+    if (id) queueMicrotask(() => setAuditId(id));
+  }, [hydrated, itemCount, items]);
 
   useEffect(() => {
     if (!quote) return;
@@ -139,6 +153,13 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
     clearQuote();
     const controller = new AbortController();
     requestControllerRef.current = controller;
+    let failureRecorded = false;
+    recordCheckoutAuditEvent("shipping-requested", {
+      lineCount: visibleItems.length,
+      unitCount: visibleItems.reduce((total, item) => total + item.quantity, 0),
+      countryCode: destination.countryCode,
+      items: visibleItems.map((item) => ({ productSlug: item.productSlug, variantSku: item.variantSku, quantity: item.quantity })),
+    });
     try {
       setIsPreparing(true);
       setStatus("Consultando tarifas reales de CJ para cada artículo del carrito…");
@@ -151,8 +172,16 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
         }),
         signal: controller.signal,
       });
-      const payload = await response.json().catch(() => null) as ({ message?: string } & Partial<CartShippingQuoteResponse>) | null;
-      if (!response.ok) throw new Error(payload?.message || "No fue posible cotizar el envío.");
+      const payload = await response.json().catch(() => null) as ({ message?: string; reason?: string; retryAfterSeconds?: number } & Partial<CartShippingQuoteResponse>) | null;
+      if (!response.ok) {
+        failureRecorded = true;
+        recordCheckoutAuditEvent("shipping-failed", {
+          httpStatus: response.status,
+          reason: payload?.reason || "unknown",
+          retryAfterSeconds: payload?.retryAfterSeconds || null,
+        });
+        throw new Error(payload?.message || "No fue posible cotizar el envío.");
+      }
       if (!validQuotePayload(payload)) throw new Error("CJ no devolvió una cotización completa. Intenta de nuevo antes de pagar.");
       if (requestControllerRef.current !== controller) return;
       const suggestions = Object.fromEntries(payload.items.map((line) => [
@@ -162,8 +191,19 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       setQuote(payload);
       setSelectedMethods(suggestions);
       setStatus("Cotización lista. Revisa o cambia el método de cada envío antes de pagar.");
+      recordCheckoutAuditEvent("shipping-succeeded", {
+        productSubtotalCop: payload.productSubtotalCop,
+        shippingOptionCount: payload.items.reduce((total, item) => total + item.options.length, 0),
+        lines: payload.items.map((line) => ({
+          productSlug: line.productSlug,
+          variantSku: line.variantSku,
+          quantity: line.quantity,
+          options: line.options.map((option) => ({ id: option.id, method: option.method, amountCop: option.amountCop, estimatedDelivery: option.estimatedDelivery })),
+        })),
+      });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
+      if (!failureRecorded) recordCheckoutAuditEvent("shipping-failed", { reason: "client-or-validation" });
       setStatus(error instanceof Error ? error.message : "No fue posible cotizar el envío.");
     } finally {
       if (requestControllerRef.current === controller) {
@@ -175,7 +215,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
 
   async function pay() {
     if (!quote || isPreparing) return;
-    if (quoteExpired || Date.parse(quote.expiresAt) <= Date.now()) {
+    if (quoteExpired) {
       setQuoteExpired(true);
       setStatus("La cotización de CJ venció. Vuelve a calcular el envío antes de pagar.");
       return;
@@ -191,12 +231,33 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       setStatus("Selecciona un método de envío para cada artículo.");
       return;
     }
+    recordCheckoutAuditEvent("checkout-requested", {
+      lineCount: checkoutItems.length,
+      unitCount: checkoutItems.reduce((total, item) => total + item.quantity, 0),
+      productSubtotalCop: quote.productSubtotalCop,
+      shippingCostCop: selectedShippingTotal,
+      amountCop: checkoutTotal,
+      methods: quote.items.map((line) => {
+        const selectedId = selectedMethods[lineId(line.productSlug, line.variantSku)] || "";
+        const option = line.options.find((entry) => entry.id === selectedId);
+        return { productSlug: line.productSlug, variantSku: line.variantSku, methodId: selectedId, method: option?.method || "unknown" };
+      }),
+    });
     try {
       setIsPreparing(true);
       setStatus("Verificando inventario, registrando el pedido y preparando Wompi…");
       const result = await beginCheckout({ customerEmail: destination.email, destination, items: checkoutItems });
+      recordCheckoutAuditEvent("checkout-created", {
+        provider: result.provider,
+        reference: result.externalReference,
+        productSubtotalCop: result.productSubtotalCop,
+        shippingCostCop: result.shippingCostCop,
+        amountCop: result.amountCop,
+      });
       setStatus(result.message || "Redirigiendo al pago seguro…");
+      window.location.assign(result.checkoutUrl);
     } catch (error) {
+      recordCheckoutAuditEvent("checkout-failed", { reason: "checkout-api-or-provider" });
       setStatus(error instanceof Error ? error.message : "No fue posible iniciar el pago.");
       setIsPreparing(false);
     }
@@ -217,6 +278,14 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       </div>
       <Link href="/#joyeria" className="rounded-full border border-silver/25 px-4 py-2 text-sm font-semibold text-white hover:border-emerald hover:text-emerald">Seguir comprando</Link>
     </div>
+
+    {auditId && <aside className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-300/30 bg-sky-300/[.06] p-4" aria-label="Auditoría de compra activa">
+      <div>
+        <p className="text-sm font-semibold text-sky-100">Bitácora privada de prueba activa</p>
+        <p className="mt-1 text-xs leading-5 text-silver/65">Registra tiempos, variantes, tarifas, totales y estados técnicos. No guarda tus datos de contacto, dirección, tarjeta ni credenciales.</p>
+      </div>
+      <button type="button" onClick={() => downloadCheckoutAudit()} className="rounded-lg border border-sky-200/35 px-3 py-2 text-xs font-semibold text-sky-100 hover:border-sky-100">Descargar bitácora JSON</button>
+    </aside>}
 
     {!hydrated ? <div className="mt-10 rounded-2xl border border-silver/15 bg-white/[.025] p-8 text-center" role="status">
       <p className="text-lg font-semibold text-white">Restaurando tu carrito…</p>
@@ -248,9 +317,9 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             </div>
             <div className="flex items-end gap-3">
               <label className="text-xs font-semibold text-white">Cantidad
-                <input type="number" min={1} max={maximumQuantity} value={item.quantity} onChange={(event) => { updateQuantity(item.productSlug, item.variantSku, Math.min(maximumQuantity, Math.max(1, Number(event.target.value) || 1))); clearQuote(); }} className="mt-1 block w-20 rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm text-white focus:border-emerald focus:outline-none" />
+                <input type="number" min={1} max={maximumQuantity} value={item.quantity} onChange={(event) => { const quantity = Math.min(maximumQuantity, Math.max(1, Number(event.target.value) || 1)); updateQuantity(item.productSlug, item.variantSku, quantity); recordCheckoutAuditEvent("cart-quantity-changed", { productSlug: item.productSlug, variantSku: item.variantSku, quantity }); clearQuote(); }} className="mt-1 block w-20 rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm text-white focus:border-emerald focus:outline-none" />
               </label>
-              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
+              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
             </div>
           </article>;
         })}
@@ -295,7 +364,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
               const checked = selectedMethods[lineId(line.productSlug, line.variantSku)] === option.id;
               return <label key={option.id} className={`block cursor-pointer rounded-xl border p-3 ${checked ? "border-emerald bg-emerald/[.09]" : "border-silver/20"}`}>
                 <div className="flex items-start gap-3">
-                  <input type="radio" name={`shipping-${lineId(line.productSlug, line.variantSku)}`} value={option.id} checked={checked} onChange={() => setSelectedMethods((current) => ({ ...current, [lineId(line.productSlug, line.variantSku)]: option.id }))} className="mt-1 accent-[#009473]" />
+                  <input type="radio" name={`shipping-${lineId(line.productSlug, line.variantSku)}`} value={option.id} checked={checked} onChange={() => { setSelectedMethods((current) => ({ ...current, [lineId(line.productSlug, line.variantSku)]: option.id })); recordCheckoutAuditEvent("shipping-method-selected", { productSlug: line.productSlug, variantSku: line.variantSku, methodId: option.id, method: option.method, amountCop: option.amountCop }); }} className="mt-1 accent-[#009473]" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold text-white">{option.method}</span><span className="font-semibold text-emerald">{formatCOP(option.amountCop)}</span></div>
                     {badge && <span className="mt-1 inline-flex rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-bold text-emerald">{badge}</span>}
