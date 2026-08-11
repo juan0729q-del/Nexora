@@ -989,7 +989,7 @@ function setIfPresent_(object, key, value) { if (value !== "" && value !== null 
 function sameMoney_(left, right) { return Math.round(Number(left)) === Math.round(Number(right)); }
 function appendNote_(object, note) { const existing = String(object["Notas"] || ""); if (existing.indexOf(note) === -1) object["Notas"] = [existing, note].filter(Boolean).join(" | ").slice(0, 1000); }
 function isNewer_(candidate, stored) { const left = dateOrNull_(candidate); const right = dateOrNull_(stored); return !right || !left || left.getTime() >= right.getTime(); }
-function hmacHex_(value, secret) { return bytesToHex_(Utilities.computeHmacSha256Signature(value, secret)); }
+function hmacHex_(value, secret) { return bytesToHex_(Utilities.computeHmacSha256Signature(value, secret, Utilities.Charset.UTF_8)); }
 function sha256Hex_(value) { return bytesToHex_(Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, value)); }
 function bytesToHex_(bytes) { let output = ""; for (let index = 0; index < bytes.length; index += 1) output += ("0" + (bytes[index] & 0xff).toString(16)).slice(-2); return output; }
 function timingSafeEqual_(left, right) { if (!left || !right || left.length !== right.length) return false; let difference = 0; for (let index = 0; index < left.length; index += 1) difference |= left.charCodeAt(index) ^ right.charCodeAt(index); return difference === 0; }
