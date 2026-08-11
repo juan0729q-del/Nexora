@@ -119,8 +119,10 @@ function doPost(e) {
     return json_({ ok: true, data: data });
   } catch (error) {
     // Nunca se incluyen datos de cliente o del payload en la respuesta pública.
-    console.error(error && error.message ? error.message : "sales-ledger failure");
-    return json_({ ok: false, error: "invalid_or_unavailable" });
+    const message = error && error.message ? String(error.message) : "sales-ledger failure";
+    console.error(message);
+    // Los códigos NXI sólo contienen etapa y clase técnica; nunca payload ni PII.
+    return json_({ ok: false, error: message.indexOf("NXI_") === 0 ? message : "invalid_or_unavailable" });
   }
 }
 
@@ -306,10 +308,14 @@ function upsertAndDecideIntelligenceProposal_(input) {
 
   const lock = LockService.getScriptLock();
   if (!lock.tryLock(25000)) throw new Error("intelligence ledger busy");
+  let stage = "open_config";
   try {
     const config = getConfig_();
+    stage = "open_spreadsheet";
     const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+    stage = "ensure_sheet";
     const sheet = ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_DECISIONS_SHEET, INTELLIGENCE_DECISION_HEADERS);
+    stage = "find_proposal";
     let rowNumber = findRowByValue_(sheet, INTELLIGENCE_DECISION_HEADERS, "ID propuesta", proposalId);
     let row;
 
@@ -325,14 +331,19 @@ function upsertAndDecideIntelligenceProposal_(input) {
     row["Estado"] = decision;
     row["Decidida (UTC)"] = isoNow_();
     row["Nota decisión"] = note;
+    stage = "write_decision";
     sheet.getRange(rowNumber, 1, 1, INTELLIGENCE_DECISION_HEADERS.length).setValues([
       INTELLIGENCE_DECISION_HEADERS.map(function (header) {
         const value = row[header];
         return value === undefined || value === null ? "" : value;
       }),
     ]);
+    stage = "flush";
     SpreadsheetApp.flush();
     return { proposalId: proposalId, status: decision, decidedAt: row["Decidida (UTC)"] };
+  } catch (error) {
+    const detail = String(error && error.message ? error.message : "unknown").toLowerCase().replace(/[^a-z0-9_-]+/g, "_").slice(0, 70);
+    throw new Error("NXI_" + stage + "_" + detail);
   } finally {
     lock.releaseLock();
   }
