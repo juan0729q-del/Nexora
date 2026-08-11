@@ -689,6 +689,20 @@ export async function decideIntelligenceProposal(proposalId: string, decision: "
   return sendSignedAction<{ proposalId: string; status: string; decidedAt: string }>({ action: "intelligence.decision", proposalId, decision, note });
 }
 
+/** Registra propuesta y decisión bajo una sola operación firmada. */
+export async function decideIntelligenceProposalAtomically(
+  proposal: IntelligenceProposal,
+  decision: "authorized" | "rejected",
+  note: string,
+) {
+  return sendSignedAction<{ proposalId: string; status: string; decidedAt: string }>({
+    action: "intelligence.proposal.decide",
+    proposal,
+    decision,
+    note,
+  });
+}
+
 export async function getIntelligenceLedgerSnapshot(): Promise<IntelligenceLedgerSnapshot | null> {
   if (!getConfiguration()) return null;
   const result = await sendSignedAction<unknown>({ action: "intelligence.read" });

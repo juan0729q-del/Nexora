@@ -107,6 +107,9 @@ function doPost(e) {
     if (input && input.action === "intelligence.decision") {
       return json_({ ok: true, data: decideIntelligenceProposal_(input) });
     }
+    if (input && input.action === "intelligence.proposal.decide") {
+      return json_({ ok: true, data: upsertAndDecideIntelligenceProposal_(input) });
+    }
     if (input && input.action === "intelligence.read") {
       return json_({ ok: true, data: readIntelligenceSnapshot_() });
     }
@@ -288,6 +291,76 @@ function decideIntelligenceProposal_(input) {
   } finally {
     lock.releaseLock();
   }
+}
+
+/**
+ * Persiste la propuesta y la decisión bajo un único bloqueo. Esta es la ruta
+ * preferida por Nexora para evitar carreras entre dos solicitudes HTTP.
+ */
+function upsertAndDecideIntelligenceProposal_(input) {
+  const proposal = input && input.proposal;
+  const proposalId = safeIntelligenceText_(proposal && proposal.id, 120);
+  const decision = safeIntelligenceText_(input && input.decision, 30);
+  const note = safeIntelligenceText_(input && input.note, 800);
+  if (!proposalId || (decision !== "authorized" && decision !== "rejected")) throw new Error("invalid atomic intelligence decision");
+
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) throw new Error("intelligence ledger busy");
+  try {
+    const config = getConfig_();
+    const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+    const sheet = ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_DECISIONS_SHEET, INTELLIGENCE_DECISION_HEADERS);
+    let rowNumber = findRowByValue_(sheet, INTELLIGENCE_DECISION_HEADERS, "ID propuesta", proposalId);
+    let row;
+
+    if (rowNumber) {
+      row = readRow_(sheet, rowNumber, INTELLIGENCE_DECISION_HEADERS);
+      const current = safeIntelligenceText_(row["Estado"], 30);
+      if (current !== "proposed" && current !== decision) throw new Error("proposal already decided");
+    } else {
+      rowNumber = sheet.getLastRow() + 1;
+      row = intelligenceProposalRow_(proposal);
+    }
+
+    row["Estado"] = decision;
+    row["Decidida (UTC)"] = isoNow_();
+    row["Nota decisión"] = note;
+    sheet.getRange(rowNumber, 1, 1, INTELLIGENCE_DECISION_HEADERS.length).setValues([
+      INTELLIGENCE_DECISION_HEADERS.map(function (header) {
+        const value = row[header];
+        return value === undefined || value === null ? "" : value;
+      }),
+    ]);
+    SpreadsheetApp.flush();
+    return { proposalId: proposalId, status: decision, decidedAt: row["Decidida (UTC)"] };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function intelligenceProposalRow_(proposal) {
+  return {
+    "ID propuesta": safeIntelligenceText_(proposal && proposal.id, 120),
+    "Creada (UTC)": safeIntelligenceText_(proposal && proposal.createdAt, 40),
+    "Expira (UTC)": safeIntelligenceText_(proposal && proposal.expiresAt, 40),
+    "Estado": "proposed",
+    "Acción": safeIntelligenceText_(proposal && proposal.action, 60),
+    "SKU objetivo": safeIntelligenceText_(proposal && proposal.targetSku, 100),
+    "Slug objetivo": safeIntelligenceText_(proposal && proposal.targetSlug, 140),
+    "Nicho": safeIntelligenceText_(proposal && proposal.niche, 40),
+    "Título": safeIntelligenceText_(proposal && proposal.title, 240),
+    "Resumen": safeIntelligenceText_(proposal && proposal.summary, 700),
+    "Confianza %": Math.max(0, Math.min(100, Number(proposal && proposal.confidencePercent) || 0)),
+    "Razones JSON": JSON.stringify((proposal && proposal.rationale) || []).slice(0, 5000),
+    "Beneficios JSON": JSON.stringify((proposal && proposal.benefits) || []).slice(0, 5000),
+    "Riesgos JSON": JSON.stringify((proposal && proposal.risks) || []).slice(0, 5000),
+    "Implicaciones": safeIntelligenceText_(proposal && proposal.implications, 1500),
+    "Reversión": safeIntelligenceText_(proposal && proposal.rollback, 1000),
+    "Evidencia JSON": JSON.stringify((proposal && proposal.evidence) || []).slice(0, 8000),
+    "Tipo ejecución": safeIntelligenceText_(proposal && proposal.execution, 60),
+    "Decidida (UTC)": "",
+    "Nota decisión": "",
+  };
 }
 
 function parseJsonArray_(value) {

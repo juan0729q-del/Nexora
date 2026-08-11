@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/admin-auth";
 import { buildIntelligenceSnapshot } from "@/lib/intelligence/engine";
-import { decideIntelligenceProposal, SalesLedgerError, syncIntelligenceProposals } from "@/lib/sales-ledger";
+import { decideIntelligenceProposalAtomically, SalesLedgerError } from "@/lib/sales-ledger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,8 +24,7 @@ export async function POST(request: Request) {
     if (!proposal) return NextResponse.json({ message: "La propuesta expiró o ya no corresponde al catálogo actual. Recarga la página." }, { status: 409 });
     if (proposal.status !== "proposed") return NextResponse.json({ message: "Esta propuesta ya tiene una decisión registrada." }, { status: 409 });
 
-    await syncIntelligenceProposals([proposal]);
-    const result = await decideIntelligenceProposal(proposalId, decision, text(body.note, 800));
+    const result = await decideIntelligenceProposalAtomically(proposal, decision, text(body.note, 800));
     console.info("[intelligence/decision] recorded", { proposalId, decision, execution: proposal.execution });
     return NextResponse.json({ updated: true, decision: result.status, execution: proposal.execution });
   } catch (error) {
