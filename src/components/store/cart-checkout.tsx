@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { checkoutAuditActive, downloadCheckoutAudit, recordCheckoutAuditEvent, startCheckoutAudit } from "@/lib/checkout-audit";
+import { trackIntelligenceEvent } from "@/lib/intelligence/client";
 import { beginCheckout } from "@/lib/payments";
 import type { StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
@@ -160,6 +161,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       countryCode: destination.countryCode,
       items: visibleItems.map((item) => ({ productSlug: item.productSlug, variantSku: item.variantSku, quantity: item.quantity })),
     });
+    trackIntelligenceEvent({ type: "shipping_quote_requested", page: "/carrito", quantity: visibleItems.reduce((total, item) => total + item.quantity, 0) });
     try {
       setIsPreparing(true);
       setStatus("Consultando tarifas reales de CJ para cada artículo del carrito…");
@@ -201,9 +203,11 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
           options: line.options.map((option) => ({ id: option.id, method: option.method, amountCop: option.amountCop, estimatedDelivery: option.estimatedDelivery })),
         })),
       });
+      trackIntelligenceEvent({ type: "shipping_quote_succeeded", page: "/carrito", quantity: payload.items.reduce((total, item) => total + item.quantity, 0), valueCop: payload.productSubtotalCop });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (!failureRecorded) recordCheckoutAuditEvent("shipping-failed", { reason: "client-or-validation" });
+      trackIntelligenceEvent({ type: "shipping_quote_failed", page: "/carrito", quantity: visibleItems.reduce((total, item) => total + item.quantity, 0) });
       setStatus(error instanceof Error ? error.message : "No fue posible cotizar el envío.");
     } finally {
       if (requestControllerRef.current === controller) {
@@ -243,6 +247,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
         return { productSlug: line.productSlug, variantSku: line.variantSku, methodId: selectedId, method: option?.method || "unknown" };
       }),
     });
+    trackIntelligenceEvent({ type: "checkout_started", page: "/carrito", quantity: checkoutItems.reduce((total, item) => total + item.quantity, 0), valueCop: checkoutTotal });
     try {
       setIsPreparing(true);
       setStatus("Verificando inventario, registrando el pedido y preparando Wompi…");
@@ -254,10 +259,12 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
         shippingCostCop: result.shippingCostCop,
         amountCop: result.amountCop,
       });
+      trackIntelligenceEvent({ type: "checkout_created", page: "/carrito", quantity: checkoutItems.reduce((total, item) => total + item.quantity, 0), valueCop: result.amountCop });
       setStatus(result.message || "Redirigiendo al pago seguro…");
       window.location.assign(result.checkoutUrl);
     } catch (error) {
       recordCheckoutAuditEvent("checkout-failed", { reason: "checkout-api-or-provider" });
+      trackIntelligenceEvent({ type: "checkout_failed", page: "/carrito", quantity: checkoutItems.reduce((total, item) => total + item.quantity, 0), valueCop: checkoutTotal });
       setStatus(error instanceof Error ? error.message : "No fue posible iniciar el pago.");
       setIsPreparing(false);
     }
@@ -319,7 +326,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
               <label className="text-xs font-semibold text-white">Cantidad
                 <input type="number" min={1} max={maximumQuantity} value={item.quantity} onChange={(event) => { const quantity = Math.min(maximumQuantity, Math.max(1, Number(event.target.value) || 1)); updateQuantity(item.productSlug, item.variantSku, quantity); recordCheckoutAuditEvent("cart-quantity-changed", { productSlug: item.productSlug, variantSku: item.variantSku, quantity }); clearQuote(); }} className="mt-1 block w-20 rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm text-white focus:border-emerald focus:outline-none" />
               </label>
-              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
+              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); trackIntelligenceEvent({ type: "cart_removed", page: "/carrito", productSlug: item.productSlug, productSku: item.product.sku, variantSku: item.variantSku, niche: item.product.niche, quantity: item.quantity, valueCop: item.product.price * item.quantity }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
             </div>
           </article>;
         })}
@@ -329,7 +336,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             <p className="mt-1 text-xs text-silver/70">Referencia guardada: {item.productSlug} · {item.variantSku}</p>
             <p className="mt-2 text-xs font-semibold text-amber-100">Ya no puede cotizarse ni pagarse. Quítalo para continuar.</p>
           </div>
-          <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); clearQuote(); }} className="w-fit rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
+          <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); trackIntelligenceEvent({ type: "cart_removed", page: "/carrito", productSlug: item.productSlug, variantSku: item.variantSku, quantity: item.quantity }); clearQuote(); }} className="w-fit rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
         </article>)}
       </div>
 
@@ -364,7 +371,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
               const checked = selectedMethods[lineId(line.productSlug, line.variantSku)] === option.id;
               return <label key={option.id} className={`block cursor-pointer rounded-xl border p-3 ${checked ? "border-emerald bg-emerald/[.09]" : "border-silver/20"}`}>
                 <div className="flex items-start gap-3">
-                  <input type="radio" name={`shipping-${lineId(line.productSlug, line.variantSku)}`} value={option.id} checked={checked} onChange={() => { setSelectedMethods((current) => ({ ...current, [lineId(line.productSlug, line.variantSku)]: option.id })); recordCheckoutAuditEvent("shipping-method-selected", { productSlug: line.productSlug, variantSku: line.variantSku, methodId: option.id, method: option.method, amountCop: option.amountCop }); }} className="mt-1 accent-[#009473]" />
+                  <input type="radio" name={`shipping-${lineId(line.productSlug, line.variantSku)}`} value={option.id} checked={checked} onChange={() => { setSelectedMethods((current) => ({ ...current, [lineId(line.productSlug, line.variantSku)]: option.id })); recordCheckoutAuditEvent("shipping-method-selected", { productSlug: line.productSlug, variantSku: line.variantSku, methodId: option.id, method: option.method, amountCop: option.amountCop }); trackIntelligenceEvent({ type: "shipping_method_selected", page: "/carrito", productSlug: line.productSlug, variantSku: line.variantSku, quantity: line.quantity, valueCop: option.amountCop }); }} className="mt-1 accent-[#009473]" />
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold text-white">{option.method}</span><span className="font-semibold text-emerald">{formatCOP(option.amountCop)}</span></div>
                     {badge && <span className="mt-1 inline-flex rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-bold text-emerald">{badge}</span>}

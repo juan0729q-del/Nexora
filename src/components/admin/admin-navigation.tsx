@@ -7,9 +7,10 @@ import { useRouter } from "next/navigation";
 const adminItems = [
   { href: "/admin", label: "Operación", key: "operations" },
   { href: "/admin/ventas", label: "Ventas y postventa", key: "sales" },
+  { href: "/admin/inteligencia", label: "Inteligencia", key: "intelligence" },
 ] as const;
 
-export function AdminNavigation({ current }: { current: "operations" | "sales" }) {
+export function AdminNavigation({ current }: { current: "operations" | "sales" | "intelligence" }) {
   const router = useRouter();
   const [pendingHref, setPendingHref] = useState<string | null>(null);
 

@@ -3,6 +3,10 @@
     {
       "path": "/api/automation/indexnow",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/automation/intelligence-shadow",
+      "schedule": "0 8 * * *"
     }
   ]
 }

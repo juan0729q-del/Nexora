@@ -51,6 +51,16 @@ Consulta [docs/google-apps-script/README.md](docs/google-apps-script/README.md) 
 
 Consulta [docs/search-indexing.md](docs/search-indexing.md) para verificar Google Search Console y Bing Webmaster Tools, publicar sus tokens de verificación en Vercel y enviar el sitemap. La verificación de propiedad requiere las cuentas de los buscadores y no puede completarse solo desde el repositorio.
 
+## Inteligencia supervisada
+
+Nexora inicia siempre en `INTELLIGENCE_MODE=shadow`. Registra eventos anónimos del embudo (página, producto, variante, carrito, cotización, método y creación de checkout) en el libro privado, sin nombres, correos, direcciones ni datos de tarjeta. GDELT se usa sólo como contexto editorial público: nunca se presenta como ventas.
+
+La ruta `/admin/inteligencia` muestra razones, beneficios, riesgos, implicaciones y reversión antes de permitir una autorización. Las acciones de catálogo siguen pasando por la validación CJ y el flujo versionado de Git; no existe publicación de candidatos incompletos ni escritura efímera en Vercel.
+
+La autonomía futura sólo será elegible después de cumplir simultáneamente, durante 30 días, los umbrales de observación, pedidos aprobados, sesiones, vistas, cobertura del embudo, conciliación, entrega dentro del SLA, precisión validada, confianza y cobertura de rotación. La elegibilidad no activa nada por sí sola y siempre requiere aprobación explícita. Reembolsos, cambios de precio mayores al 10 %, identidad, asuntos legales y publicaciones sin ficha CJ completa permanecen bajo control humano.
+
+Tecnología queda dividida en “tradicional” y “con inteligencia artificial”. La segunda exige evidencia explícita en la ficha oficial de CJ; la palabra “smart” por sí sola no es suficiente. Si no existe un producto verificable, la sección permanece honestamente vacía y no usa relleno.
+
 ## Variables de entorno
 
 Consulta `.env.example`. Nunca subas credenciales reales ni publiques variables sin el prefijo `NEXT_PUBLIC_`.

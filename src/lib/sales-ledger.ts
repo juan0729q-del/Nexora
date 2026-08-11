@@ -6,6 +6,7 @@ import { getProductPresentation } from "@/lib/product-presentation";
 import { niches, type Product } from "@/lib/products";
 import type { CheckoutSession } from "@/lib/payments/hosted-checkout";
 import type { VerifiedWompiTransaction } from "@/lib/payments/webhooks";
+import type { IntelligenceEvent, IntelligenceEventSummary, IntelligenceProposal } from "@/lib/intelligence/types";
 
 type SalesLedgerConfiguration = {
   endpoint: URL;
@@ -169,6 +170,11 @@ export type SalesLedgerDashboard = {
   dailySales: SalesLedgerDailyMetric[];
 };
 
+export type IntelligenceLedgerSnapshot = {
+  events: IntelligenceEventSummary;
+  proposals: IntelligenceProposal[];
+};
+
 export class SalesLedgerError extends Error {}
 
 const EXPECTED_LEDGER_CONTRACT = "2026-08-01.3";
@@ -271,11 +277,11 @@ async function fetchSigned<T>(endpoint: URL, init: RequestInit, timeoutMs: numbe
   }
 }
 
-async function send(event: LedgerEvent) {
+async function sendSignedAction<T>(payload: unknown) {
   const configuration = getConfiguration();
   if (!configuration) throw new SalesLedgerError("El registro privado de ventas no está configurado.");
   await ensureLedgerContract(configuration);
-  const rawPayload = JSON.stringify(event);
+  const rawPayload = JSON.stringify(payload);
   const timestamp = String(Math.floor(Date.now() / 1000));
   // Apps Script no expone encabezados HTTP en doPost. La envoltura mantiene la
   // firma fuera de la URL (evita que quede en historiales, logs o referers).
@@ -284,11 +290,15 @@ async function send(event: LedgerEvent) {
     sig: hmac(`${timestamp}.${rawPayload}`, configuration.secret),
     payload: rawPayload,
   });
-  return fetchSigned<SalesLedgerWriteResult>(configuration.endpoint, {
+  return fetchSigned<T>(configuration.endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: envelope,
   }, configuration.timeoutMs);
+}
+
+async function send(event: LedgerEvent) {
+  return sendSignedAction<SalesLedgerWriteResult>(event);
 }
 
 function makeFinance(checkout: CheckoutSession): LedgerFinance {
@@ -617,22 +627,87 @@ function parseDashboard(value: unknown): SalesLedgerDashboard | null {
 
 /** Lee sólo desde una página administrativa autenticada; nunca desde el navegador público. */
 export async function getPersistedSalesDashboard() {
-  const configuration = getConfiguration();
-  if (!configuration) return null;
-  await ensureLedgerContract(configuration);
-  const timestamp = String(Math.floor(Date.now() / 1000));
-  const payload = JSON.stringify({ action: "admin.read" });
-  const envelope = JSON.stringify({
-    ts: timestamp,
-    sig: hmac(`${timestamp}.${payload}`, configuration.secret),
-    payload,
-  });
-  const result = await fetchSigned<unknown>(configuration.endpoint, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: envelope,
-  }, configuration.timeoutMs);
+  if (!getConfiguration()) return null;
+  const result = await sendSignedAction<unknown>({ action: "admin.read" });
   return parseDashboard(result);
+}
+
+function emptyIntelligenceEvents(): IntelligenceEventSummary {
+  return { firstEventAt: null, lastEventAt: null, trackedEvents: 0, trackedSessions: 0, productViews: 0, cartAdds: 0, shippingQuotes: 0, checkoutStarts: 0, checkoutCreated: 0, eventCoveragePercent: 0 };
+}
+
+function parseStringArray(value: unknown) {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === "string").slice(0, 20) : [];
+}
+
+function parseIntelligenceProposal(value: unknown): IntelligenceProposal | null {
+  if (!value || typeof value !== "object") return null;
+  const row = value as Record<string, unknown>;
+  const id = stringValue(row.id);
+  const title = stringValue(row.title);
+  const action = stringValue(row.action) as IntelligenceProposal["action"];
+  const niche = stringValue(row.niche) as IntelligenceProposal["niche"];
+  const status = stringValue(row.status) as IntelligenceProposal["status"];
+  const execution = stringValue(row.execution) as IntelligenceProposal["execution"];
+  if (!id || !title || !["promote_product", "monitor_product", "pause_product", "start_experiment", "source_candidate"].includes(action)) return null;
+  if (!["jewelry", "technologyHome", "wellbeing"].includes(niche) || !["proposed", "authorized", "rejected", "executed", "expired"].includes(status)) return null;
+  if (!["advisory", "merchandising", "catalog_workflow"].includes(execution)) return null;
+  return {
+    id,
+    createdAt: stringValue(row.createdAt),
+    expiresAt: stringValue(row.expiresAt),
+    action,
+    status,
+    targetSku: nullableString(row.targetSku) || undefined,
+    targetSlug: nullableString(row.targetSlug) || undefined,
+    niche,
+    title,
+    summary: stringValue(row.summary),
+    rationale: parseStringArray(row.rationale),
+    benefits: parseStringArray(row.benefits),
+    risks: parseStringArray(row.risks),
+    implications: stringValue(row.implications),
+    rollback: stringValue(row.rollback),
+    confidencePercent: Math.max(0, Math.min(100, finiteNumber(row.confidencePercent))),
+    evidence: Array.isArray(row.evidence) ? row.evidence.filter((item): item is IntelligenceProposal["evidence"][number] => Boolean(item) && typeof item === "object").slice(0, 20) : [],
+    execution,
+    decidedAt: nullableString(row.decidedAt) || undefined,
+    decisionNote: nullableString(row.decisionNote) || undefined,
+  };
+}
+
+export async function recordIntelligenceEvents(events: IntelligenceEvent[]) {
+  if (!events.length) return { accepted: 0, duplicates: 0 };
+  return sendSignedAction<{ accepted: number; duplicates: number }>({ action: "intelligence.events.write", events: events.slice(0, 50) });
+}
+
+export async function syncIntelligenceProposals(proposals: IntelligenceProposal[]) {
+  return sendSignedAction<{ inserted: number; preserved: number }>({ action: "intelligence.proposals.sync", proposals: proposals.slice(0, 40) });
+}
+
+export async function decideIntelligenceProposal(proposalId: string, decision: "authorized" | "rejected", note: string) {
+  return sendSignedAction<{ proposalId: string; status: string; decidedAt: string }>({ action: "intelligence.decision", proposalId, decision, note });
+}
+
+export async function getIntelligenceLedgerSnapshot(): Promise<IntelligenceLedgerSnapshot | null> {
+  if (!getConfiguration()) return null;
+  const result = await sendSignedAction<unknown>({ action: "intelligence.read" });
+  if (!result || typeof result !== "object") return null;
+  const payload = result as Record<string, unknown>;
+  const rawEvents = payload.events && typeof payload.events === "object" ? payload.events as Record<string, unknown> : {};
+  const events = emptyIntelligenceEvents();
+  events.firstEventAt = nullableString(rawEvents.firstEventAt);
+  events.lastEventAt = nullableString(rawEvents.lastEventAt);
+  events.trackedEvents = finiteNumber(rawEvents.trackedEvents);
+  events.trackedSessions = finiteNumber(rawEvents.trackedSessions);
+  events.productViews = finiteNumber(rawEvents.productViews);
+  events.cartAdds = finiteNumber(rawEvents.cartAdds);
+  events.shippingQuotes = finiteNumber(rawEvents.shippingQuotes);
+  events.checkoutStarts = finiteNumber(rawEvents.checkoutStarts);
+  events.checkoutCreated = finiteNumber(rawEvents.checkoutCreated);
+  events.eventCoveragePercent = finiteNumber(rawEvents.eventCoveragePercent);
+  const proposals = Array.isArray(payload.proposals) ? payload.proposals.map(parseIntelligenceProposal).filter((proposal): proposal is IntelligenceProposal => Boolean(proposal)) : [];
+  return { events, proposals };
 }
 
 /** Verificación sin escribir pedidos ni clientes. */

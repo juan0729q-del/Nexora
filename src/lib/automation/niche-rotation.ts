@@ -9,7 +9,7 @@ import {
 } from "@/lib/provider-product-details";
 import { getCatalog } from "@/lib/catalog-store";
 import { recommendedPriceForContribution } from "@/lib/commerce-finance";
-import { niches, type Product, type ProductNiche } from "@/lib/products";
+import { isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 
@@ -132,7 +132,7 @@ const nicheCategoryTerms: Record<ProductNiche, readonly string[]> = {
 
 const nicheSearchTerms: Record<ProductNiche, readonly string[]> = {
   jewelry: ["necklace", "bracelet", "ring"],
-  technologyHome: ["wireless charger", "smart home", "kitchen gadget"],
+  technologyHome: ["AI translator device", "AI camera", "wireless charger"],
   wellbeing: ["massager", "fitness", "personal care"],
 };
 
@@ -466,9 +466,11 @@ function ensureSustainablePrice(product: Product): Product {
   return { ...product, price: minimumPrice, compareAtPrice: undefined };
 }
 
-function categoryFor(niche: ProductNiche) {
+function categoryFor(niche: ProductNiche, candidate?: CjTrendingCandidate) {
   if (niche === "jewelry") return "Joyería";
-  if (niche === "technologyHome") return "Tecnología y hogar";
+  if (niche === "technologyHome") return candidate && isArtificialIntelligenceProduct({ name: candidate.name, category: candidate.categoryPath, material: candidate.material, providerDetails: candidate.providerDetails })
+    ? "Tecnología con inteligencia artificial"
+    : "Tecnología tradicional y hogar";
   return "Bienestar";
 }
 
@@ -484,7 +486,7 @@ export function candidateToProduct(candidate: CjTrendingCandidate, niche: Produc
   return {
     slug,
     name: candidate.name,
-    category: categoryFor(niche),
+    category: categoryFor(niche, candidate),
     niche,
     description: candidate.description,
     longDescription: candidate.description,

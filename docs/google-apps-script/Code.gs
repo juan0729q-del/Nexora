@@ -16,6 +16,8 @@ const NEXORA = Object.freeze({
   EVENTS_SHEET: "Eventos",
   // Conserva la pestaña creada en la primera configuración de Nexora.
   DASHBOARD_SHEET: "Panel de control",
+  INTELLIGENCE_EVENTS_SHEET: "Eventos IA",
+  INTELLIGENCE_DECISIONS_SHEET: "Decisiones IA",
   TIME_ZONE: "America/Bogota",
   MAX_AGE_MS: 5 * 60 * 1000,
   ADMIN_EMAIL: "nexoraventas1@gmail.com",
@@ -52,6 +54,19 @@ const EVENT_HEADERS = [
   "Huella SHA-256", "Aviso admin", "Aviso cliente", "Detalle",
 ];
 
+const INTELLIGENCE_EVENT_HEADERS = [
+  "ID evento", "ID sesión anónima", "Tipo", "Fecha evento (UTC)", "Recibido (UTC)",
+  "Página", "Slug producto", "SKU producto", "SKU variante", "Nicho", "Cantidad",
+  "Valor COP", "Origen",
+];
+
+const INTELLIGENCE_DECISION_HEADERS = [
+  "ID propuesta", "Creada (UTC)", "Expira (UTC)", "Estado", "Acción", "SKU objetivo",
+  "Slug objetivo", "Nicho", "Título", "Resumen", "Confianza %", "Razones JSON",
+  "Beneficios JSON", "Riesgos JSON", "Implicaciones", "Reversión", "Evidencia JSON",
+  "Tipo ejecución", "Decidida (UTC)", "Nota decisión",
+];
+
 /** Ejecutar una sola vez después de guardar las Script properties. */
 function setupNexoraWorkbook() {
   const config = getConfig_();
@@ -59,6 +74,8 @@ function setupNexoraWorkbook() {
   spreadsheet.setSpreadsheetTimeZone(config.timeZone);
   const orders = ensureSheet_(spreadsheet, NEXORA.ORDERS_SHEET, ORDER_HEADERS);
   const events = ensureSheet_(spreadsheet, NEXORA.EVENTS_SHEET, EVENT_HEADERS);
+  ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_EVENTS_SHEET, INTELLIGENCE_EVENT_HEADERS);
+  ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_DECISIONS_SHEET, INTELLIGENCE_DECISION_HEADERS);
   formatOrderColumns_(orders);
   formatEventColumns_(events);
   setupDashboard_(spreadsheet);
@@ -80,6 +97,18 @@ function doPost(e) {
     // ni una firma reutilizable en la URL pública del Web App.
     if (input && input.action === "admin.read") {
       return json_({ ok: true, data: readAdminSnapshot_() });
+    }
+    if (input && input.action === "intelligence.events.write") {
+      return json_({ ok: true, data: writeIntelligenceEvents_(input.events) });
+    }
+    if (input && input.action === "intelligence.proposals.sync") {
+      return json_({ ok: true, data: syncIntelligenceProposals_(input.proposals) });
+    }
+    if (input && input.action === "intelligence.decision") {
+      return json_({ ok: true, data: decideIntelligenceProposal_(input) });
+    }
+    if (input && input.action === "intelligence.read") {
+      return json_({ ok: true, data: readIntelligenceSnapshot_() });
     }
     const event = normalizeEvent_(input);
     const raw = JSON.stringify(input);
@@ -125,6 +154,205 @@ function workbookReady_() {
   }
   cache.put("nexora_workbook_ready", String(ready), ready ? 300 : 30);
   return ready;
+}
+
+function intelligenceSheets_() {
+  const config = getConfig_();
+  const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+  return {
+    events: ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_EVENTS_SHEET, INTELLIGENCE_EVENT_HEADERS),
+    decisions: ensureSheet_(spreadsheet, NEXORA.INTELLIGENCE_DECISIONS_SHEET, INTELLIGENCE_DECISION_HEADERS),
+  };
+}
+
+function safeIntelligenceText_(value, maxLength) {
+  return String(value === undefined || value === null ? "" : value).trim().slice(0, maxLength || 500);
+}
+
+function writeIntelligenceEvents_(incoming) {
+  if (!Array.isArray(incoming) || incoming.length < 1 || incoming.length > 50) throw new Error("invalid intelligence event batch");
+  const allowed = {
+    page_viewed: true, product_viewed: true, variant_selected: true, cart_added: true,
+    cart_removed: true, shipping_quote_requested: true, shipping_quote_succeeded: true,
+    shipping_quote_failed: true, shipping_method_selected: true, checkout_started: true,
+    checkout_created: true, checkout_failed: true,
+  };
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) throw new Error("intelligence ledger busy");
+  try {
+    const sheet = intelligenceSheets_().events;
+    let accepted = 0;
+    let duplicates = 0;
+    incoming.forEach(function (event) {
+      const eventId = safeIntelligenceText_(event && event.eventId, 100);
+      const sessionId = safeIntelligenceText_(event && event.sessionId, 100);
+      const type = safeIntelligenceText_(event && event.type, 60);
+      const occurredAt = safeIntelligenceText_(event && event.occurredAt, 40);
+      if (!eventId || !sessionId || !allowed[type] || !occurredAt) throw new Error("invalid intelligence event");
+      if (findRowByValue_(sheet, INTELLIGENCE_EVENT_HEADERS, "ID evento", eventId)) {
+        duplicates += 1;
+        return;
+      }
+      const row = {
+        "ID evento": eventId,
+        "ID sesión anónima": sessionId,
+        "Tipo": type,
+        "Fecha evento (UTC)": occurredAt,
+        "Recibido (UTC)": isoNow_(),
+        "Página": safeIntelligenceText_(event.page, 220),
+        "Slug producto": safeIntelligenceText_(event.productSlug, 140),
+        "SKU producto": safeIntelligenceText_(event.productSku, 100),
+        "SKU variante": safeIntelligenceText_(event.variantSku, 120),
+        "Nicho": safeIntelligenceText_(event.niche, 40),
+        "Cantidad": Math.max(0, Number(event.quantity) || 0),
+        "Valor COP": Math.max(0, Number(event.valueCop) || 0),
+        "Origen": safeIntelligenceText_(event.source || "storefront", 60),
+      };
+      sheet.appendRow(INTELLIGENCE_EVENT_HEADERS.map(function (header) { return row[header]; }));
+      accepted += 1;
+    });
+    return { accepted: accepted, duplicates: duplicates };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function syncIntelligenceProposals_(incoming) {
+  if (!Array.isArray(incoming) || incoming.length > 40) throw new Error("invalid proposal batch");
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) throw new Error("intelligence ledger busy");
+  try {
+    const sheet = intelligenceSheets_().decisions;
+    let inserted = 0;
+    let preserved = 0;
+    incoming.forEach(function (proposal) {
+      const id = safeIntelligenceText_(proposal && proposal.id, 120);
+      if (!id) throw new Error("invalid proposal");
+      const existingRow = findRowByValue_(sheet, INTELLIGENCE_DECISION_HEADERS, "ID propuesta", id);
+      if (existingRow) {
+        preserved += 1;
+        return;
+      }
+      const row = {
+        "ID propuesta": id,
+        "Creada (UTC)": safeIntelligenceText_(proposal.createdAt, 40),
+        "Expira (UTC)": safeIntelligenceText_(proposal.expiresAt, 40),
+        "Estado": "proposed",
+        "Acción": safeIntelligenceText_(proposal.action, 60),
+        "SKU objetivo": safeIntelligenceText_(proposal.targetSku, 100),
+        "Slug objetivo": safeIntelligenceText_(proposal.targetSlug, 140),
+        "Nicho": safeIntelligenceText_(proposal.niche, 40),
+        "Título": safeIntelligenceText_(proposal.title, 240),
+        "Resumen": safeIntelligenceText_(proposal.summary, 700),
+        "Confianza %": Math.max(0, Math.min(100, Number(proposal.confidencePercent) || 0)),
+        "Razones JSON": JSON.stringify(proposal.rationale || []).slice(0, 5000),
+        "Beneficios JSON": JSON.stringify(proposal.benefits || []).slice(0, 5000),
+        "Riesgos JSON": JSON.stringify(proposal.risks || []).slice(0, 5000),
+        "Implicaciones": safeIntelligenceText_(proposal.implications, 1500),
+        "Reversión": safeIntelligenceText_(proposal.rollback, 1000),
+        "Evidencia JSON": JSON.stringify(proposal.evidence || []).slice(0, 8000),
+        "Tipo ejecución": safeIntelligenceText_(proposal.execution, 60),
+        "Decidida (UTC)": "",
+        "Nota decisión": "",
+      };
+      sheet.appendRow(INTELLIGENCE_DECISION_HEADERS.map(function (header) { return row[header]; }));
+      inserted += 1;
+    });
+    return { inserted: inserted, preserved: preserved };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function decideIntelligenceProposal_(input) {
+  const proposalId = safeIntelligenceText_(input && input.proposalId, 120);
+  const decision = safeIntelligenceText_(input && input.decision, 30);
+  const note = safeIntelligenceText_(input && input.note, 800);
+  if (!proposalId || (decision !== "authorized" && decision !== "rejected")) throw new Error("invalid decision");
+  const lock = LockService.getScriptLock();
+  if (!lock.tryLock(25000)) throw new Error("intelligence ledger busy");
+  try {
+    const sheet = intelligenceSheets_().decisions;
+    const rowNumber = findRowByValue_(sheet, INTELLIGENCE_DECISION_HEADERS, "ID propuesta", proposalId);
+    if (!rowNumber) throw new Error("unknown proposal");
+    const row = readRow_(sheet, rowNumber, INTELLIGENCE_DECISION_HEADERS);
+    const current = safeIntelligenceText_(row["Estado"], 30);
+    if (current !== "proposed" && current !== decision) throw new Error("proposal already decided");
+    row["Estado"] = decision;
+    row["Decidida (UTC)"] = isoNow_();
+    row["Nota decisión"] = note;
+    sheet.getRange(rowNumber, 1, 1, INTELLIGENCE_DECISION_HEADERS.length).setValues([
+      INTELLIGENCE_DECISION_HEADERS.map(function (header) { return row[header] === undefined ? "" : row[header]; }),
+    ]);
+    return { proposalId: proposalId, status: decision, decidedAt: row["Decidida (UTC)"] };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function parseJsonArray_(value) {
+  try {
+    const parsed = JSON.parse(String(value || "[]"));
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function readIntelligenceSnapshot_() {
+  const sheets = intelligenceSheets_();
+  const eventRows = sheets.events.getLastRow() > 1
+    ? sheets.events.getRange(2, 1, sheets.events.getLastRow() - 1, INTELLIGENCE_EVENT_HEADERS.length).getValues()
+    : [];
+  const decisionRows = sheets.decisions.getLastRow() > 1
+    ? sheets.decisions.getRange(2, 1, sheets.decisions.getLastRow() - 1, INTELLIGENCE_DECISION_HEADERS.length).getValues()
+    : [];
+  const events = eventRows.map(function (values) {
+    const row = {};
+    INTELLIGENCE_EVENT_HEADERS.forEach(function (header, index) { row[header] = values[index]; });
+    return row;
+  });
+  const sessions = {};
+  const counts = {};
+  let firstEventAt = null;
+  let lastEventAt = null;
+  events.forEach(function (event) {
+    const type = String(event["Tipo"] || "");
+    counts[type] = (counts[type] || 0) + 1;
+    sessions[String(event["ID sesión anónima"] || "")] = true;
+    const occurredAt = new Date(event["Fecha evento (UTC)"]).toISOString();
+    if (!firstEventAt || occurredAt < firstEventAt) firstEventAt = occurredAt;
+    if (!lastEventAt || occurredAt > lastEventAt) lastEventAt = occurredAt;
+  });
+  const quoteRequests = counts.shipping_quote_requested || 0;
+  const checkoutStarts = counts.checkout_started || 0;
+  const coverageParts = [];
+  if (quoteRequests) coverageParts.push(Math.min(1, ((counts.shipping_quote_succeeded || 0) + (counts.shipping_quote_failed || 0)) / quoteRequests));
+  if (checkoutStarts) coverageParts.push(Math.min(1, ((counts.checkout_created || 0) + (counts.checkout_failed || 0)) / checkoutStarts));
+  const proposals = decisionRows.slice(-60).reverse().map(function (values) {
+    const row = {};
+    INTELLIGENCE_DECISION_HEADERS.forEach(function (header, index) { row[header] = values[index]; });
+    return {
+      id: String(row["ID propuesta"] || ""), createdAt: String(row["Creada (UTC)"] || ""), expiresAt: String(row["Expira (UTC)"] || ""),
+      status: String(row["Estado"] || "proposed"), action: String(row["Acción"] || "monitor_product"),
+      targetSku: String(row["SKU objetivo"] || "") || undefined, targetSlug: String(row["Slug objetivo"] || "") || undefined,
+      niche: String(row["Nicho"] || "technologyHome"), title: String(row["Título"] || ""), summary: String(row["Resumen"] || ""),
+      confidencePercent: Number(row["Confianza %"] || 0), rationale: parseJsonArray_(row["Razones JSON"]), benefits: parseJsonArray_(row["Beneficios JSON"]),
+      risks: parseJsonArray_(row["Riesgos JSON"]), implications: String(row["Implicaciones"] || ""), rollback: String(row["Reversión"] || ""),
+      evidence: parseJsonArray_(row["Evidencia JSON"]), execution: String(row["Tipo ejecución"] || "advisory"),
+      decidedAt: String(row["Decidida (UTC)"] || "") || undefined, decisionNote: String(row["Nota decisión"] || "") || undefined,
+    };
+  });
+  return {
+    events: {
+      firstEventAt: firstEventAt, lastEventAt: lastEventAt, trackedEvents: events.length,
+      trackedSessions: Math.max(0, Object.keys(sessions).filter(Boolean).length), productViews: counts.product_viewed || 0,
+      cartAdds: counts.cart_added || 0, shippingQuotes: counts.shipping_quote_succeeded || 0,
+      checkoutStarts: checkoutStarts, checkoutCreated: counts.checkout_created || 0,
+      eventCoveragePercent: coverageParts.length ? Math.round(coverageParts.reduce(function (sum, value) { return sum + value; }, 0) / coverageParts.length * 100) : 0,
+    },
+    proposals: proposals,
+  };
 }
 
 function processEvent_(event, raw, receivedAt) {

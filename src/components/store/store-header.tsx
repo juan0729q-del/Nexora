@@ -10,7 +10,8 @@ export function StoreHeader() {
   const { itemCount, hydrated } = useCart();
   const links = [
     { href: "/#joyeria", label: "Joyería" },
-    { href: "/#tecnologia-hogar", label: "Tecnología/Hogar" },
+    { href: "/#tecnologia-tradicional", label: "Tecnología" },
+    { href: "/#tecnologia-ia", label: "Tecnología con IA" },
     { href: "/#bienestar", label: "Bienestar" },
   ];
   const unitLabel = itemCount === 1 ? "unidad" : "unidades";

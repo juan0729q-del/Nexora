@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { getProductPresentation, type StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
+import { trackIntelligenceEvent } from "@/lib/intelligence/client";
 import { maxCartLines, maxCartUnits, maxUnitsPerLine, useCart } from "./cart-context";
 import { useNexy } from "./nexy-context";
 import { ProductArt } from "./product-art";
@@ -24,6 +25,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
 
   function announceInterest(intent: "view" | "buy") {
     announceProduct({ category: product.category }, intent);
+    if (intent === "view") trackIntelligenceEvent({ type: "product_viewed", page: `/productos/${product.slug}`, productSlug: product.slug, productSku: product.sku, niche: product.niche });
   }
 
   function addToCart() {
@@ -42,6 +44,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
       return;
     }
     addItem({ productSlug: product.slug, variantSku, quantity });
+    trackIntelligenceEvent({ type: "cart_added", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku, niche: product.niche, quantity, valueCop: product.price * quantity });
     announceInterest("buy");
     setStatus(`${quantity} unidad${quantity === 1 ? "" : "es"} agregada${quantity === 1 ? "" : "s"}. Puedes seguir comprando o revisar el carrito.`);
   }
@@ -70,7 +73,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
 
       <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_7rem]">
         <label className="text-xs font-semibold text-white">Variante
-          <select value={variantSku} onChange={(event) => { setVariantSku(event.target.value); setStatus(null); }} disabled={!product.available} required className="mt-1.5 w-full rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm font-normal text-white focus:border-emerald focus:outline-none disabled:opacity-50">
+          <select value={variantSku} onChange={(event) => { const next = event.target.value; setVariantSku(next); setStatus(null); if (next) trackIntelligenceEvent({ type: "variant_selected", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku: next, niche: product.niche }); }} disabled={!product.available} required className="mt-1.5 w-full rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm font-normal text-white focus:border-emerald focus:outline-none disabled:opacity-50">
             {product.variants.length !== 1 && <option value="">Selecciona una variante</option>}
             {product.variants.map((variant) => <option key={variant.sku} value={variant.sku}>{variant.options || variant.label}</option>)}
           </select>

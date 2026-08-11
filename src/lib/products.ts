@@ -37,6 +37,22 @@ export const niches = {
 } as const;
 
 export type ProductNiche = keyof typeof niches;
+export type TechnologySegment = "traditional" | "artificialIntelligence";
+
+export const technologySegments = {
+  traditional: {
+    id: "traditional",
+    label: "Tecnología tradicional",
+    menuLabel: "Tecnología",
+    description: "Dispositivos y soluciones funcionales para simplificar tareas cotidianas.",
+  },
+  artificialIntelligence: {
+    id: "artificialIntelligence",
+    label: "Tecnología con inteligencia artificial",
+    menuLabel: "Tecnología con IA",
+    description: "Productos cuya ficha oficial confirma funciones de inteligencia artificial.",
+  },
+} as const;
 export type ProductSupplier = {
   name: string;
   sourcePage: string;
@@ -151,3 +167,25 @@ export const formatCOP = (amount: number) =>
     currency: "COP",
     maximumFractionDigits: 0,
   }).format(amount);
+
+const aiTechnologyEvidence = /\b(?:ai|a\.i\.|artificial intelligence|inteligencia artificial|machine learning|neural|chatgpt|gpt[- ]?powered|ai translator|ai translation|ai camera|ai voice|voice assistant)\b/i;
+
+/**
+ * Clasificación comercial estricta: "smart" por sí solo no convierte un
+ * producto en IA. La sección de IA sólo acepta evidencia textual de la ficha
+ * oficial de CJ para no inducir al cliente a error.
+ */
+export function isArtificialIntelligenceProduct(product: Pick<Product, "name" | "category" | "material" | "providerDetails">) {
+  const providerText = [
+    product.name,
+    product.category,
+    product.material,
+    ...product.providerDetails.sections.flatMap((section) => [section.title, ...section.content]),
+    ...product.providerDetails.specifications.flatMap((specification) => [specification.label, specification.value]),
+  ].join(" ");
+  return aiTechnologyEvidence.test(providerText);
+}
+
+export function getTechnologySegment(product: Pick<Product, "name" | "category" | "material" | "providerDetails">): TechnologySegment {
+  return isArtificialIntelligenceProduct(product) ? "artificialIntelligence" : "traditional";
+}

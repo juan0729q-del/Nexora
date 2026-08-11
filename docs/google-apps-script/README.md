@@ -1,5 +1,9 @@
 # Registro privado de ventas Nexora
 
+La versión actual de `Code.gs` añade de forma aditiva las hojas `Eventos IA` y `Decisiones IA`. Después de pegar el código, ejecuta otra vez `setupNexoraWorkbook` y crea una nueva versión del Web App. No elimina pedidos ni eventos comerciales existentes.
+
+Los eventos de inteligencia no contienen PII y se reciben en lotes pequeños firmados con el mismo HMAC. Las propuestas conservan evidencia, confianza, implicaciones, reversión, estado y nota de decisión. Si Apps Script está temporalmente ausente, la navegación y la compra continúan; sólo se suspende el aprendizaje.
+
 Este archivo se implementa en una cuenta de Google de Nexora y no contiene claves ni datos de clientes.
 
 1. Crea un proyecto de Apps Script bajo `nexoraventas1@gmail.com` y pega `Code.gs`.

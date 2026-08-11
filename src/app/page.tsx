@@ -2,6 +2,7 @@ import Image from "next/image";
 import { NicheCatalogSection } from "@/components/store/niche-catalog-section";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
+import { TechnologyCatalogSection } from "@/components/store/technology-catalog-section";
 
 export const revalidate = 3600;
 
@@ -14,10 +15,10 @@ export default function Home() {
           <div>
             <p className="mb-5 inline-flex rounded-full border border-emerald/40 bg-emerald/10 px-3 py-1 text-xs font-bold tracking-[0.16em] text-emerald uppercase">Selección inteligente</p>
             <h1 className="max-w-3xl text-4xl leading-[1.04] font-semibold tracking-tight text-white sm:text-6xl">Diseño que eleva tu rutina.</h1>
-            <p className="mt-6 max-w-xl text-base leading-7 text-silver/80 sm:text-lg">Joyería, tecnología para el hogar y bienestar. Explora cada nicho con una curaduría independiente.</p>
+            <p className="mt-6 max-w-xl text-base leading-7 text-silver/80 sm:text-lg">Joyería, tecnología tradicional, productos con inteligencia artificial y bienestar. Explora cada selección con una curaduría independiente.</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a className="rounded-full bg-emerald px-5 py-3 text-sm font-bold text-onyx transition hover:bg-emerald/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald" href="#joyeria">Explorar joyería</a>
-              <a className="rounded-full border border-silver/35 px-5 py-3 text-sm font-semibold text-white transition hover:border-silver" href="#tecnologia-hogar">Ver tecnología</a>
+              <a className="rounded-full border border-silver/35 px-5 py-3 text-sm font-semibold text-white transition hover:border-silver" href="#tecnologia-tradicional">Ver tecnología</a>
             </div>
             <dl className="mt-12 grid max-w-md grid-cols-3 gap-4 border-t border-silver/20 pt-5 text-sm">
               <div><dt className="text-silver/65">Catálogo</dt><dd className="mt-1 font-semibold text-white">Verificado</dd></div>
@@ -42,7 +43,8 @@ export default function Home() {
         </div>
       </section>
       <NicheCatalogSection niche="jewelry" />
-      <NicheCatalogSection niche="technologyHome" />
+      <TechnologyCatalogSection segment="traditional" />
+      <TechnologyCatalogSection segment="artificialIntelligence" />
       <NicheCatalogSection niche="wellbeing" />
       <section id="proposito" className="border-y border-silver/15 bg-white/[0.025] px-5 py-16 sm:px-8 lg:px-12">
         <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-3">

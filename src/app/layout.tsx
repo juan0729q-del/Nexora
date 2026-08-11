@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import { CartProvider } from "@/components/store/cart-context";
 import { NexyProvider } from "@/components/store/nexy-context";
 import { NexyMascot } from "@/components/store/nexy-mascot";
+import { IntelligenceTracker } from "@/components/store/intelligence-tracker";
 import { getSiteUrl, siteUrlFor } from "@/lib/site";
 import "./globals.css";
 
@@ -33,9 +34,9 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   applicationName: "Nexora",
-  title: { default: "Nexora | Joyería, hogar y bienestar", template: "%s | Nexora" },
-  description: "Descubre joyería, tecnología para el hogar y bienestar seleccionados para elevar tu rutina.",
-  keywords: ["joyería", "tecnología para el hogar", "bienestar", "productos CJ Dropshipping", "Nexora"],
+  title: { default: "Nexora | Joyería, tecnología y bienestar", template: "%s | Nexora" },
+  description: "Descubre joyería, tecnología tradicional, productos con inteligencia artificial y bienestar seleccionados para elevar tu rutina.",
+  keywords: ["joyería", "tecnología", "productos con inteligencia artificial", "tecnología para el hogar", "bienestar", "productos CJ Dropshipping", "Nexora"],
   creator: "Nexora",
   publisher: "Nexora",
   robots: {
@@ -59,14 +60,14 @@ export const metadata: Metadata = {
     locale: "es_CO",
     siteName: "Nexora",
     title: "Nexora | Diseño que eleva tu rutina",
-    description: "Joyería, tecnología para el hogar y bienestar seleccionados con intención.",
+    description: "Joyería, tecnología tradicional, productos con inteligencia artificial y bienestar seleccionados con intención.",
     url: siteUrl,
     images: [{ url: "/brand/nexora-logo.png", width: 1024, height: 1024, alt: "Emblema Nexora" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Nexora | Diseño que eleva tu rutina",
-    description: "Joyería, tecnología para el hogar y bienestar seleccionados con intención.",
+    description: "Joyería, tecnología tradicional, productos con inteligencia artificial y bienestar seleccionados con intención.",
     images: ["/brand/nexora-logo.png"],
   },
 };
@@ -80,6 +81,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <a href="#page-content" className="fixed left-4 top-4 z-50 -translate-y-24 rounded-lg bg-emerald px-4 py-2 text-sm font-bold text-onyx transition focus:translate-y-0">Saltar al contenido</a>
         <CartProvider>
           <NexyProvider>
+            <IntelligenceTracker />
             {children}
             <NexyMascot />
           </NexyProvider>

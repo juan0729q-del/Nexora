@@ -13,7 +13,7 @@ type EditorialCopy = Omit<ProductPresentation, "imageAlt">;
 /** Datos públicos mínimos que pueden cruzar al componente de compra cliente. */
 export type StorefrontProduct = Pick<
   Product,
-  "slug" | "name" | "category" | "sku" | "image" | "price" | "compareAtPrice" | "rating" | "reviewCount" | "stock"
+  "slug" | "name" | "category" | "niche" | "sku" | "image" | "price" | "compareAtPrice" | "rating" | "reviewCount" | "stock"
 > & {
   available: boolean;
   /** Referencias de variante aptas para que el cliente cotice; el servidor
@@ -151,6 +151,7 @@ export function toStorefrontProduct(product: Product): StorefrontProduct {
     slug: product.slug,
     name: presentation.title,
     category: product.category,
+    niche: product.niche,
     sku: product.sku,
     image: { ...product.image, alt: presentation.imageAlt },
     price: product.price,
