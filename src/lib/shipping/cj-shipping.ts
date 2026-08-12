@@ -181,16 +181,16 @@ function cacheKey(product: Product, variantSku: string, quantity: number, destin
 
 function selectedVariant(product: Product, requestedSku?: string) {
   if (!product.variants.length) {
-    throw new CjShippingQuoteError("CJ no reportó variantes verificables para este producto; no se puede cotizar ni cobrar todavía.");
+    throw new CjShippingQuoteError("CJ no reportó estilos verificables para este producto; no se puede cotizar ni cobrar todavía.");
   }
   const normalized = requestedSku?.trim().toUpperCase();
   if (!normalized && product.variants.length > 1) {
-    throw new CjShippingQuoteError("Selecciona la variante antes de cotizar su envío.");
+    throw new CjShippingQuoteError("Selecciona el estilo antes de cotizar su envío.");
   }
   const selected = normalized
     ? product.variants.find((variant) => variant.sku.toUpperCase() === normalized)
     : product.variants[0];
-  if (!selected) throw new CjShippingQuoteError("La variante elegida ya no está disponible en el catálogo de Nexora.");
+  if (!selected) throw new CjShippingQuoteError("El estilo elegido ya no está disponible en el catálogo de Nexora.");
   return selected;
 }
 
@@ -209,11 +209,11 @@ async function resolveVariantFromCj(product: Product, selected: ProviderVariant,
     discovered = (response.data || []).find((entry) => text(entry.variantSku)?.toUpperCase() === selected.sku.toUpperCase());
     variantId = text(discovered?.vid);
   }
-  if (!variantId) throw new CjShippingQuoteError("CJ no devolvió el identificador logístico de la variante seleccionada.");
+  if (!variantId) throw new CjShippingQuoteError("CJ no devolvió el identificador logístico del estilo seleccionado.");
 
   const { variant, fetchedAt } = await queryVariantByIdCached(variantId);
   if (!variant || text(variant.variantSku)?.toUpperCase() !== selected.sku.toUpperCase()) {
-    throw new CjShippingQuoteError("CJ no pudo confirmar la variante seleccionada para el envío.");
+    throw new CjShippingQuoteError("CJ no pudo confirmar el estilo seleccionado para el envío.");
   }
   return { variantId, variant, discovered, inventoryFetchedAt: fetchedAt };
 }
@@ -237,7 +237,7 @@ function sourceInventoryFrom(variant: CjVariant) {
     ? candidates.filter((inventory) => inventory.quantity > 0)
     : candidates)
     .sort((left, right) => right.quantity - left.quantity || left.country.localeCompare(right.country));
-  if (!eligible.length) throw new CjShippingQuoteError("CJ no reportó un país de inventario disponible para esta variante.");
+  if (!eligible.length) throw new CjShippingQuoteError("CJ no reportó un país de inventario disponible para este estilo.");
   return { countryCode: eligible[0].country, verifiedStock: Math.max(0, Math.floor(eligible[0].quantity)) };
 }
 
@@ -248,7 +248,7 @@ function dimensionsFrom(variant: CjVariant, catalogVariant: ProviderVariant) {
   const volumeMm3 = positive(variant.variantVolume) || catalogVariant.volumeCubicMillimeters
     || (lengthMm && widthMm && heightMm ? lengthMm * widthMm * heightMm : undefined);
   if (!lengthMm || !widthMm || !heightMm || !volumeMm3) {
-    throw new CjShippingQuoteError("CJ no reportó dimensiones suficientes para cotizar esta variante sin estimaciones.");
+    throw new CjShippingQuoteError("CJ no reportó dimensiones suficientes para cotizar este estilo sin estimaciones.");
   }
   return { lengthCm: lengthMm / 10, widthCm: widthMm / 10, heightCm: heightMm / 10, volumeCm3: volumeMm3 / 1000 };
 }
@@ -256,7 +256,7 @@ function dimensionsFrom(variant: CjVariant, catalogVariant: ProviderVariant) {
 function weightFrom(product: Product, variant: CjVariant, catalogVariant: ProviderVariant) {
   const unitWeight = positive(variant.variantWeight) || catalogVariant.weightGrams || product.shipping.productWeightGrams;
   const wrapWeight = product.shipping.packingWeightGrams || unitWeight;
-  if (!unitWeight || !wrapWeight) throw new CjShippingQuoteError("CJ no reportó el peso necesario para cotizar esta variante sin estimaciones.");
+  if (!unitWeight || !wrapWeight) throw new CjShippingQuoteError("CJ no reportó el peso necesario para cotizar este estilo sin estimaciones.");
   return { unitWeightGrams: Math.ceil(unitWeight), wrapWeightGrams: Math.ceil(wrapWeight) };
 }
 
@@ -359,7 +359,7 @@ function parseOptions(payload: CjFreightResponse, sourceCountryCode: string, exc
     const detail = [...blockedReasons].slice(0, 2).join(" ");
     throw new CjShippingQuoteError(detail
       ? `CJ requiere corregir datos de entrega antes de ofrecer un método: ${detail}`
-      : "CJ no encontró un método de envío disponible para esa variante y destino.");
+      : "CJ no encontró un método de envío disponible para ese estilo y destino.");
   }
   options[0] = { ...options[0], recommendation: "cheapest" };
   const fastestIndex = options.reduce((best, option, index) => {
@@ -401,7 +401,7 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     const sourceInventory = sourceInventoryFrom(variant);
     const originCountryCode = sourceInventory.countryCode;
     if (sourceInventory.verifiedStock > 0 && sourceInventory.verifiedStock < quantity) {
-      throw new CjShippingQuoteError(`CJ solo confirmó ${sourceInventory.verifiedStock} unidades disponibles de esta variante.`);
+      throw new CjShippingQuoteError(`CJ solo confirmó ${sourceInventory.verifiedStock} unidades disponibles de este estilo.`);
     }
     const dimensions = dimensionsFrom(variant, catalogVariant);
     const weight = weightFrom(product, variant, catalogVariant);

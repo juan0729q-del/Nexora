@@ -182,7 +182,7 @@ export default async function ProductPage({ params }: Props) {
           {product.variants.length > 0 && (
             <section className="mt-5 rounded-2xl border border-silver/15 bg-white/[0.025] p-5" aria-labelledby="variants-title">
               <h3 id="variants-title" className="text-base font-semibold text-white">Opciones indicadas por el proveedor</h3>
-              <p className="mt-2 text-xs leading-5 text-silver/60">Estas son las variantes oficiales de CJ. Elige el acabado o medida en el control de compra; Nexora conservará y validará su SKU exacto al cotizar el envío y preparar el pago.</p>
+              <p className="mt-2 text-xs leading-5 text-silver/60">Estos son los estilos oficiales de CJ. Elige el acabado o medida en el control de compra; Nexora conservará y validará su referencia exacta al cotizar el envío y preparar el pago.</p>
               <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {product.variants.map((variant) => (
                   <div key={variant.sku} className="rounded-xl border border-silver/10 p-3 text-sm">

@@ -7,7 +7,7 @@ import { toStorefrontProduct } from "@/lib/product-presentation";
 
 export const metadata: Metadata = {
   title: "Carrito y envío",
-  description: "Revisa cantidades, variantes y opciones de envío oficiales de CJ antes de pagar con Wompi.",
+  description: "Revisa cantidades, estilos y opciones de envío oficiales de CJ antes de pagar con Wompi.",
   alternates: { canonical: "/carrito" },
   robots: { index: false, follow: true },
 };

@@ -119,7 +119,7 @@ export async function POST(request: Request) {
       if (quoteToken.productSlug !== product.slug || quoteToken.productPriceCop !== product.price
         || quoteToken.productSubtotalCop !== product.price * requested.quantity || quoteToken.quantity !== requested.quantity
         || quoteToken.variantSku.toUpperCase() !== requested.variantSku.toUpperCase()) {
-        return NextResponse.json({ message: "Un producto, variante, cantidad o precio cambió. Vuelve a calcular el envío." }, { status: 409 });
+        return NextResponse.json({ message: "Un producto, estilo, cantidad o precio cambió. Vuelve a calcular el envío." }, { status: 409 });
       }
       const selectedShipping = selectShippingQuote(quoteToken, requested.shippingMethodId, destination);
       const shipping: CheckoutShipping = {

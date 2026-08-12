@@ -31,7 +31,7 @@ export async function TechnologyCatalogSection({ segment }: { segment: Technolog
         ) : (
           <div className="rounded-2xl border border-emerald/20 bg-emerald/[.045] p-5">
             <p className="font-medium text-white">Selección en validación</p>
-            <p className="mt-2 max-w-3xl text-sm leading-6 text-silver/70">El radar de Nexora buscará coincidencias reales en CJ. Esta sección permanecerá vacía hasta confirmar funciones, inventario, variantes e imágenes oficiales; no se publicarán productos de relleno.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-6 text-silver/70">El radar de Nexora buscará coincidencias reales en CJ. Esta sección permanecerá vacía hasta confirmar funciones, inventario, estilos e imágenes oficiales; no se publicarán productos de relleno.</p>
           </div>
         )}
       </div>

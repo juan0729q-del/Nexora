@@ -1,18 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { getProductPresentation, type StorefrontProduct } from "@/lib/product-presentation";
 import { formatCOP } from "@/lib/products";
 import { trackIntelligenceEvent } from "@/lib/intelligence/client";
 import { maxCartLines, maxCartUnits, maxUnitsPerLine, useCart } from "./cart-context";
 import { useNexy } from "./nexy-context";
 import { ProductArt } from "./product-art";
+import { QuantityStepper } from "./quantity-stepper";
 import { useOptionalProductVariant } from "./product-variant-context";
 
+type ProductStatus = {
+  message: string;
+  tone: "success" | "warning";
+};
+
 export function ProductCard({ product, priority = false, showArt = true }: { product: StorefrontProduct; priority?: boolean; showArt?: boolean }) {
-  const [status, setStatus] = useState<string | null>(null);
+  const [status, setStatus] = useState<ProductStatus | null>(null);
   const [quantity, setQuantity] = useState(1);
+  const styleSelectRef = useRef<HTMLSelectElement>(null);
   const variantContext = useOptionalProductVariant();
   const [localVariantSku, setLocalVariantSku] = useState(product.variants.length === 1 ? product.variants[0].sku : "");
   const variantSku = variantContext?.variantSku ?? localVariantSku;
@@ -29,24 +36,30 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   }
 
   function addToCart() {
-    if (!hydrated || !product.available || !variantSku) return;
+    if (!hydrated || !product.available) return;
+    if (!variantSku) {
+      setStatus({ message: "Antes de agregar este producto, selecciona el estilo que prefieres.", tone: "warning" });
+      styleSelectRef.current?.focus();
+      styleSelectRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
     const existing = items.find((item) => item.productSlug === product.slug && item.variantSku === variantSku);
     if (!existing && items.length >= maxCartLines) {
-      setStatus(`El carrito admite hasta ${maxCartLines} variantes distintas. Finaliza este pedido o quita una antes de agregar otra.`);
+      setStatus({ message: `El carrito admite hasta ${maxCartLines} estilos distintos. Finaliza este pedido o quita uno antes de agregar otro.`, tone: "warning" });
       return;
     }
     if ((existing?.quantity || 0) + quantity > maximumProductQuantity) {
-      setStatus(`Puedes llevar máximo ${maximumProductQuantity} unidad${maximumProductQuantity === 1 ? "" : "es"} de esta variante en el pedido actual.`);
+      setStatus({ message: `Puedes llevar máximo ${maximumProductQuantity} unidad${maximumProductQuantity === 1 ? "" : "es"} de este estilo en el pedido actual.`, tone: "warning" });
       return;
     }
     if (itemCount + quantity > maxCartUnits) {
-      setStatus(`El pedido admite hasta ${maxCartUnits} unidades en total para poder cotizarlo con CJ.`);
+      setStatus({ message: `El pedido admite hasta ${maxCartUnits} unidades en total para poder cotizarlo con CJ.`, tone: "warning" });
       return;
     }
     addItem({ productSlug: product.slug, variantSku, quantity });
     trackIntelligenceEvent({ type: "cart_added", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku, niche: product.niche, quantity, valueCop: product.price * quantity });
     announceInterest("buy");
-    setStatus(`${quantity} unidad${quantity === 1 ? "" : "es"} agregada${quantity === 1 ? "" : "s"}. Puedes seguir comprando o revisar el carrito.`);
+    setStatus({ message: `${quantity} unidad${quantity === 1 ? "" : "es"} agregada${quantity === 1 ? "" : "s"}. Puedes seguir comprando o revisar el carrito.`, tone: "success" });
   }
 
   const reviewSummary = product.reviewCount > 0 && product.rating > 0
@@ -71,23 +84,22 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
         {product.compareAtPrice && <p className="text-xs text-silver/45 line-through">{formatCOP(product.compareAtPrice)}</p>}
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_7rem]">
-        <label className="text-xs font-semibold text-white">Variante
-          <select value={variantSku} onChange={(event) => { const next = event.target.value; setVariantSku(next); setStatus(null); if (next) trackIntelligenceEvent({ type: "variant_selected", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku: next, niche: product.niche }); }} disabled={!product.available} required className="mt-1.5 w-full rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm font-normal text-white focus:border-emerald focus:outline-none disabled:opacity-50">
-            {product.variants.length !== 1 && <option value="">Selecciona una variante</option>}
+      <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_9rem]">
+        <label className="text-xs font-semibold text-white">Estilo
+          <select ref={styleSelectRef} value={variantSku} onChange={(event) => { const next = event.target.value; setVariantSku(next); setStatus(null); if (next) trackIntelligenceEvent({ type: "variant_selected", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku: next, niche: product.niche }); }} disabled={!product.available} required aria-invalid={status?.tone === "warning" && !variantSku} aria-describedby={`${product.slug}-style-help`} className={`mt-1.5 min-h-11 w-full rounded-lg border bg-onyx px-3 py-2 text-sm font-normal text-white focus:border-emerald focus:outline-none disabled:opacity-50 ${status?.tone === "warning" && !variantSku ? "border-amber-300" : "border-silver/25"}`}>
+            {product.variants.length !== 1 && <option value="">Selecciona un estilo</option>}
             {product.variants.map((variant) => <option key={variant.sku} value={variant.sku}>{variant.options || variant.label}</option>)}
           </select>
         </label>
-        <label className="text-xs font-semibold text-white">Cantidad
-          <input type="number" min={1} max={maximumProductQuantity} inputMode="numeric" value={quantity} onChange={(event) => setQuantity(Math.min(maximumProductQuantity, Math.max(1, Number(event.target.value) || 1)))} disabled={!product.available} className="mt-1.5 w-full rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm font-normal text-white focus:border-emerald focus:outline-none disabled:opacity-50" />
-        </label>
+        <QuantityStepper value={quantity} max={maximumProductQuantity} onChange={setQuantity} disabled={!product.available} />
       </div>
-      {!product.variants.length && <p className="mt-3 rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-200">CJ no reportó una variante verificable; este artículo no puede añadirse al checkout todavía.</p>}
+      {product.variants.length > 1 && !variantSku && <p id={`${product.slug}-style-help`} className="mt-2 text-xs text-amber-100">Elige un estilo para continuar con tu compra.</p>}
+      {!product.variants.length && <p className="mt-3 rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-200">CJ no reportó un estilo verificable; este artículo no puede añadirse al checkout todavía.</p>}
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !variantSku || !product.variants.length} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
+        <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !product.variants.length} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
         <Link href="/carrito" className="rounded-full border border-silver/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald hover:text-emerald">Ver carrito</Link>
       </div>
-      {status && <p aria-live="polite" className="mt-3 text-xs text-emerald">{status}</p>}
+      {status && <p role={status.tone === "warning" ? "alert" : "status"} className={`mt-3 rounded-lg px-3 py-2 text-xs ${status.tone === "warning" ? "bg-amber-300/10 text-amber-100" : "bg-emerald/10 text-emerald"}`}>{status.message}</p>}
     </div>
   </article>;
 }

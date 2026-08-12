@@ -11,6 +11,7 @@ import type { CartShippingQuoteResponse, CjShippingQuoteOption, ShippingDestinat
 import { maxCartUnits, maxUnitsPerLine, useCart } from "./cart-context";
 import { ProductArt } from "./product-art";
 import { ColombiaLocationFields } from "./colombia-location-fields";
+import { QuantityStepper } from "./quantity-stepper";
 
 const emptyDestination: ShippingDestinationInput = {
   recipientName: "",
@@ -289,7 +290,7 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
     {auditId && <aside className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-300/30 bg-sky-300/[.06] p-4" aria-label="Auditoría de compra activa">
       <div>
         <p className="text-sm font-semibold text-sky-100">Bitácora privada de prueba activa</p>
-        <p className="mt-1 text-xs leading-5 text-silver/65">Registra tiempos, variantes, tarifas, totales y estados técnicos. No guarda tus datos de contacto, dirección, tarjeta ni credenciales.</p>
+        <p className="mt-1 text-xs leading-5 text-silver/65">Registra tiempos, estilos, tarifas, totales y estados técnicos. No guarda tus datos de contacto, dirección, tarjeta ni credenciales.</p>
       </div>
       <button type="button" onClick={() => downloadCheckoutAudit()} className="rounded-lg border border-sky-200/35 px-3 py-2 text-xs font-semibold text-sky-100 hover:border-sky-100">Descargar bitácora JSON</button>
     </aside>}
@@ -299,12 +300,12 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
       <p className="mt-2 text-sm text-silver/70">Estamos recuperando los artículos guardados en este dispositivo.</p>
     </div> : !items.length ? <div className="mt-10 rounded-2xl border border-silver/15 bg-white/[.025] p-8 text-center">
       <p className="text-lg font-semibold text-white">Tu carrito está vacío.</p>
-      <p className="mt-2 text-sm text-silver/65">Elige una variante y cantidad desde cualquier producto.</p>
+      <p className="mt-2 text-sm text-silver/65">Elige un estilo y la cantidad desde cualquier producto.</p>
       <Link href="/" className="mt-5 inline-flex rounded-full bg-emerald px-5 py-2.5 text-sm font-bold text-onyx">Explorar productos</Link>
     </div> : <>
       {invalidItems.length > 0 && <div className="mt-8 rounded-2xl border border-amber-300/30 bg-amber-300/[.07] p-4" role="alert">
         <p className="font-semibold text-amber-100">Revisa {invalidItems.length === 1 ? "un artículo" : `${invalidItems.length} artículos`} antes de cotizar.</p>
-        <p className="mt-1 text-sm leading-6 text-silver/75">Alguna variante cambió, perdió disponibilidad o ya no está en el catálogo. Retírala del carrito y elige una opción vigente.</p>
+        <p className="mt-1 text-sm leading-6 text-silver/75">Algún estilo cambió, perdió disponibilidad o ya no está en el catálogo. Retira el artículo del carrito y elige una opción vigente.</p>
       </div>}
       <div className="mt-8 space-y-3">
         {visibleItems.map((item) => {
@@ -318,14 +319,12 @@ export function CartCheckout({ products }: { products: StorefrontProduct[] }) {
             <div className="w-28"><ProductArt product={item.product} image={variant?.image} alt={variant?.image?.alt || item.product.image.alt} /></div>
             <div>
               <h2 className="font-semibold text-white">{item.product.name}</h2>
-              <p className="mt-1 text-xs text-silver/60">Variante: {variant?.options || variant?.label || item.variantSku}</p>
+              <p className="mt-1 text-xs text-silver/60">Estilo: {variant?.options || variant?.label || item.variantSku}</p>
               <p className="mt-2 text-sm font-semibold text-emerald">{formatCOP(item.product.price)} por unidad</p>
-              {!item.product.available || !variant || item.product.stock < item.quantity ? <p className="mt-2 text-xs font-semibold text-amber-100">No disponible para esta cantidad o variante.</p> : null}
+              {!item.product.available || !variant || item.product.stock < item.quantity ? <p className="mt-2 text-xs font-semibold text-amber-100">No disponible para esta cantidad o estilo.</p> : null}
             </div>
             <div className="flex items-end gap-3">
-              <label className="text-xs font-semibold text-white">Cantidad
-                <input type="number" min={1} max={maximumQuantity} value={item.quantity} onChange={(event) => { const quantity = Math.min(maximumQuantity, Math.max(1, Number(event.target.value) || 1)); updateQuantity(item.productSlug, item.variantSku, quantity); recordCheckoutAuditEvent("cart-quantity-changed", { productSlug: item.productSlug, variantSku: item.variantSku, quantity }); clearQuote(); }} className="mt-1 block w-20 rounded-lg border border-silver/25 bg-onyx px-3 py-2 text-sm text-white focus:border-emerald focus:outline-none" />
-              </label>
+              <QuantityStepper value={item.quantity} max={maximumQuantity} onChange={(quantity) => { updateQuantity(item.productSlug, item.variantSku, quantity); recordCheckoutAuditEvent("cart-quantity-changed", { productSlug: item.productSlug, variantSku: item.variantSku, quantity }); clearQuote(); }} className="w-36" />
               <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); trackIntelligenceEvent({ type: "cart_removed", page: "/carrito", productSlug: item.productSlug, productSku: item.product.sku, variantSku: item.variantSku, niche: item.product.niche, quantity: item.quantity, valueCop: item.product.price * item.quantity }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">Quitar</button>
             </div>
           </article>;
