@@ -34,9 +34,10 @@ for (const [index, product] of products.entries()) {
     continue;
   }
   if (!nonEmpty(product.slug) || slugs.has(product.slug)) errors.push(`${label} tiene slug vacío o duplicado.`);
-  if (!nonEmpty(product.sku) || skus.has(product.sku)) errors.push(`${label} tiene SKU vacío o duplicado.`);
+  const normalizedSku = nonEmpty(product.sku) ? product.sku.trim().toUpperCase() : "";
+  if (!normalizedSku || !/^[A-Z0-9-]{4,64}$/.test(normalizedSku) || skus.has(normalizedSku)) errors.push(`${label} tiene SKU vacío, duplicado o incompatible con el enlace corto /p/SKU.`);
   slugs.add(product.slug);
-  skus.add(product.sku);
+  skus.add(normalizedSku);
 
   if (!niches.includes(product.niche)) errors.push(`${label} tiene un nicho desconocido.`);
   else counts[product.niche] += 1;

@@ -43,7 +43,8 @@ export async function getProduct(slug: string) {
 
 /** Recupera el producto CJ desde una referencia de pago que conserva el SKU. */
 export async function getProductBySku(sku: string) {
-  return (await getCatalog()).find((product) => product.sku === sku);
+  const normalizedSku = sku.trim().toUpperCase();
+  return (await getCatalog()).find((product) => product.sku.toUpperCase() === normalizedSku);
 }
 
 export function getCatalogImportMetadata() {
