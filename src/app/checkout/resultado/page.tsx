@@ -1,16 +1,12 @@
-import { CheckoutResultStatus } from "@/components/store/checkout-result-status";
+import { permanentRedirect } from "next/navigation";
 
-export const metadata = { title: "Estado del pago", robots: { index: false, follow: false } };
+export const metadata = { robots: { index: false, follow: false } };
 
-type CheckoutSearchParams = {
-  provider?: string;
-  reference?: string;
-  id?: string;
-};
+type CheckoutSearchParams = { provider?: string; reference?: string; id?: string };
 
-export default async function CheckoutResult({ searchParams }: { searchParams: Promise<CheckoutSearchParams> }) {
-  const { provider, reference, id } = await searchParams;
-  return <main id="page-content" tabIndex={-1} className="grid min-h-screen place-items-center px-5 outline-none">
-    <CheckoutResultStatus provider={provider} transactionId={id} reference={reference} />
-  </main>;
+export default async function LegacyCheckoutResult({ searchParams }: { searchParams: Promise<CheckoutSearchParams> }) {
+  const params = await searchParams;
+  const target = new URL("https://nexora.invalid/co/checkout/resultado");
+  Object.entries(params).forEach(([key, value]) => { if (value) target.searchParams.set(key, value); });
+  permanentRedirect(`${target.pathname}${target.search}`);
 }

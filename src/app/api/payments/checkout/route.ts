@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
 import { CjAuthenticationError, CjQuotaError, CjRequestError, createCjClient } from "@/lib/automation/cj-client";
 import { getCatalog } from "@/lib/catalog-store";
+import { isMarket, markets } from "@/lib/i18n/config";
 import {
   PaymentConfigurationError,
   PaymentProviderError,
@@ -10,9 +11,10 @@ import {
   type CheckoutLineItem,
 } from "@/lib/payments/hosted-checkout";
 import { isStoreProductAvailable } from "@/lib/products";
-import { getSalesLedgerStatus, recordCheckoutCreated } from "@/lib/sales-ledger";
+import { getSalesLedgerStatus, recordCheckoutCreated, SalesLedgerError } from "@/lib/sales-ledger";
 import { getSiteUrl } from "@/lib/site";
 import { CjShippingQuoteError, normalizeCjShippingDestination } from "@/lib/shipping/cj-shipping";
+import { checkoutQuoteMatches } from "@/lib/shipping/checkout-quote-validation";
 import { readShippingQuoteToken, selectShippingQuote, ShippingQuoteTokenError } from "@/lib/shipping/quote-token";
 import type { CheckoutShipping, ShippingDestinationInput } from "@/lib/shipping/types";
 import { CheckoutRateLimitError, enforceCheckoutRateLimit } from "@/lib/shipping/quote-rate-limit";
@@ -97,7 +99,8 @@ function canTrustQuotedInventory(verifiedAt: string, verifiedStock: number, quan
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json() as { customerEmail?: unknown; destination?: unknown; items?: unknown };
+    const body = await request.json() as { market?: unknown; customerEmail?: unknown; destination?: unknown; items?: unknown };
+    if (typeof body.market !== "string" || !isMarket(body.market)) return NextResponse.json({ message: "Selecciona un mercado válido antes de pagar." }, { status: 400 });
     const requestedItems = checkoutItemsFrom(body.items);
     if (!requestedItems) return NextResponse.json({ message: "El carrito o sus cantidades no son válidos. Vuelve a revisarlo antes de pagar." }, { status: 400 });
     const email = customerEmail(body.customerEmail);
@@ -116,9 +119,15 @@ export async function POST(request: Request) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
       const quoteToken = readShippingQuoteToken(requested.shippingQuoteToken);
-      if (quoteToken.productSlug !== product.slug || quoteToken.productPriceCop !== product.price
-        || quoteToken.productSubtotalCop !== product.price * requested.quantity || quoteToken.quantity !== requested.quantity
-        || quoteToken.variantSku.toUpperCase() !== requested.variantSku.toUpperCase()) {
+      if (!checkoutQuoteMatches(quoteToken, {
+        market: body.market,
+        locale: markets[body.market].locale,
+        currency: markets[body.market].currency,
+        productSlug: product.slug,
+        productPriceCop: product.price,
+        quantity: requested.quantity,
+        variantSku: requested.variantSku,
+      })) {
         return NextResponse.json({ message: "Un producto, estilo, cantidad o precio cambió. Vuelve a calcular el envío." }, { status: 409 });
       }
       const selectedShipping = selectShippingQuote(quoteToken, requested.shippingMethodId, destination);
@@ -150,6 +159,7 @@ export async function POST(request: Request) {
       checkoutItems.push({
         product,
         quantity: requested.quantity,
+        unitPrice: quoteToken.productPrice,
         shipping,
         supplierCostUsd: quoteToken.supplierCostUsd,
         exchangeRateCopPerUsd: quoteToken.exchangeRateCopPerUsd,
@@ -157,11 +167,16 @@ export async function POST(request: Request) {
     }
 
     const ledger = getSalesLedgerStatus();
-    if (!ledger.configured && requireSalesLedger()) {
+    if (!ledger.configured && (body.market === "us" || requireSalesLedger())) {
       return NextResponse.json({ message: "El registro seguro de pedidos está terminando de conectarse. Intenta nuevamente en unos minutos; no se realizará ningún cobro mientras no quede listo." }, { status: 503 });
     }
-    const checkout = await createHostedCheckout(checkoutItems, getCheckoutSiteUrl(request), email);
-    if (ledger.configured) await recordCheckoutCreated(checkout);
+    const checkout = await createHostedCheckout(checkoutItems, getCheckoutSiteUrl(request), email, {
+      market: body.market,
+      locale: markets[body.market].locale,
+      currency: markets[body.market].currency,
+      exchangeRateCopPerUsd: checkoutItems[0]?.exchangeRateCopPerUsd || 0,
+      rateUpdatedAt: readShippingQuoteToken(requestedItems[0].shippingQuoteToken).rateUpdatedAt,
+    }, ledger.configured ? recordCheckoutCreated : undefined);
     return NextResponse.json(toPublicCheckoutSession(checkout), { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ message: "Solicitud de compra inválida." }, { status: 400 });
@@ -182,6 +197,7 @@ export async function POST(request: Request) {
     }
     if (error instanceof PaymentConfigurationError) return NextResponse.json({ message: error.message }, { status: 503 });
     if (error instanceof PaymentProviderError) return NextResponse.json({ message: error.message }, { status: 502 });
+    if (error instanceof SalesLedgerError) return NextResponse.json({ message: "El libro privado no pudo registrar la orden. No se creó ningún pago; inténtalo nuevamente." }, { status: 503 });
     console.error("Unexpected checkout error", { error: error instanceof Error ? error.message : "unknown" });
     return NextResponse.json({ message: "No fue posible preparar el pago." }, { status: 500 });
   }

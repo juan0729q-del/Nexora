@@ -4,8 +4,13 @@ import { createCipheriv, createDecipheriv, createHash, createHmac, randomBytes }
 import type { CjShippingQuoteOption, ShippingDestinationInput } from "./types";
 
 type QuoteTokenPayload = {
-  version: 3;
+  version: 4;
+  market: "co" | "us";
+  locale: "es-CO" | "en-US";
+  currency: "COP" | "USD";
   productSlug: string;
+  productPrice: number;
+  productSubtotal: number;
   productPriceCop: number;
   productSubtotalCop: number;
   quantity: number;
@@ -15,6 +20,7 @@ type QuoteTokenPayload = {
   expiresAt: string;
   supplierCostUsd: number;
   exchangeRateCopPerUsd: number;
+  rateUpdatedAt: string;
   inventoryVerifiedAt: string;
   verifiedStock: number;
   selectedOptions: CjShippingQuoteOption[];
@@ -91,12 +97,18 @@ export function readShippingQuoteToken(token: unknown): QuoteTokenPayload {
     const parsed = JSON.parse(Buffer.concat([decipher.update(packed.subarray(28)), decipher.final()]).toString("utf8")) as Partial<QuoteTokenPayload>;
     const expiresAt = typeof parsed.expiresAt === "string" ? Date.parse(parsed.expiresAt) : NaN;
     const inventoryVerifiedAt = typeof parsed.inventoryVerifiedAt === "string" ? Date.parse(parsed.inventoryVerifiedAt) : NaN;
-    if (parsed.version !== 3 || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
+    if (parsed.version !== 4 || !["co", "us"].includes(String(parsed.market))
+      || !["es-CO", "en-US"].includes(String(parsed.locale)) || !["COP", "USD"].includes(String(parsed.currency))
+      || typeof parsed.productSlug !== "string" || typeof parsed.variantSku !== "string"
       || typeof parsed.destinationFingerprint !== "string" || !Number.isFinite(parsed.productPriceCop)
+      || !Number.isFinite(parsed.productPrice) || (parsed.productPrice || 0) <= 0
+      || !Number.isFinite(parsed.productSubtotal) || (parsed.productSubtotal || 0) <= 0
       || !Number.isSafeInteger(parsed.productSubtotalCop) || (parsed.productSubtotalCop || 0) <= 0
       || !Number.isSafeInteger(parsed.quantity) || (parsed.quantity || 0) < 1 || (parsed.quantity || 0) > 10
       || parsed.productSubtotalCop !== (parsed.productPriceCop || 0) * (parsed.quantity || 0)
+      || Math.abs((parsed.productSubtotal || 0) - (parsed.productPrice || 0) * (parsed.quantity || 0)) > 0.011
       || !Number.isFinite(parsed.supplierCostUsd) || !Number.isFinite(parsed.exchangeRateCopPerUsd)
+      || typeof parsed.rateUpdatedAt !== "string" || !Number.isFinite(Date.parse(parsed.rateUpdatedAt))
       || !Number.isFinite(inventoryVerifiedAt) || !Number.isSafeInteger(parsed.verifiedStock) || (parsed.verifiedStock || 0) < 0
       || !Array.isArray(parsed.selectedOptions) || !parsed.selectedOptions.every(validOption)
       || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) {

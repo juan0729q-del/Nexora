@@ -6,6 +6,7 @@ import { getProductPresentation } from "@/lib/product-presentation";
 import { niches, type Product } from "@/lib/products";
 import type { CheckoutSession } from "@/lib/payments/hosted-checkout";
 import type { VerifiedWompiTransaction } from "@/lib/payments/webhooks";
+import { paypalCaptureEventId, type VerifiedPayPalCapture } from "@/lib/payments/paypal-core";
 import type { IntelligenceEvent, IntelligenceEventSummary, IntelligenceProposal } from "@/lib/intelligence/types";
 
 type SalesLedgerConfiguration = {
@@ -33,6 +34,11 @@ type LedgerShipping = {
   quotedAt?: string;
 };
 type LedgerFinance = {
+  orderTotal?: number;
+  productSubtotal?: number;
+  shippingCharged?: number;
+  supplierShippingCost?: number;
+  supplierCost?: number;
   orderTotalCop?: number;
   productSubtotalCop?: number;
   shippingChargedCop?: number;
@@ -54,6 +60,9 @@ type LedgerOrderItem = {
   quantity: number;
   unitPriceCop: number;
   subtotalCop: number;
+  unitPrice: number;
+  subtotal: number;
+  currency: "COP" | "USD";
   supplierCostUsd: number;
   shippingMethod: string;
   shippingCarrier?: string;
@@ -61,6 +70,7 @@ type LedgerOrderItem = {
   shippingOriginCountryCode: string;
   shippingOptionId: string;
   shippingCostCop: number;
+  shippingCost: number;
 };
 type LedgerOrder = {
   id: string;
@@ -72,7 +82,11 @@ type LedgerOrder = {
   productName?: string;
   niche?: string;
   quantity?: number;
-  currency?: "COP";
+  market?: "co" | "us";
+  locale?: "es-CO" | "en-US";
+  currency?: "COP" | "USD";
+  exchangeRateCopPerUsd?: number;
+  rateUpdatedAt?: string;
   customer?: LedgerCustomer;
   shipping?: LedgerShipping;
   finance?: LedgerFinance;
@@ -82,6 +96,9 @@ type LedgerPayment = {
   id?: string;
   status?: string;
   amountCop?: number;
+  amount?: number;
+  currency?: "COP" | "USD";
+  provider?: "wompi" | "paypal";
   method?: string;
   updatedAt?: string;
 };
@@ -100,7 +117,7 @@ type LedgerEvent = {
   eventId: string;
   type: "checkout.created" | "payment.updated" | "fulfillment.updated";
   occurredAt: string;
-  source: "nexora" | "wompi" | "cj";
+  source: "nexora" | "wompi" | "paypal" | "cj";
   detail?: string;
   needsReview?: boolean;
   order: LedgerOrder;
@@ -128,6 +145,14 @@ export type SalesLedgerOrder = {
   variantLabel: string | null;
   customerEmail: string | null;
   shippingSummary: string | null;
+  grossAmount: number | null;
+  orderTotal: number | null;
+  productSubtotal: number | null;
+  shippingCharged: number | null;
+  supplierShippingCost: number | null;
+  supplierCost: number | null;
+  paymentProvider: string | null;
+  paymentTransactionId: string | null;
   grossAmountCop: number | null;
   wompiFeeCop: number | null;
   estimatedContributionCop: number | null;
@@ -144,6 +169,23 @@ export type SalesLedgerOrder = {
   trackingUrl: string | null;
   fulfillmentNote: string | null;
   needsReview: boolean;
+  market: "co" | "us" | null;
+  locale: "es-CO" | "en-US" | null;
+  currency: "COP" | "USD" | null;
+  exchangeRateCopPerUsd: number | null;
+  rateUpdatedAt: string | null;
+};
+
+export type SalesLedgerPaymentStatus = {
+  reference: string;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+  paymentProvider: string | null;
+  paymentTransactionId: string | null;
+  expectedAmount: number | null;
+  paidAmount: number | null;
+  currency: "COP" | "USD" | null;
+  needsReview: boolean;
 };
 
 export type SalesLedgerDailyMetric = {
@@ -154,16 +196,22 @@ export type SalesLedgerDailyMetric = {
 
 export type SalesLedgerDashboard = {
   approvedOrders: number;
+  approvedOrdersCop: number;
+  approvedOrdersUsd: number;
   grossRevenueCop: number;
+  grossRevenueUsd: number;
   netPayoutCop: number;
   averageTicketCop: number;
+  averageTicketUsd: number;
   approvalRatePercent: number;
   pendingOrders: number;
   declinedOrders: number;
   fulfillmentPending: number;
   fulfillmentInTransit: number;
   shippingRevenueCop: number;
+  shippingRevenueUsd: number;
   supplierShippingCostCop: number;
+  supplierShippingCostUsd: number;
   shippingMarginCop: number;
   contributionCop: number;
   recentOrders: SalesLedgerOrder[];
@@ -177,7 +225,7 @@ export type IntelligenceLedgerSnapshot = {
 
 export class SalesLedgerError extends Error {}
 
-const EXPECTED_LEDGER_CONTRACT = "2026-08-01.3";
+const EXPECTED_LEDGER_CONTRACT = "2026-08-13.6";
 type LedgerContractCache = { endpoint: string; checkedAt: number; ok: boolean };
 let ledgerContractCache: LedgerContractCache | null = null;
 
@@ -307,12 +355,23 @@ function makeFinance(checkout: CheckoutSession): LedgerFinance {
     0,
   );
   const supplierShippingCostCop = checkout.shippingCostCop;
-  const estimate = estimateContribution({
+  const estimate = checkout.currency === "COP" ? estimateContribution({
     salePriceCop: checkout.amountCop,
     supplierCostCop: supplierCostCop + supplierShippingCostCop,
     fulfillmentReserveCop: getFulfillmentReserveCop(),
-  });
+  }) : null;
+  const supplierCost = checkout.currency === "USD"
+    ? Math.round(checkout.items.reduce((total, item) => total + item.supplierCostUsd * item.quantity, 0) * 100) / 100
+    : supplierCostCop;
+  const supplierShippingCost = checkout.currency === "USD"
+    ? Math.round(checkout.items.reduce((total, item) => total + item.shipping.selected.amountUsd, 0) * 100) / 100
+    : supplierShippingCostCop;
   return {
+    orderTotal: checkout.amount,
+    productSubtotal: checkout.productSubtotal,
+    shippingCharged: checkout.shippingCost,
+    supplierShippingCost,
+    supplierCost,
     orderTotalCop: checkout.amountCop,
     productSubtotalCop: checkout.productSubtotalCop,
     shippingChargedCop: checkout.shippingCostCop,
@@ -320,10 +379,10 @@ function makeFinance(checkout: CheckoutSession): LedgerFinance {
     shippingQuoteUsd: checkout.items.reduce((total, item) => total + item.shipping.selected.amountUsd, 0),
     exchangeRateCopPerUsd: checkout.items[0]?.exchangeRateCopPerUsd,
     supplierCostCop,
-    wompiFeeCop: estimate.totalFeeCop,
-    netPayoutCop: Math.round(checkout.amountCop - estimate.totalFeeCop),
-    contributionCop: estimate.contributionCop,
-    contributionMargin: estimate.contributionMarginPercent / 100,
+    wompiFeeCop: estimate?.totalFeeCop,
+    netPayoutCop: estimate ? Math.round(checkout.amountCop - estimate.totalFeeCop) : undefined,
+    contributionCop: estimate?.contributionCop,
+    contributionMargin: estimate ? estimate.contributionMarginPercent / 100 : undefined,
   };
 }
 
@@ -335,11 +394,14 @@ function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
       sku: item.product.sku,
       variantSku: item.shipping.selected.variantSku,
       variantLabel: selectedVariant?.options || selectedVariant?.label,
-      productName: getProductPresentation(item.product).title,
+      productName: getProductPresentation(item.product, checkout.market).title,
       niche: niches[item.product.niche].menuLabel,
       quantity: item.quantity,
       unitPriceCop: item.product.price,
       subtotalCop: item.product.price * item.quantity,
+      unitPrice: item.unitPrice,
+      subtotal: Math.round(item.unitPrice * item.quantity * (checkout.currency === "USD" ? 100 : 1)) / (checkout.currency === "USD" ? 100 : 1),
+      currency: checkout.currency,
       supplierCostUsd: item.supplierCostUsd * item.quantity,
       shippingMethod: item.shipping.selected.method,
       shippingCarrier: item.shipping.selected.carrier || undefined,
@@ -347,19 +409,24 @@ function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
       shippingOriginCountryCode: item.shipping.selected.sourceCountryCode,
       shippingOptionId: item.shipping.selected.id,
       shippingCostCop: item.shipping.selected.amountCop,
+      shippingCost: checkout.currency === "USD" ? item.shipping.selected.amountUsd : item.shipping.selected.amountCop,
     };
   });
   const joinUnique = (values: Array<string | undefined>) => [...new Set(values.filter((value): value is string => Boolean(value)))].join(" · ").slice(0, 300);
   return {
     id: checkout.externalReference,
     reference: checkout.externalReference,
+    market: checkout.market,
+    locale: checkout.locale,
     sku: joinUnique(itemRows.map((item) => item.sku)).slice(0, 140),
     variantSku: joinUnique(itemRows.map((item) => item.variantSku)).slice(0, 180),
     variantLabel: joinUnique(itemRows.map((item) => item.variantLabel)).slice(0, 300),
     productName: itemRows.map((item) => `${item.quantity}× ${item.productName}`).join("; ").slice(0, 300),
     niche: joinUnique(itemRows.map((item) => item.niche)).slice(0, 80),
     quantity: itemRows.reduce((total, item) => total + item.quantity, 0),
-    currency: "COP",
+    currency: checkout.currency,
+    exchangeRateCopPerUsd: checkout.exchangeRateCopPerUsd,
+    rateUpdatedAt: checkout.rateUpdatedAt,
     customer: { email: first.shipping.email, name: first.shipping.recipientName, phone: first.shipping.phone },
     shipping: {
       recipient: first.shipping.recipientName,
@@ -491,6 +558,9 @@ export function createWompiTransactionUpdatedEvent(transaction: VerifiedWompiTra
       id: transaction.id,
       status,
       amountCop: salePriceCop,
+      amount: salePriceCop,
+      currency: "COP",
+      provider: "wompi",
       method: transaction.paymentMethodType,
       updatedAt: transaction.finalizedAt || transaction.createdAt || webhookTimestampToIso(transaction.webhookTimestamp),
     },
@@ -504,6 +574,34 @@ export async function recordCheckoutCreated(checkout: CheckoutSession) {
 
 export async function recordWompiTransaction(transaction: VerifiedWompiTransaction, product?: Product) {
   return send(createWompiTransactionUpdatedEvent(transaction, product));
+}
+
+export function createPayPalTransactionUpdatedEvent(transaction: VerifiedPayPalCapture): LedgerEvent {
+  return {
+    schemaVersion: 1,
+    eventId: paypalCaptureEventId(transaction.captureId, transaction.status),
+    type: "payment.updated",
+    occurredAt: transaction.updatedAt,
+    source: "paypal",
+    detail: transaction.verificationSource === "webhook"
+      ? "Captura PayPal validada con la firma oficial del webhook; el libro privado concilia referencia, moneda e importe."
+      : "Captura PayPal consultada directamente en la API oficial; el libro privado concilia referencia, moneda e importe.",
+    order: { id: transaction.reference, reference: transaction.reference, market: "us", locale: "en-US", currency: "USD" },
+    payment: {
+      id: transaction.captureId,
+      status: transaction.status,
+      amount: transaction.amount,
+      currency: "USD",
+      provider: "paypal",
+      method: "PAYPAL",
+      updatedAt: transaction.updatedAt,
+    },
+    fulfillment: { status: transaction.status === "APPROVED" ? "PAGO CONFIRMADO" : "PENDIENTE DE PAGO" },
+  };
+}
+
+export async function recordPayPalTransaction(transaction: VerifiedPayPalCapture) {
+  return send(createPayPalTransactionUpdatedEvent(transaction));
 }
 
 export async function updateFulfillment({
@@ -573,6 +671,14 @@ function parseOrder(value: unknown): SalesLedgerOrder | null {
     variantLabel: nullableString(row.variantLabel),
     customerEmail: nullableString(row.customerEmail),
     shippingSummary: nullableString(row.shippingSummary),
+    grossAmount: typeof row.grossAmount === "number" && Number.isFinite(row.grossAmount) ? row.grossAmount : null,
+    orderTotal: typeof row.orderTotal === "number" && Number.isFinite(row.orderTotal) ? row.orderTotal : null,
+    productSubtotal: typeof row.productSubtotal === "number" && Number.isFinite(row.productSubtotal) ? row.productSubtotal : null,
+    shippingCharged: typeof row.shippingCharged === "number" && Number.isFinite(row.shippingCharged) ? row.shippingCharged : null,
+    supplierShippingCost: typeof row.supplierShippingCost === "number" && Number.isFinite(row.supplierShippingCost) ? row.supplierShippingCost : null,
+    supplierCost: typeof row.supplierCost === "number" && Number.isFinite(row.supplierCost) ? row.supplierCost : null,
+    paymentProvider: nullableString(row.paymentProvider),
+    paymentTransactionId: nullableString(row.paymentTransactionId),
     grossAmountCop: typeof row.grossAmountCop === "number" && Number.isFinite(row.grossAmountCop) ? row.grossAmountCop : null,
     wompiFeeCop: typeof row.wompiFeeCop === "number" && Number.isFinite(row.wompiFeeCop) ? row.wompiFeeCop : null,
     estimatedContributionCop: typeof row.estimatedContributionCop === "number" && Number.isFinite(row.estimatedContributionCop) ? row.estimatedContributionCop : null,
@@ -589,6 +695,11 @@ function parseOrder(value: unknown): SalesLedgerOrder | null {
     trackingUrl: nullableString(row.trackingUrl),
     fulfillmentNote: nullableString(row.fulfillmentNote),
     needsReview: row.needsReview === true,
+    market: row.market === "co" || row.market === "us" ? row.market : null,
+    locale: row.locale === "es-CO" || row.locale === "en-US" ? row.locale : null,
+    currency: row.currency === "COP" || row.currency === "USD" ? row.currency : null,
+    exchangeRateCopPerUsd: typeof row.exchangeRateCopPerUsd === "number" && Number.isFinite(row.exchangeRateCopPerUsd) ? row.exchangeRateCopPerUsd : null,
+    rateUpdatedAt: nullableString(row.rateUpdatedAt),
   };
 }
 
@@ -608,16 +719,22 @@ function parseDashboard(value: unknown): SalesLedgerDashboard | null {
   const dailySales = Array.isArray(payload.dailySales) ? payload.dailySales.map(parseDailyMetric).filter((metric): metric is SalesLedgerDailyMetric => Boolean(metric)) : [];
   return {
     approvedOrders: finiteNumber(summary.approvedOrders),
+    approvedOrdersCop: finiteNumber(summary.approvedOrdersCop),
+    approvedOrdersUsd: finiteNumber(summary.approvedOrdersUsd),
     grossRevenueCop: finiteNumber(summary.grossRevenueCop),
+    grossRevenueUsd: finiteNumber(summary.grossRevenueUsd),
     netPayoutCop: finiteNumber(summary.netPayoutCop),
     averageTicketCop: finiteNumber(summary.averageTicketCop),
+    averageTicketUsd: finiteNumber(summary.averageTicketUsd),
     approvalRatePercent: finiteNumber(summary.approvalRatePercent),
     pendingOrders: finiteNumber(summary.pendingOrders),
     declinedOrders: finiteNumber(summary.declinedOrders),
     fulfillmentPending: finiteNumber(summary.fulfillmentPending),
     fulfillmentInTransit: finiteNumber(summary.fulfillmentInTransit),
     shippingRevenueCop: finiteNumber(summary.shippingRevenueCop),
+    shippingRevenueUsd: finiteNumber(summary.shippingRevenueUsd),
     supplierShippingCostCop: finiteNumber(summary.supplierShippingCostCop),
+    supplierShippingCostUsd: finiteNumber(summary.supplierShippingCostUsd),
     shippingMarginCop: finiteNumber(summary.shippingMarginCop),
     contributionCop: finiteNumber(summary.contributionCop),
     recentOrders,
@@ -687,6 +804,32 @@ export async function syncIntelligenceProposals(proposals: IntelligenceProposal[
 
 export async function decideIntelligenceProposal(proposalId: string, decision: "authorized" | "rejected", note: string) {
   return sendSignedAction<{ proposalId: string; status: string; decidedAt: string }>({ action: "intelligence.decision", proposalId, decision, note });
+}
+
+function parsePaymentStatus(value: unknown): SalesLedgerPaymentStatus | null {
+  if (!value || typeof value !== "object") return null;
+  const row = value as Record<string, unknown>;
+  const reference = stringValue(row.reference);
+  const currency = stringValue(row.currency).toUpperCase();
+  if (!reference) return null;
+  return {
+    reference,
+    paymentStatus: stringValue(row.paymentStatus) || "PENDING",
+    fulfillmentStatus: stringValue(row.fulfillmentStatus) || "PENDIENTE DE PAGO",
+    paymentProvider: nullableString(row.paymentProvider),
+    paymentTransactionId: nullableString(row.paymentTransactionId),
+    expectedAmount: typeof row.expectedAmount === "number" && Number.isFinite(row.expectedAmount) ? row.expectedAmount : null,
+    paidAmount: typeof row.paidAmount === "number" && Number.isFinite(row.paidAmount) ? row.paidAmount : null,
+    currency: currency === "COP" || currency === "USD" ? currency : null,
+    needsReview: row.needsReview === true,
+  };
+}
+
+/** Lectura firmada y sin efectos financieros de una orden privada concreta. */
+export async function getPersistedSalesOrder(reference: string) {
+  if (!getConfiguration()) return null;
+  const result = await sendSignedAction<unknown>({ action: "sales.order.read", reference });
+  return parsePaymentStatus(result);
 }
 
 /** Registra propuesta y decisión bajo una sola operación firmada. */

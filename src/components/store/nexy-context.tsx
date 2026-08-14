@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
 
 export type NexyProductInterest = {
   category: string;
+  market: "co" | "us";
 };
 
 type NexyIntent = "view" | "buy";
@@ -41,6 +42,29 @@ const giftMessages = {
   ],
 };
 
+const giftMessagesEnglish = {
+  jewelry: [
+    "This could look wonderful on you—or become a thoughtful gift for someone special. 🎁",
+    "A small piece can say a great deal. Is it for you or someone you care about? ✨",
+    "A touch of character can turn an ordinary moment into a memorable one. 💎",
+  ],
+  technologyHome: [
+    "A practical gift idea with a thoughtful point of view. 🎁",
+    "For someone who enjoys making everyday spaces work a little better.",
+    "A useful detail can still feel personal. ✨",
+  ],
+  wellbeing: [
+    "Making room for a personal pause can be a thoughtful gift. 🌿",
+    "A considered choice for a more intentional routine.",
+    "A simple way to make an everyday routine feel more personal. 💎",
+  ],
+  general: [
+    "This could suit you—or become a thoughtful gift for someone special. 🎁",
+    "Can you imagine the smile behind this gift? ✨",
+    "A good choice starts with something that feels personal.",
+  ],
+};
+
 function chooseMessage(messages: readonly string[]) {
   return messages[Math.floor(Math.random() * messages.length)];
 }
@@ -54,9 +78,11 @@ function getMessageCategory(category: string) {
   return "general";
 }
 
-function getProductMessage(category: string, intent: NexyIntent) {
-  const message = chooseMessage(giftMessages[getMessageCategory(category)]);
-  return intent === "buy" ? `¡Buena elección! ${message}` : message;
+function getProductMessage(product: NexyProductInterest, intent: NexyIntent) {
+  const groups = product.market === "us" ? giftMessagesEnglish : giftMessages;
+  const message = chooseMessage(groups[getMessageCategory(product.category)]);
+  if (intent !== "buy") return message;
+  return product.market === "us" ? `Great choice! ${message}` : `¡Buena elección! ${message}`;
 }
 
 function readStoredAnnouncement(): StoredNexyAnnouncement | null {
@@ -110,7 +136,7 @@ export function NexyProvider({ children }: Readonly<{ children: React.ReactNode 
   const announceProduct = useCallback((product: NexyProductInterest, intent: NexyIntent = "view") => {
     const nextAnnouncement = {
       id: Date.now(),
-      message: getProductMessage(product.category, intent),
+      message: getProductMessage(product, intent),
     };
     const expiresAt = Date.now() + ANNOUNCEMENT_DURATION_MS;
     inMemoryAnnouncement = { ...nextAnnouncement, expiresAt };

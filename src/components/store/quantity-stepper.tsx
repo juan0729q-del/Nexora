@@ -9,13 +9,14 @@ type QuantityStepperProps = {
   onChange: (quantity: number) => void;
   disabled?: boolean;
   className?: string;
+  market?: "co" | "us";
 };
 
 function clamp(value: number, min: number, max: number) {
   return Math.min(max, Math.max(min, Math.trunc(value)));
 }
 
-export function QuantityStepper({ value, min = 1, max, onChange, disabled = false, className = "" }: QuantityStepperProps) {
+export function QuantityStepper({ value, min = 1, max, onChange, disabled = false, className = "", market = "co" }: QuantityStepperProps) {
   const labelId = useId();
   const [draft, setDraft] = useState<string | null>(null);
   const displayedValue = draft ?? String(value);
@@ -35,13 +36,13 @@ export function QuantityStepper({ value, min = 1, max, onChange, disabled = fals
 
   return (
     <div className={className}>
-      <span id={labelId} className="text-xs font-semibold text-white">Cantidad</span>
+      <span id={labelId} className="text-xs font-semibold text-white">{market === "co" ? "Cantidad" : "Quantity"}</span>
       <div className="mt-1.5 grid min-h-11 grid-cols-[2.75rem_1fr_2.75rem] overflow-hidden rounded-lg border border-silver/25 bg-onyx focus-within:border-emerald">
         <button
           type="button"
           onClick={() => step(-1)}
           disabled={disabled || value <= min}
-          aria-label="Disminuir cantidad"
+          aria-label={market === "co" ? "Disminuir cantidad" : "Decrease quantity"}
           className="min-h-11 border-r border-silver/20 text-xl font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-silver/30"
         >
           −
@@ -81,7 +82,7 @@ export function QuantityStepper({ value, min = 1, max, onChange, disabled = fals
           type="button"
           onClick={() => step(1)}
           disabled={disabled || value >= max}
-          aria-label="Aumentar cantidad"
+          aria-label={market === "co" ? "Aumentar cantidad" : "Increase quantity"}
           className="min-h-11 border-l border-silver/20 text-xl font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:text-silver/30"
         >
           +

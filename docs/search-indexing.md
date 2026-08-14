@@ -1,30 +1,19 @@
-# Indexación de Nexora: Google y Bing
+# Google, Bing e IndexNow
 
-Nexora publica automáticamente `robots.txt`, `sitemap.xml`, canonicales, Open Graph, JSON-LD de `Organization` y `Product`, y un sitemap de imágenes con las URLs nativas de CJ. El mapa vigente está en:
+Nexora genera `robots.txt`, `sitemap.xml`, canonicales, Open Graph, Twitter Cards, `hreflang` para contenido realmente traducido, `BreadcrumbList`, `Product`/`Offer` y un sitemap con imágenes oficiales de CJ.
 
-```text
-https://nexora-amber-two.vercel.app/sitemap.xml
-```
+El sitemap contiene `/co` y `/us`, categorías, páginas de confianza y fichas editoriales completas. Carrito, checkout, resultados, administración, APIs y feeds quedan fuera o marcados `noindex`. No existe `AggregateRating`.
 
-## Verificar Google Search Console
+## Search Console y Bing
 
-1. Crea una propiedad de prefijo de URL para `https://nexora-amber-two.vercel.app/` en Google Search Console.
-2. Selecciona la verificación por meta tag y copia únicamente el valor de `content`.
-3. En Vercel, agrega `GOOGLE_SITE_VERIFICATION` con ese valor para Production.
-4. Haz un redeploy, confirma que la etiqueta aparece en el `<head>` y completa la verificación.
-5. Envía el sitemap anterior en **Sitemaps**.
+1. Crear propiedades para el host canónico configurado en `NEXT_PUBLIC_SITE_URL`.
+2. Guardar sólo el valor de verificación en `GOOGLE_SITE_VERIFICATION` o `BING_SITE_VERIFICATION`.
+3. Redeploy, verificar el meta tag y completar la propiedad.
+4. Enviar `https://HOST/sitemap.xml` en ambas herramientas.
+5. Inspeccionar una URL de cada mercado y comprobar canonical/hreflang recíprocos.
 
-## Verificar Bing Webmaster Tools
+IndexNow comunica diariamente URLs públicas localizadas a Bing mediante un cron protegido por `CRON_SECRET`. Google no ofrece una API general para forzar la indexación de fichas comerciales: rastreo, sitemap, Search Console y calidad del contenido siguen siendo los mecanismos correctos.
 
-1. Agrega el mismo host en Bing Webmaster Tools o impórtalo desde una propiedad ya verificada de Google Search Console.
-2. Si Bing entrega un meta tag, guarda únicamente su valor `content` como `BING_SITE_VERIFICATION` en Vercel Production.
-3. Haz un redeploy y termina la verificación.
-4. Envía el mismo sitemap en **Sitemaps**.
+## Migración de dominio
 
-## Descubrimiento rápido en Bing
-
-La clave pública de IndexNow está en `/<clave>.txt` y Vercel notifica diariamente las URLs indexables a IndexNow con el cron protegido por `CRON_SECRET`. No se expone ninguna credencial de proveedor ni de pagos. Google no dispone de una API general para forzar la indexación de fichas comerciales; para Google, el sitemap, Search Console y páginas rastreables son el mecanismo correcto.
-
-## Al cambiar a dominio propio
-
-Actualiza `NEXT_PUBLIC_SITE_URL` con el dominio HTTPS final, vuelve a desplegar y crea/valida propiedades nuevas de Google y Bing para ese host. No declares `hreflang="en-US"` hasta publicar una versión en inglés real con condiciones y moneda coherentes.
+Después de validar el dominio propio, actualizar `NEXT_PUBLIC_SITE_URL`, verificaciones, sitemap, IndexNow, Merchant Center, redes y webhooks. Revisar primero todas las URLs; sólo entonces crear redirecciones permanentes desde los hosts Vercel. Los canonicales nunca deben apuntar a un host no adquirido o no verificado.

@@ -22,6 +22,6 @@ export function trackIntelligenceEvent(input: EventInput) {
   }).catch(() => undefined);
 }
 
-export function trackSimple(type: IntelligenceEventType, page: string) {
-  trackIntelligenceEvent({ type, page });
+export function trackSimple(type: IntelligenceEventType, page: string, context: Partial<Pick<IntelligenceEvent, "market" | "locale" | "currency">> = {}) {
+  trackIntelligenceEvent({ type, page, ...context });
 }

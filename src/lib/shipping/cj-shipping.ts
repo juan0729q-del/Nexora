@@ -2,7 +2,7 @@ import "server-only";
 
 import { createHash } from "crypto";
 import { unstable_cache } from "next/cache";
-import { getUsdToCopRate, usdToCop } from "@/lib/commerce-finance";
+import { usdToCop } from "@/lib/commerce-finance";
 import type { Product } from "@/lib/products";
 import type { ProviderVariant } from "@/lib/provider-product-details";
 import { CjAuthenticationError, CjQuotaError, CjRequestError, createCjClient, getCjCredentialConfiguration, type CjClient } from "@/lib/automation/cj-client";
@@ -159,7 +159,7 @@ export function normalizeCjShippingDestination(destination: ShippingDestinationI
   };
 }
 
-function cacheKey(product: Product, variantSku: string, quantity: number, destination: ShippingDestinationInput) {
+function cacheKey(product: Product, variantSku: string, quantity: number, destination: ShippingDestinationInput, exchangeRate: number) {
   const canonical = [
     product.slug,
     variantSku.toUpperCase(),
@@ -175,6 +175,7 @@ function cacheKey(product: Product, variantSku: string, quantity: number, destin
     destination.phone,
     destination.email,
     destination.houseNumber || "",
+    String(exchangeRate),
   ].map((value) => value.normalize("NFKC").trim().toLowerCase()).join("|");
   return createHash("sha256").update(canonical).digest("hex");
 }
@@ -371,11 +372,12 @@ function parseOptions(payload: CjFreightResponse, sourceCountryCode: string, exc
   return options;
 }
 
-export async function quoteCjShipping({ product, variantSku, quantity = 1, destination, client = createCjShippingClient() }: {
+export async function quoteCjShipping({ product, variantSku, quantity = 1, destination, exchangeRateCopPerUsd, client = createCjShippingClient() }: {
   product: Product;
   variantSku?: string;
   quantity?: number;
   destination: ShippingDestinationInput;
+  exchangeRateCopPerUsd: number;
   client?: CjClient;
 }): Promise<ResolvedCjShippingQuote> {
   if (!getCjCredentialConfiguration().configured) {
@@ -386,7 +388,10 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     throw new CjShippingQuoteError("La cantidad por producto debe estar entre 1 y 10 unidades.");
   }
   const catalogVariant = selectedVariant(product, variantSku);
-  const key = cacheKey(product, catalogVariant.sku, quantity, normalizedDestination);
+  if (!Number.isFinite(exchangeRateCopPerUsd) || exchangeRateCopPerUsd < 1_000 || exchangeRateCopPerUsd > 10_000) {
+    throw new CjShippingConfigurationError("La tasa COP/USD aprobada no está disponible o no es válida.");
+  }
+  const key = cacheKey(product, catalogVariant.sku, quantity, normalizedDestination, exchangeRateCopPerUsd);
   const cached = quoteCache.get(key);
   if (cached && cached.expiresAtMs > Date.now()) return cached.quote;
   const pending = inFlightQuotes.get(key);
@@ -408,7 +413,7 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     const properties = [...new Set(product.shipping.logisticsProperties.map((property) => property.trim()).filter(Boolean))];
     if (!properties.length) throw new CjShippingQuoteError("CJ no reportó las propiedades logísticas de este producto.");
     const supplierCostUsd = positive(variant.variantSellPrice) || catalogVariant.supplierCostUsd || product.supplier.costUsd;
-    const exchangeRate = getUsdToCopRate();
+    const exchangeRate = exchangeRateCopPerUsd;
     const freightPayload = {
       reqDTOS: [{
         srcAreaCode: originCountryCode,

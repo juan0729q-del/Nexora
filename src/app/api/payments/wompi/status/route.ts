@@ -86,7 +86,7 @@ export async function GET(request: Request) {
       || persisted.fulfillmentStatus?.toUpperCase() !== "PAGO CONFIRMADO" || persisted.needsReview)) {
       return NextResponse.json({ id, reference, status: "REVIEW" }, { headers: { "Cache-Control": "no-store" } });
     }
-    return NextResponse.json({ id, reference, status }, { headers: { "Cache-Control": "no-store" } });
+    return NextResponse.json({ id, reference, status, amount: amountInCents / 100, currency }, { headers: { "Cache-Control": "no-store" } });
   } catch (error) {
     if (error instanceof PaymentStatusRateLimitError) return NextResponse.json({ message: error.message }, { status: 429, headers: { "Retry-After": "60" } });
     if (error instanceof SalesLedgerError) return NextResponse.json({ message: "Wompi respondió, pero el registro privado aún no pudo conciliar el pago. No repitas el cobro." }, { status: 503 });

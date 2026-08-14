@@ -1,4 +1,5 @@
 import type { ProductNiche } from "@/lib/products";
+import type { Market, StoreCurrency, StoreLocale } from "@/lib/i18n/config";
 
 export const intelligenceEventTypes = [
   "page_viewed",
@@ -28,6 +29,10 @@ export type IntelligenceEvent = {
   niche?: ProductNiche;
   quantity?: number;
   valueCop?: number;
+  value?: number;
+  market?: Market;
+  locale?: StoreLocale;
+  currency?: StoreCurrency;
   source?: string;
 };
 

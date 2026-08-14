@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, { params }: Context) {
     return new NextResponse("Producto no disponible", { status: 404 });
   }
 
-  const response = NextResponse.redirect(new URL(`/productos/${product.slug}`, request.url), 308);
+  const response = NextResponse.redirect(new URL(`/co/productos/${product.slug}`, request.url), 308);
   response.headers.set("Cache-Control", "public, max-age=0, s-maxage=3600, stale-while-revalidate=86400");
   return response;
 }

@@ -11,7 +11,7 @@
  */
 
 const NEXORA = Object.freeze({
-  CONTRACT_VERSION: "2026-08-01.3",
+  CONTRACT_VERSION: "2026-08-13.6",
   ORDERS_SHEET: "Pedidos",
   EVENTS_SHEET: "Eventos",
   // Conserva la pestaña creada en la primera configuración de Nexora.
@@ -46,18 +46,27 @@ const ORDER_HEADERS = [
   "SKU variante CJ", "Variante elegida",
   // Detalle estructurado del carrito para preparar cada línea exacta en CJ.
   "Artículos JSON",
+  // Contexto comercial inmutable de la orden. Permite conciliar mercados sin
+  // inferir la moneda por el país o por la fecha del pago.
+  "Mercado", "Locale", "Tasa actualizada (UTC)",
+  // Campos independientes del procesador y de la moneda. Las columnas COP
+  // anteriores se conservan como auditoría financiera de Colombia y para no
+  // romper el libro histórico.
+  "Procesador pago", "ID transacción pago", "Total pedido", "Total pagado",
+  "Subtotal productos", "Envío cobrado", "Costo proveedor", "Costo envío proveedor",
 ];
 
 const EVENT_HEADERS = [
   "ID evento", "Tipo", "Fecha evento (UTC)", "Recibido (UTC)", "Referencia Wompi",
   "ID transacción Wompi", "Estado pago", "Estado postventa", "Monto COP", "Origen",
   "Huella SHA-256", "Aviso admin", "Aviso cliente", "Detalle",
+  "Monto", "Moneda", "Procesador pago",
 ];
 
 const INTELLIGENCE_EVENT_HEADERS = [
   "ID evento", "ID sesión anónima", "Tipo", "Fecha evento (UTC)", "Recibido (UTC)",
   "Página", "Slug producto", "SKU producto", "SKU variante", "Nicho", "Cantidad",
-  "Valor COP", "Origen",
+  "Valor COP", "Origen", "Mercado", "Locale", "Moneda", "Valor",
 ];
 
 const INTELLIGENCE_DECISION_HEADERS = [
@@ -97,6 +106,9 @@ function doPost(e) {
     // ni una firma reutilizable en la URL pública del Web App.
     if (input && input.action === "admin.read") {
       return json_({ ok: true, data: readAdminSnapshot_() });
+    }
+    if (input && input.action === "sales.order.read") {
+      return json_({ ok: true, data: readSalesOrderStatus_(input.reference) });
     }
     if (input && input.action === "intelligence.events.write") {
       return json_({ ok: true, data: writeIntelligenceEvents_(input.events) });
@@ -212,6 +224,10 @@ function writeIntelligenceEvents_(incoming) {
         "Cantidad": Math.max(0, Number(event.quantity) || 0),
         "Valor COP": Math.max(0, Number(event.valueCop) || 0),
         "Origen": safeIntelligenceText_(event.source || "storefront", 60),
+        "Mercado": safeIntelligenceText_(event.market, 10),
+        "Locale": safeIntelligenceText_(event.locale, 20),
+        "Moneda": safeIntelligenceText_(event.currency, 10),
+        "Valor": Math.max(0, Number(event.value) || 0),
       };
       sheet.appendRow(INTELLIGENCE_EVENT_HEADERS.map(function (header) { return row[header]; }));
       accepted += 1;
@@ -349,6 +365,33 @@ function upsertAndDecideIntelligenceProposal_(input) {
   }
 }
 
+/**
+ * Lectura mínima, firmada y sin PII para que la página de resultado pueda
+ * consultar una conciliación ya persistida. No captura, no escribe y no envía
+ * notificaciones.
+ */
+function readSalesOrderStatus_(reference) {
+  const normalizedReference = requiredText_(reference, 140);
+  if (!/^NXR-CART-[A-Z0-9]{12,32}$/.test(normalizedReference)) throw new Error("invalid order reference");
+  const config = getConfig_();
+  const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+  const orders = ensureSheet_(spreadsheet, NEXORA.ORDERS_SHEET, ORDER_HEADERS);
+  const row = findRowByValue_(orders, ORDER_HEADERS, "Referencia Wompi", normalizedReference);
+  if (!row) return null;
+  const order = readRow_(orders, row, ORDER_HEADERS);
+  return {
+    reference: String(order["Referencia Wompi"] || ""),
+    paymentStatus: String(order["Estado pago"] || "PENDING"),
+    fulfillmentStatus: String(order["Estado postventa"] || "PENDIENTE DE PAGO"),
+    paymentProvider: String(order["Procesador pago"] || order["Método de pago"] || ""),
+    paymentTransactionId: String(order["ID transacción pago"] || order["ID transacción Wompi"] || ""),
+    expectedAmount: numberOrNull_(order["Total pedido"]),
+    paidAmount: numberOrNull_(order["Total pagado"]),
+    currency: String(order["Moneda"] || ""),
+    needsReview: String(order["Revisar"] || "").toUpperCase() === "SÍ",
+  };
+}
+
 function intelligenceProposalRow_(proposal) {
   return {
     "ID propuesta": safeIntelligenceText_(proposal && proposal.id, 120),
@@ -453,6 +496,21 @@ function processEvent_(event, raw, receivedAt) {
 
     const duplicateRow = findRowByValue_(events, EVENT_HEADERS, "ID evento", event.eventId);
     const existingOrderRow = findRowByValue_(orders, ORDER_HEADERS, "Referencia Wompi", event.order.reference);
+    if (duplicateRow) {
+      if (!existingOrderRow) throw new Error("duplicate event without order");
+      const existingOrder = readRow_(orders, existingOrderRow, ORDER_HEADERS);
+      // El retorno y el webhook pueden llegar en cualquier orden. Un evento ya
+      // conciliado no vuelve a escribir la orden; sólo reintenta un aviso que
+      // hubiera fallado. Los estados ENVIADO/OMITIDO impiden duplicar correos.
+      retryNotifications_(config, orders, existingOrderRow, existingOrder, events, duplicateRow, event);
+      return {
+        reference: event.order.reference,
+        paymentStatus: String(existingOrder["Estado pago"] || "PENDING"),
+        fulfillmentStatus: String(existingOrder["Estado postventa"] || "PENDIENTE"),
+        needsReview: String(existingOrder["Revisar"] || "").toUpperCase() === "SÍ",
+        duplicate: true,
+      };
+    }
     if (event.type === "fulfillment.updated") {
       if (!existingOrderRow) throw new Error("fulfillment for unknown order");
       const existingOrder = readRow_(orders, existingOrderRow, ORDER_HEADERS);
@@ -461,7 +519,7 @@ function processEvent_(event, raw, receivedAt) {
       }
     }
     const upserted = upsertOrder_(orders, event, receivedAt, existingOrderRow);
-    const eventRow = duplicateRow || appendEvent_(events, event, raw, receivedAt);
+    const eventRow = appendEvent_(events, event, raw, receivedAt);
     retryNotifications_(config, orders, upserted.row, upserted.order, events, eventRow, event);
 
     return {
@@ -503,6 +561,9 @@ function mergeOrder_(current, event, receivedAt, isNew) {
   setIfBlank_(out, "Estado pago", "CHECKOUT_PREPARADO");
   setIfBlank_(out, "Estado postventa", "PENDIENTE DE PAGO");
   setIfBlank_(out, "Moneda", order.currency || "COP");
+  setIfBlank_(out, "Mercado", order.market);
+  setIfBlank_(out, "Locale", order.locale);
+  setIfBlank_(out, "Tasa actualizada (UTC)", order.rateUpdatedAt);
 
   setIfPresent_(out, "SKU", order.sku);
   // La variante llega en checkout.created desde la cotización firmada. El
@@ -534,6 +595,11 @@ function mergeOrder_(current, event, receivedAt, isNew) {
   setIfPresent_(out, "Origen", event.source);
 
   [
+    ["Total pedido", finance.orderTotal],
+    ["Subtotal productos", finance.productSubtotal],
+    ["Envío cobrado", finance.shippingCharged],
+    ["Costo envío proveedor", finance.supplierShippingCost],
+    ["Costo proveedor", finance.supplierCost],
     ["Total pedido COP", finance.orderTotalCop],
     ["Subtotal productos COP", finance.productSubtotalCop],
     ["Envío cobrado COP", finance.shippingChargedCop],
@@ -565,8 +631,11 @@ function mergeOrder_(current, event, receivedAt, isNew) {
   if (event.type === "payment.updated" && isNewer_(payment.updatedAt || event.occurredAt, out["Pago actualizado (UTC)"])) {
     setIfPresent_(out, "Estado pago", payment.status);
     setIfPresent_(out, "ID transacción Wompi", payment.id);
+    setIfPresent_(out, "ID transacción pago", payment.id);
+    setIfPresent_(out, "Procesador pago", payment.provider);
     setIfPresent_(out, "Método de pago", payment.method);
     setIfPresent_(out, "Total pagado COP", payment.amountCop);
+    setIfPresent_(out, "Total pagado", payment.amount);
     setIfPresent_(out, "Pago actualizado (UTC)", payment.updatedAt || event.occurredAt);
     [
       ["Comisión Wompi COP", finance.wompiFeeCop],
@@ -580,15 +649,18 @@ function mergeOrder_(current, event, receivedAt, isNew) {
     // (subtotal de productos + envío seleccionado). Si falta ese total o hay
     // diferencia, se conserva la evidencia y se bloquea la postventa hasta la
     // revisión manual; jamás se trata como una venta conciliada.
-    const expectedTotal = numberOrNull_(out["Total pedido COP"]);
-    const paidTotal = payment.amountCop;
+    const currency = String(payment.currency || out["Moneda"] || "COP").toUpperCase();
+    const expectedTotal = numberOrNull_(out["Total pedido"]);
+    const paidTotal = payment.amount;
     const mustReconcile = payment.status === "APPROVED" || paidTotal !== null;
-    const amountMismatch = mustReconcile && (expectedTotal === null || paidTotal === null || !sameMoney_(expectedTotal, paidTotal));
-    const requiresReview = Boolean(event.needsReview) || amountMismatch || String(out["Revisar"] || "").toUpperCase() === "SÍ";
+    const currencyMismatch = Boolean(payment.currency) && currency !== String(out["Moneda"] || "COP").toUpperCase();
+    const amountMismatch = mustReconcile && (expectedTotal === null || paidTotal === null || !sameMoney_(expectedTotal, paidTotal, currency));
+    const requiresReview = Boolean(event.needsReview) || currencyMismatch || amountMismatch || String(out["Revisar"] || "").toUpperCase() === "SÍ";
     if (requiresReview) {
       out["Revisar"] = "SÍ";
       out["Estado postventa"] = "REVISIÓN DE PAGO";
-      if (amountMismatch) appendNote_(out, "Conciliación pendiente: total esperado " + cop_(expectedTotal) + ", total reportado " + cop_(paidTotal) + ".");
+      if (currencyMismatch) appendNote_(out, "Conciliación pendiente: la moneda reportada no coincide con la orden.");
+      if (amountMismatch) appendNote_(out, "Conciliación pendiente: total esperado " + money_(expectedTotal, currency) + ", total reportado " + money_(paidTotal, currency) + ".");
     } else if (payment.status === "APPROVED" && ["PENDIENTE DE PAGO", "CHECKOUT_PREPARADO"].indexOf(String(out["Estado postventa"])) !== -1) {
       out["Estado postventa"] = "PAGO CONFIRMADO";
     } else if (payment.status === "VOIDED") {
@@ -617,11 +689,19 @@ function mergeOrder_(current, event, receivedAt, isNew) {
 
 function appendEvent_(sheet, event, raw, receivedAt) {
   const row = sheet.getLastRow() + 1;
-  sheet.getRange(row, 1, 1, EVENT_HEADERS.length).setValues([[
-    event.eventId, event.type, event.occurredAt, receivedAt, event.order.reference,
-    (event.payment || {}).id || "", (event.payment || {}).status || "", (event.fulfillment || {}).status || "",
-    (event.payment || {}).amountCop || "", event.source, sha256Hex_(raw), "", "", event.detail || "",
-  ]]);
+  const payment = event.payment || {};
+  const values = {
+    "ID evento": event.eventId, "Tipo": event.type, "Fecha evento (UTC)": event.occurredAt,
+    "Recibido (UTC)": receivedAt, "Referencia Wompi": event.order.reference,
+    "ID transacción Wompi": payment.id || "", "Estado pago": payment.status || "",
+    "Estado postventa": (event.fulfillment || {}).status || "", "Monto COP": payment.amountCop || "",
+    "Origen": event.source, "Huella SHA-256": sha256Hex_(raw), "Aviso admin": "",
+    "Aviso cliente": "", "Detalle": event.detail || "", "Monto": payment.amount || "",
+    "Moneda": payment.currency || event.order.currency || "", "Procesador pago": payment.provider || "",
+  };
+  sheet.getRange(row, 1, 1, EVENT_HEADERS.length).setValues([EVENT_HEADERS.map(function (header) {
+    return values[header] === undefined ? "" : values[header];
+  })]);
   return row;
 }
 
@@ -711,12 +791,13 @@ function sendAdminEmail_(config, order, event) {
     "Teléfono: " + value_(order["Teléfono cliente"]),
     "Estado de pago: " + value_(order["Estado pago"]),
     "Estado postventa: " + value_(order["Estado postventa"]),
-    "Subtotal de productos: " + cop_(order["Subtotal productos COP"]),
-    "Envío cobrado al cliente: " + cop_(order["Envío cobrado COP"]),
-    "Total esperado: " + cop_(order["Total pedido COP"]),
-    "Total pagado: " + cop_(order["Total pagado COP"]),
-    "Costo proveedor: " + cop_(order["Costo proveedor COP"]),
-    "Costo de envío CJ: " + cop_(order["Costo envío CJ COP"]),
+    "Procesador de pago: " + value_(order["Procesador pago"] || order["Método de pago"]),
+    "Subtotal de productos: " + money_(order["Subtotal productos"] || order["Subtotal productos COP"], order["Moneda"]),
+    "Envío cobrado al cliente: " + money_(order["Envío cobrado"] || order["Envío cobrado COP"], order["Moneda"]),
+    "Total esperado: " + money_(order["Total pedido"] || order["Total pedido COP"], order["Moneda"]),
+    "Total pagado: " + money_(order["Total pagado"] || order["Total pagado COP"], order["Moneda"]),
+    "Costo proveedor: " + money_(order["Costo proveedor"] || order["Costo proveedor COP"], order["Moneda"]),
+    "Costo de envío CJ: " + money_(order["Costo envío proveedor"] || order["Costo envío CJ COP"], order["Moneda"]),
     "Cotización CJ: " + usd_(order["Cotización envío CJ USD"]) + " (tasa " + value_(order["Tasa USD/COP"]) + " COP/USD)",
     "Comisión Wompi: " + cop_(order["Comisión Wompi COP"]),
     "Contribución: " + cop_(order["Contribución COP"]),
@@ -747,11 +828,11 @@ function sendCustomerEmail_(config, order, event) {
     orderItemsText_(order),
     "Referencia: " + value_(order["Referencia Wompi"]),
     order["Variante elegida"] ? "Variante: " + value_(order["Variante elegida"]) : "",
-    "Productos: " + cop_(order["Subtotal productos COP"]),
-    "Envío: " + cop_(order["Envío cobrado COP"]),
+    "Productos: " + money_(order["Subtotal productos"] || order["Subtotal productos COP"], order["Moneda"]),
+    "Envío: " + money_(order["Envío cobrado"] || order["Envío cobrado COP"], order["Moneda"]),
     order["Método envío CJ"] ? "Método de envío: " + value_(order["Método envío CJ"]) : "",
     order["Entrega estimada CJ"] ? "Tiempo estimado de entrega: " + value_(order["Entrega estimada CJ"]) : "",
-    "Total: " + cop_(order["Total pagado COP"] || order["Total pedido COP"]), "",
+    "Total: " + money_(order["Total pagado"] || order["Total pedido"] || order["Total pagado COP"] || order["Total pedido COP"], order["Moneda"]), "",
     "Te avisaremos por este mismo correo cuando tu pedido avance al envío.",
     "Soporte Nexora: " + config.adminEmail,
   ].join("\n") : [
@@ -781,12 +862,21 @@ function readAdminSnapshot_() {
   const approved = rows.filter(function (row) {
     return String(row["Estado pago"]).toUpperCase() === "APPROVED" && String(row["Revisar"] || "").toUpperCase() !== "SÍ";
   });
+  const approvedCop = approved.filter(function (row) {
+    return String(row["Moneda"] || "COP").toUpperCase() !== "USD" && String(row["Mercado"] || "co").toLowerCase() !== "us";
+  });
+  const approvedUsd = approved.filter(function (row) {
+    return String(row["Moneda"]).toUpperCase() === "USD" || String(row["Mercado"]).toLowerCase() === "us";
+  });
   const pending = rows.filter(function (row) { return String(row["Estado pago"]).toUpperCase() === "PENDING"; });
   const declined = rows.filter(function (row) { return ["DECLINED", "VOIDED", "ERROR"].indexOf(String(row["Estado pago"]).toUpperCase()) !== -1; });
   const total = function (items, field) { return items.reduce(function (sum, row) { const value = Number(row[field]); return sum + (Number.isFinite(value) ? value : 0); }, 0); };
-  const grossRevenueCop = total(approved, "Total pagado COP");
-  const shippingRevenueCop = total(approved, "Envío cobrado COP");
-  const supplierShippingCostCop = total(approved, "Costo envío CJ COP");
+  const grossRevenueCop = total(approvedCop, "Total pagado COP");
+  const grossRevenueUsd = total(approvedUsd, "Total pagado");
+  const shippingRevenueCop = total(approvedCop, "Envío cobrado COP");
+  const shippingRevenueUsd = total(approvedUsd, "Envío cobrado");
+  const supplierShippingCostCop = total(approvedCop, "Costo envío CJ COP");
+  const supplierShippingCostUsd = total(approvedUsd, "Costo envío proveedor");
   const paymentAttempts = approved.length + declined.length;
   const recentOrders = rows.sort(function (a, b) { return dateTime_(b["Actualizado (UTC)"]) - dateTime_(a["Actualizado (UTC)"]); }).slice(0, 100).map(function (row) {
     return {
@@ -802,6 +892,14 @@ function readAdminSnapshot_() {
       customerEmail: string_(row["Email cliente"]) || null,
       shippingSummary: shippingText_(row) || null,
       grossAmountCop: numberOrNull_(row["Total pagado COP"]),
+      grossAmount: numberOrNull_(row["Total pagado"]),
+      orderTotal: numberOrNull_(row["Total pedido"]),
+      productSubtotal: numberOrNull_(row["Subtotal productos"]),
+      shippingCharged: numberOrNull_(row["Envío cobrado"]),
+      supplierCost: numberOrNull_(row["Costo proveedor"]),
+      supplierShippingCost: numberOrNull_(row["Costo envío proveedor"]),
+      paymentProvider: string_(row["Procesador pago"]) || null,
+      paymentTransactionId: string_(row["ID transacción pago"]) || null,
       wompiFeeCop: numberOrNull_(row["Comisión Wompi COP"]),
       estimatedContributionCop: numberOrNull_(row["Contribución COP"]),
       productSubtotalCop: numberOrNull_(row["Subtotal productos COP"]),
@@ -817,26 +915,37 @@ function readAdminSnapshot_() {
       trackingUrl: string_(row["URL rastreo"]) || null,
       fulfillmentNote: string_(row["Notas"]) || null,
       needsReview: String(row["Revisar"] || "").toUpperCase() === "SÍ",
+      market: string_(row["Mercado"]) || null,
+      locale: string_(row["Locale"]) || null,
+      currency: string_(row["Moneda"]) || null,
+      exchangeRateCopPerUsd: numberOrNull_(row["Tasa USD/COP"]),
+      rateUpdatedAt: isoValue_(row["Tasa actualizada (UTC)"]) || null,
     };
   });
   return {
     summary: {
       approvedOrders: approved.length,
+      approvedOrdersCop: approvedCop.length,
+      approvedOrdersUsd: approvedUsd.length,
       grossRevenueCop: grossRevenueCop,
-      netPayoutCop: total(approved, "Neto estimado COP"),
-      averageTicketCop: approved.length ? Math.round(grossRevenueCop / approved.length) : 0,
+      grossRevenueUsd: grossRevenueUsd,
+      netPayoutCop: total(approvedCop, "Neto estimado COP"),
+      averageTicketCop: approvedCop.length ? Math.round(grossRevenueCop / approvedCop.length) : 0,
+      averageTicketUsd: approvedUsd.length ? Math.round((grossRevenueUsd / approvedUsd.length) * 100) / 100 : 0,
       approvalRatePercent: paymentAttempts ? (approved.length / paymentAttempts) * 100 : 0,
       pendingOrders: pending.length,
       declinedOrders: declined.length,
       fulfillmentPending: rows.filter(function (row) { return ["PAGO CONFIRMADO", "PEDIDO EN CJ", "EN PREPARACIÓN"].indexOf(String(row["Estado postventa"])) !== -1; }).length,
       fulfillmentInTransit: rows.filter(function (row) { return ["ENVIADO", "EN TRÁNSITO"].indexOf(String(row["Estado postventa"])) !== -1; }).length,
       shippingRevenueCop: shippingRevenueCop,
+      shippingRevenueUsd: shippingRevenueUsd,
       supplierShippingCostCop: supplierShippingCostCop,
+      supplierShippingCostUsd: supplierShippingCostUsd,
       shippingMarginCop: shippingRevenueCop - supplierShippingCostCop,
-      contributionCop: total(approved, "Contribución COP"),
+      contributionCop: total(approvedCop, "Contribución COP"),
     },
     recentOrders: recentOrders,
-    dailySales: dailySales_(approved),
+    dailySales: dailySales_(approvedCop),
   };
 }
 
@@ -890,17 +999,17 @@ function normalizeEvent_(input) {
     eventId: requiredText_(input.eventId, 140), type: type, occurredAt: requiredDate_(input.occurredAt), source: cellText_(input.source || "nexora", 80), detail: cellText_(input.detail || "", 1000), needsReview: Boolean(input.needsReview),
     order: {
       variantSku: cellText_(order.variantSku, 180), variantLabel: cellText_(order.variantLabel, 300),
-      id: cellText_(order.id || input.eventId, 140), reference: requiredText_(order.reference, 140), sku: cellText_(order.sku, 140), productName: cellText_(order.productName, 300), niche: cellText_(order.niche, 80), quantity: integerOrNull_(order.quantity), currency: cellText_(order.currency || "COP", 8), items: normalizeItems_(order.items),
+      id: cellText_(order.id || input.eventId, 140), reference: requiredText_(order.reference, 140), sku: cellText_(order.sku, 140), productName: cellText_(order.productName, 300), niche: cellText_(order.niche, 80), quantity: integerOrNull_(order.quantity), market: cellText_(order.market, 8), locale: cellText_(order.locale, 20), currency: cellText_(order.currency || "COP", 8), exchangeRateCopPerUsd: decimalOrNull_(order.exchangeRateCopPerUsd), rateUpdatedAt: dateOrNull_(order.rateUpdatedAt), items: normalizeItems_(order.items),
       customer: { name: cellText_(customer.name, 180), email: cellText_(customer.email, 254), phone: cellText_(customer.phone, 60) },
       shipping: {
         recipient: cellText_(shipping.recipient, 180), address1: cellText_(shipping.address1, 300), address2: cellText_(shipping.address2, 300), houseNumber: cellText_(shipping.houseNumber, 80), city: cellText_(shipping.city, 120), region: cellText_(shipping.region, 120), country: cellText_(shipping.country, 80), postalCode: cellText_(shipping.postalCode, 40),
         method: cellText_(shipping.method, 160), carrier: cellText_(shipping.carrier, 160), estimatedDelivery: cellText_(shipping.estimatedDelivery, 180), originCountryCode: cellText_(shipping.originCountryCode, 12), optionId: cellText_(shipping.optionId, 180), quotedAt: dateOrNull_(shipping.quotedAt),
       },
       finance: {
-        orderTotalCop: moneyOrNull_(finance.orderTotalCop), productSubtotalCop: moneyOrNull_(finance.productSubtotalCop), shippingChargedCop: moneyOrNull_(finance.shippingChargedCop), supplierShippingCostCop: moneyOrNull_(finance.supplierShippingCostCop), shippingQuoteUsd: decimalOrNull_(finance.shippingQuoteUsd), exchangeRateCopPerUsd: decimalOrNull_(finance.exchangeRateCopPerUsd), supplierCostCop: moneyOrNull_(finance.supplierCostCop), wompiFeeCop: moneyOrNull_(finance.wompiFeeCop), netPayoutCop: moneyOrNull_(finance.netPayoutCop), contributionCop: moneyOrNull_(finance.contributionCop), contributionMargin: ratioOrNull_(finance.contributionMargin),
+        orderTotal: decimalOrNull_(finance.orderTotal), productSubtotal: decimalOrNull_(finance.productSubtotal), shippingCharged: decimalOrNull_(finance.shippingCharged), supplierShippingCost: decimalOrNull_(finance.supplierShippingCost), supplierCost: decimalOrNull_(finance.supplierCost), orderTotalCop: moneyOrNull_(finance.orderTotalCop), productSubtotalCop: moneyOrNull_(finance.productSubtotalCop), shippingChargedCop: moneyOrNull_(finance.shippingChargedCop), supplierShippingCostCop: moneyOrNull_(finance.supplierShippingCostCop), shippingQuoteUsd: decimalOrNull_(finance.shippingQuoteUsd), exchangeRateCopPerUsd: decimalOrNull_(finance.exchangeRateCopPerUsd), supplierCostCop: moneyOrNull_(finance.supplierCostCop), wompiFeeCop: moneyOrNull_(finance.wompiFeeCop), netPayoutCop: moneyOrNull_(finance.netPayoutCop), contributionCop: moneyOrNull_(finance.contributionCop), contributionMargin: ratioOrNull_(finance.contributionMargin),
       },
     },
-    payment: { id: cellText_(payment.id, 140), status: payment.status ? String(payment.status).toUpperCase() : "", amountCop: moneyOrNull_(payment.amountCop), method: cellText_(payment.method, 120), updatedAt: dateOrNull_(payment.updatedAt) },
+    payment: { id: cellText_(payment.id, 140), status: payment.status ? String(payment.status).toUpperCase() : "", amountCop: moneyOrNull_(payment.amountCop), amount: decimalOrNull_(payment.amount), currency: cellText_(payment.currency, 8), provider: cellText_(payment.provider, 40), method: cellText_(payment.method, 120), updatedAt: dateOrNull_(payment.updatedAt) },
     fulfillment: { status: cellText_(fulfillment.status, 100), cjOrderId: cellText_(fulfillment.cjOrderId, 140), carrier: cellText_(fulfillment.carrier, 120), trackingNumber: cellText_(fulfillment.trackingNumber, 160), trackingUrl: cellText_(fulfillment.trackingUrl, 500), notes: cellText_(fulfillment.notes, 1000), updatedAt: dateOrNull_(fulfillment.updatedAt) },
   };
 }
@@ -973,6 +1082,9 @@ function formatOrderColumns_(sheet) {
   });
   sheet.getRange(2, headerIndex_("Margen contribución", ORDER_HEADERS) + 1, rows, 1).setNumberFormat("0.0%");
   sheet.getRange(2, headerIndex_("Cotización envío CJ USD", ORDER_HEADERS) + 1, rows, 1).setNumberFormat("0.00");
+  ["Total pedido", "Total pagado", "Costo proveedor", "Subtotal productos", "Envío cobrado", "Costo envío proveedor"].forEach(function (header) {
+    sheet.getRange(2, headerIndex_(header, ORDER_HEADERS) + 1, rows, 1).setNumberFormat("#,##0.00");
+  });
   sheet.getRange(2, headerIndex_("Tasa USD/COP", ORDER_HEADERS) + 1, rows, 1).setNumberFormat("#,##0.00");
 }
 function formatEventColumns_(sheet) { const rows = Math.max(1, sheet.getMaxRows() - 1); sheet.getRange(2, 3, rows, 2).setNumberFormat("yyyy-mm-dd hh:mm:ss"); sheet.getRange(2, 9, rows, 1).setNumberFormat("#,##0"); }
@@ -986,7 +1098,7 @@ function orderColumnLetter_(header) { return columnLetter_(headerIndex_(header, 
 function columnLetter_(column) { let value = ""; let current = column; while (current > 0) { const remainder = (current - 1) % 26; value = String.fromCharCode(65 + remainder) + value; current = Math.floor((current - 1) / 26); } return value; }
 function setIfBlank_(object, key, value) { if ((object[key] === "" || object[key] === null || object[key] === undefined) && value !== "" && value !== null && value !== undefined) object[key] = value; }
 function setIfPresent_(object, key, value) { if (value !== "" && value !== null && value !== undefined) object[key] = value; }
-function sameMoney_(left, right) { return Math.round(Number(left)) === Math.round(Number(right)); }
+function sameMoney_(left, right, currency) { const precision = String(currency).toUpperCase() === "USD" ? 100 : 1; return Math.round(Number(left) * precision) === Math.round(Number(right) * precision); }
 function appendNote_(object, note) { const existing = String(object["Notas"] || ""); if (existing.indexOf(note) === -1) object["Notas"] = [existing, note].filter(Boolean).join(" | ").slice(0, 1000); }
 function isNewer_(candidate, stored) { const left = dateOrNull_(candidate); const right = dateOrNull_(stored); return !right || !left || left.getTime() >= right.getTime(); }
 function hmacHex_(value, secret) { return bytesToHex_(Utilities.computeHmacSha256Signature(value, secret, Utilities.Charset.UTF_8)); }
@@ -1004,12 +1116,16 @@ function normalizeItems_(value) {
   if (!Array.isArray(value) || value.length < 1 || value.length > 6) throw new Error("invalid items");
   return value.map(function (item) {
     if (!item || typeof item !== "object") throw new Error("invalid item");
+    const currency = String(item.currency || "COP").toUpperCase();
+    if (["COP", "USD"].indexOf(currency) === -1) throw new Error("invalid item currency");
     return {
       sku: cellText_(item.sku, 140), variantSku: cellText_(item.variantSku, 180), variantLabel: cellText_(item.variantLabel, 300),
       productName: requiredText_(item.productName, 300), niche: cellText_(item.niche, 80), quantity: integerOrNull_(item.quantity),
       unitPriceCop: moneyOrNull_(item.unitPriceCop), subtotalCop: moneyOrNull_(item.subtotalCop), supplierCostUsd: decimalOrNull_(item.supplierCostUsd),
+      unitPrice: decimalOrNull_(item.unitPrice), subtotal: decimalOrNull_(item.subtotal), currency: currency,
       shippingMethod: cellText_(item.shippingMethod, 160), shippingCarrier: cellText_(item.shippingCarrier, 160), shippingEstimatedDelivery: cellText_(item.shippingEstimatedDelivery, 180),
-      shippingOriginCountryCode: cellText_(item.shippingOriginCountryCode, 12), shippingOptionId: cellText_(item.shippingOptionId, 180), shippingCostCop: moneyOrNull_(item.shippingCostCop),
+      shippingOriginCountryCode: cellText_(item.shippingOriginCountryCode, 12), shippingOptionId: cellText_(item.shippingOptionId, 180),
+      shippingCostCop: moneyOrNull_(item.shippingCostCop), shippingCost: decimalOrNull_(item.shippingCost),
     };
   });
 }
@@ -1023,7 +1139,10 @@ function orderItemsText_(order) {
   try {
     const items = JSON.parse(String(order["Artículos JSON"] || "[]"));
     if (Array.isArray(items) && items.length) return items.map(function (item) {
-      return "- " + value_(item.quantity) + " x " + value_(item.productName) + " | variante " + value_(item.variantLabel || item.variantSku) + " | " + cop_(item.subtotalCop) + " | envío " + value_(item.shippingMethod) + " " + cop_(item.shippingCostCop);
+      const currency = item.currency || order["Moneda"] || "COP";
+      const subtotal = item.subtotal !== null && item.subtotal !== undefined ? item.subtotal : item.subtotalCop;
+      const shippingCost = item.shippingCost !== null && item.shippingCost !== undefined ? item.shippingCost : item.shippingCostCop;
+      return "- " + value_(item.quantity) + " x " + value_(item.productName) + " | estilo " + value_(item.variantLabel || item.variantSku) + " | " + money_(subtotal, currency) + " | envío " + value_(item.shippingMethod) + " " + money_(shippingCost, currency);
     }).join("\n");
   } catch (error) {
     console.error("items text failure");
@@ -1037,6 +1156,7 @@ function dateTime_(value) { const date = dateOrNull_(value); return date ? date.
 function isoValue_(value) { const date = dateOrNull_(value); return date ? date.toISOString() : ""; }
 function cop_(value) { const number = Number(value); return Number.isFinite(number) ? "COP $" + Math.round(number).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") : "No disponible"; }
 function usd_(value) { const number = Number(value); return Number.isFinite(number) ? "USD $" + number.toFixed(2) : "No disponible"; }
+function money_(value, currency) { return String(currency).toUpperCase() === "USD" ? usd_(value) : cop_(value); }
 function escapeHtml_(value) { return String(value).replace(/[&<>"']/g, function (character) { return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#039;" })[character]; }); }
 function isoNow_() { return Utilities.formatDate(new Date(), "UTC", "yyyy-MM-dd'T'HH:mm:ss'Z'"); }
 function json_(payload) { return ContentService.createTextOutput(JSON.stringify(payload)).setMimeType(ContentService.MimeType.JSON); }

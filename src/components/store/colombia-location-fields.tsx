@@ -2,16 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { colombiaDepartments } from "@/lib/colombia-locations";
+import type { Market } from "@/lib/i18n/config";
 import type { ShippingDestinationInput } from "@/lib/shipping/types";
 
 type Municipality = { name: string; daneCode: string };
-const commonCountries = [
-  ["CO", "Colombia"], ["US", "Estados Unidos"], ["CA", "Canadá"], ["MX", "México"],
-  ["ES", "España"], ["GB", "Reino Unido"], ["DE", "Alemania"], ["FR", "Francia"],
-  ["IT", "Italia"], ["BR", "Brasil"], ["CL", "Chile"], ["PE", "Perú"], ["EC", "Ecuador"],
+const usStates = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "District of Columbia", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
 ] as const;
 
-export function ColombiaLocationFields({ destination, onChange }: {
+export function MarketLocationFields({ market, destination, onChange }: {
+  market: Market;
   destination: ShippingDestinationInput;
   onChange: (field: keyof ShippingDestinationInput, value: string) => void;
 }) {
@@ -19,8 +19,7 @@ export function ColombiaLocationFields({ destination, onChange }: {
   const [municipalities, setMunicipalities] = useState<Municipality[]>([]);
   const [municipalityDaneCode, setMunicipalityDaneCode] = useState("");
   const [locationStatus, setLocationStatus] = useState<string | null>(null);
-  const isColombia = destination.countryCode === "CO";
-  const usesCustomCountry = !commonCountries.some(([code]) => code === destination.countryCode);
+  const isColombia = market === "co";
 
   useEffect(() => {
     if (!isColombia || !departmentId) return;
@@ -91,20 +90,8 @@ export function ColombiaLocationFields({ destination, onChange }: {
   }
 
   return <>
-    <Field label="País">
-      <select value={usesCustomCountry ? "__OTHER__" : destination.countryCode} onChange={(event) => {
-        onChange("countryCode", event.target.value === "__OTHER__" ? "" : event.target.value);
-        setDepartmentId("");
-        setMunicipalities([]);
-        setMunicipalityDaneCode("");
-        onChange("region", "");
-        onChange("city", "");
-        onChange("postalCode", "");
-      }} required autoComplete="country">
-        {commonCountries.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
-        <option value="__OTHER__">Otro país</option>
-      </select>
-      {usesCustomCountry && <input className="mt-2 uppercase" value={destination.countryCode} onChange={(event) => onChange("countryCode", event.target.value.slice(0, 2))} required minLength={2} maxLength={2} placeholder="Código ISO, ej. AR" aria-label="Código ISO del país" />}
+    <Field label={isColombia ? "País" : "Country"}>
+      <input value={isColombia ? "Colombia" : "United States"} readOnly autoComplete="country-name" />
     </Field>
 
     {isColombia ? <>
@@ -121,12 +108,17 @@ export function ColombiaLocationFields({ destination, onChange }: {
         </select>
       </Field>
     </> : <>
-      <Field label="Estado / provincia"><input value={destination.region} onChange={(event) => onChange("region", event.target.value)} required autoComplete="address-level1" /></Field>
-      <Field label="Ciudad"><input value={destination.city} onChange={(event) => onChange("city", event.target.value)} required autoComplete="address-level2" /></Field>
+      <Field label="State">
+        <select value={destination.region} onChange={(event) => { onChange("region", event.target.value); onChange("postalCode", ""); }} required autoComplete="address-level1">
+          <option value="">Select a state</option>
+          {usStates.map((state) => <option key={state} value={state}>{state}</option>)}
+        </select>
+      </Field>
+      <Field label="City"><input value={destination.city} onChange={(event) => onChange("city", event.target.value)} required autoComplete="address-level2" /></Field>
     </>}
 
-    <Field label={isColombia ? "Código postal (automático con 4-72)" : "Código postal"}>
-      <input value={destination.postalCode} onChange={(event) => onChange("postalCode", event.target.value)} required inputMode="numeric" autoComplete="postal-code" readOnly={isColombia && Boolean(destination.postalCode)} placeholder={isColombia ? "Se completa al indicar la dirección" : undefined} />
+    <Field label={isColombia ? "Código postal (automático con 4-72)" : "ZIP code"}>
+      <input value={destination.postalCode} onChange={(event) => onChange("postalCode", event.target.value)} required inputMode="numeric" autoComplete="postal-code" pattern={isColombia ? "[0-9]{6}" : "[0-9]{5}(-[0-9]{4})?"} readOnly={isColombia && Boolean(destination.postalCode)} placeholder={isColombia ? "Se completa al indicar la dirección" : "12345"} />
     </Field>
     {locationStatus && <p aria-live="polite" className="sm:col-span-3 text-[11px] leading-4 text-silver/65">{locationStatus}</p>}
   </>;

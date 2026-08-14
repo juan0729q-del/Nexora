@@ -2,6 +2,7 @@ import "server-only";
 
 import { getCatalog } from "@/lib/catalog-store";
 import type { Product } from "@/lib/products";
+import { getUsdToCopRate } from "@/lib/commerce-finance";
 import { CjQuotaError, createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 import { evaluateSupplierCost } from "./pricing";
 
@@ -85,8 +86,7 @@ function supplementalCostUrlFor(sku: string) {
 }
 
 function usdToCop(costUsd: number) {
-  const exchangeRate = Number(process.env.USD_TO_COP_RATE || 4200);
-  return costUsd * (Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 4200);
+  return costUsd * getUsdToCopRate();
 }
 
 /** Consulta el endpoint oficial CJ de inventario por SKU y suma sus bodegas. */

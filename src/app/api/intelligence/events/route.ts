@@ -41,6 +41,10 @@ function parseEvent(value: unknown): IntelligenceEvent | null {
     variantSku: text(row.variantSku, 120) || undefined,
     niche: ["jewelry", "technologyHome", "wellbeing"].includes(niche) ? niche as IntelligenceEvent["niche"] : undefined,
     quantity: finite(row.quantity, 50), valueCop: finite(row.valueCop, 100_000_000), source: "storefront",
+    value: finite(row.value, 100_000_000),
+    market: row.market === "co" || row.market === "us" ? row.market : undefined,
+    locale: row.locale === "es-CO" || row.locale === "en-US" ? row.locale : undefined,
+    currency: row.currency === "COP" || row.currency === "USD" ? row.currency : undefined,
   };
 }
 

@@ -1,3 +1,5 @@
+import { getExchangeRateSnapshot } from "@/lib/market-pricing";
+
 export type WompiFeeConfiguration = {
   percentageRate: number;
   fixedFeeCop: number;
@@ -34,7 +36,11 @@ function positiveNumber(value: string | undefined, fallback: number, minimum = 0
  * de cambio durante el checkout para evitar una segunda fuente inestable.
  */
 export function getUsdToCopRate() {
-  return positiveNumber(process.env.USD_TO_COP_RATE, 4200, 1);
+  const snapshot = getExchangeRateSnapshot();
+  if (!snapshot.valid || !snapshot.copPerUsd) {
+    throw new Error(`La tasa COP/USD no está disponible: ${snapshot.detail}`);
+  }
+  return snapshot.copPerUsd;
 }
 
 export function usdToCop(amountUsd: number, exchangeRate = getUsdToCopRate()) {

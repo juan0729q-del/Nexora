@@ -9,6 +9,7 @@ import {
 } from "@/lib/provider-product-details";
 import { getCatalog } from "@/lib/catalog-store";
 import { recommendedPriceForContribution } from "@/lib/commerce-finance";
+import { getExchangeRateSnapshot } from "@/lib/market-pricing";
 import { isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
@@ -455,8 +456,11 @@ function slugify(value: string) {
 }
 
 function priceInCop(supplierCostUsd: number) {
-  const exchangeRate = Number(process.env.USD_TO_COP_RATE || 4200);
-  const supplierCostCop = supplierCostUsd * (Number.isFinite(exchangeRate) && exchangeRate > 0 ? exchangeRate : 4200);
+  const exchangeRate = getExchangeRateSnapshot();
+  if (!exchangeRate.valid || !exchangeRate.copPerUsd) {
+    throw new Error(`La rotación no puede calcular precios: ${exchangeRate.detail}`);
+  }
+  const supplierCostCop = supplierCostUsd * exchangeRate.copPerUsd;
   return recommendedPriceForContribution({ supplierCostCop, roundingCop: 100 });
 }
 

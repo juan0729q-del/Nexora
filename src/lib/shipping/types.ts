@@ -34,9 +34,13 @@ export type CjShippingQuoteOption = {
 export type ShippingQuoteResponse = {
   quoteToken: string;
   expiresAt: string;
+  market: "co" | "us";
+  locale: "es-CO" | "en-US";
+  productSubtotal: number;
   productSubtotalCop: number;
-  currency: "COP";
+  currency: "COP" | "USD";
   exchangeRateCopPerUsd: number;
+  rateUpdatedAt: string;
   options: CjShippingQuoteOption[];
 };
 
@@ -50,8 +54,13 @@ export type CartShippingQuoteLine = ShippingQuoteResponse & {
 
 export type CartShippingQuoteResponse = {
   expiresAt: string;
+  market: "co" | "us";
+  locale: "es-CO" | "en-US";
+  productSubtotal: number;
   productSubtotalCop: number;
-  currency: "COP";
+  currency: "COP" | "USD";
+  exchangeRateCopPerUsd: number;
+  rateUpdatedAt: string;
   items: CartShippingQuoteLine[];
 };
 

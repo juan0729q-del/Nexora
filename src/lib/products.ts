@@ -10,8 +10,6 @@ import {
   type ProviderVariant,
 } from "./provider-product-details";
 
-export type PaymentCurrency = "COP";
-
 export const niches = {
   jewelry: {
     id: "jewelry",
