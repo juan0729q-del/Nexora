@@ -4,10 +4,11 @@ import {
   CjQuotaError,
   CjRequestError,
 } from "@/lib/automation/cj-client";
-import { getCatalog } from "@/lib/catalog-store";
+import { getOperationalCatalog } from "@/lib/catalog-store";
 import { isMarket, markets, type Market } from "@/lib/i18n/config";
 import { getExchangeRateSnapshot, marketPriceFromCop } from "@/lib/market-pricing";
 import { getProductPresentation } from "@/lib/product-presentation";
+import { recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
 import { isStoreProductAvailable } from "@/lib/products";
 import {
   CjShippingConfigurationError,
@@ -84,7 +85,7 @@ export async function POST(request: Request) {
     if (!exchangeRate.valid || !exchangeRate.copPerUsd || !exchangeRate.updatedAt) {
       return NextResponse.json({ message: market === "co" ? "La tasa COP/USD aprobada debe actualizarse antes de cotizar el envío real." : "The approved COP/USD rate must be updated before requesting an actual shipping quote.", reason: "exchange-rate-unavailable" }, { status: 503 });
     }
-    const catalog = await getCatalog();
+    const catalog = await getOperationalCatalog({ fresh: true });
     const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
     const client = createCjShippingClient();
     const lines: CartShippingQuoteLine[] = [];
@@ -109,8 +110,12 @@ export async function POST(request: Request) {
         client,
       });
       const selectedVariant = product.variants.find((variant) => variant.sku.toUpperCase() === quote.variantSku.toUpperCase());
-      const productSubtotalCop = product.price * requested.quantity;
-      const localizedPrice = marketPriceFromCop(product.price, market, exchangeRate);
+      const productPriceCop = recommendedSalePriceCopFromSupplierCost({
+        supplierCostUsd: quote.supplierCostUsd,
+        copPerUsd: exchangeRate.copPerUsd,
+      });
+      const productSubtotalCop = productPriceCop * requested.quantity;
+      const localizedPrice = marketPriceFromCop(productPriceCop, market, exchangeRate);
       if (!localizedPrice) return NextResponse.json({ message: market === "co" ? "La tasa de cambio aprobada no permite calcular el total del mercado." : "The approved exchange rate cannot produce a valid market total." }, { status: 503 });
       const productSubtotal = Math.round(localizedPrice.amount * requested.quantity * 100) / 100;
       const quoteToken = createShippingQuoteToken({
@@ -121,7 +126,7 @@ export async function POST(request: Request) {
         productSlug: product.slug,
         productPrice: localizedPrice.amount,
         productSubtotal,
-        productPriceCop: product.price,
+        productPriceCop,
         productSubtotalCop,
         quantity: requested.quantity,
         variantSku: quote.variantSku,

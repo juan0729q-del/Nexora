@@ -12,7 +12,7 @@ const anchorBySegment: Record<TechnologySegment, string> = {
 
 export async function TechnologyCatalogSection({ segment, market = "co" }: { segment: TechnologySegment; market?: Market }) {
   const dictionary = getDictionary(market);
-  const exchangeRate = market === "us" ? getExchangeRateSnapshot() : undefined;
+  const exchangeRate = getExchangeRateSnapshot();
   const products = (await getStoreCatalog("technologyHome"))
     .filter((product) => getTechnologySegment(product) === segment)
     .filter((product) => hasCompleteEditorial(product, market))

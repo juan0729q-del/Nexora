@@ -2,6 +2,8 @@ import "server-only";
 
 import catalogDocument from "@/data/catalog.json";
 import { getCatalogDecision, isValidCatalogProduct, type Product, type ProductNiche } from "@/lib/products";
+import { getIntelligenceLedgerSnapshot } from "@/lib/sales-ledger";
+import { applyExecutedCatalogDecisions } from "@/lib/intelligence/catalog-overlay";
 
 type CatalogDocument = {
   version: number;
@@ -33,12 +35,32 @@ export async function getCatalog() {
   });
 }
 
+let operationalCache: { expiresAt: number; products: Product[] } | null = null;
+
+export function invalidateOperationalCatalogCache() {
+  operationalCache = null;
+}
+
+/**
+ * Capa operativa reversible. El JSON de CJ sigue siendo la fuente versionada;
+ * las decisiones humanas ejecutadas en Sheets sólo pausan o priorizan la
+ * vitrina. Un fallo del libro privado nunca inventa cambios de catálogo.
+ */
+export async function getOperationalCatalog({ fresh = false }: { fresh?: boolean } = {}) {
+  if (!fresh && operationalCache && operationalCache.expiresAt > Date.now()) return operationalCache.products;
+  const products = await getCatalog();
+  const ledger = await getIntelligenceLedgerSnapshot().catch(() => null);
+  const operational = applyExecutedCatalogDecisions(products, ledger?.proposals || []);
+  operationalCache = { expiresAt: Date.now() + 30_000, products: operational };
+  return operational;
+}
+
 export async function getStoreCatalog(niche?: ProductNiche) {
-  return (await getCatalog()).filter((product) => product.active && getCatalogDecision(product) !== "pause" && (!niche || product.niche === niche));
+  return (await getOperationalCatalog()).filter((product) => product.active && getCatalogDecision(product) !== "pause" && (!niche || product.niche === niche));
 }
 
 export async function getProduct(slug: string) {
-  return (await getCatalog()).find((product) => product.slug === slug);
+  return (await getOperationalCatalog()).find((product) => product.slug === slug);
 }
 
 /** Recupera el producto CJ desde una referencia de pago que conserva el SKU. */

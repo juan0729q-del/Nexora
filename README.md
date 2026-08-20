@@ -37,7 +37,11 @@ La cookie funcional `nexora_market` conserva la selección manual. Para la prime
 
 El carrito solicita dirección completa, cotiza cada referencia exacta y recomienda la alternativa real de menor costo. El comprador puede elegir otra opción devuelta por CJ. El token de cotización cifra los importes y la dirección, conserva mercado/locale/moneda/tasa y vence en minutos. El checkout vuelve a validar token e inventario antes de firmar un total COP para Wompi o USD para PayPal; nunca mezcla monedas.
 
+El precio no es el mismo para todos los estilos de una ficha: parte de `supplierCostUsd` de la variante exacta, usa la TRM oficial versionada y protege el margen objetivo con la estructura más costosa entre Wompi y PayPal. El mismo precio canónico COP se convierte a USD, de modo que ambos mercados representan el mismo valor comercial. `pnpm exchange-rate:update` y el workflow diario actualizan la fuente oficial; una tasa vencida bloquea el cobro.
+
 El libro privado de Google Sheets registra el pedido antes de revelar la pasarela. Los webhooks verificados de Wompi y PayPal son idempotentes; una redirección del navegador jamás se interpreta como pago. La orden a CJ continúa siendo una acción administrativa explícita.
+
+En `/admin/inteligencia`, autorizar no es sólo registrar una opinión: la decisión firmada se ejecuta y el resultado queda marcado en el libro privado. Pausar excluye inmediatamente el SKU de vitrinas, sitemap, feeds, enlaces cortos, cotización y checkout; promover lo prioriza dentro de su nicho. Una nota que solicita reemplazo activa búsqueda y validación real en CJ, pero el candidato no se publica hasta pasar por el flujo versionado en Git. Rechazos y fallos quedan trazables y son reintentables sin simular una ejecución.
 
 PayPal usa exclusivamente variables de servidor: `PAYPAL_CLIENT_ID`, `PAYPAL_CLIENT_SECRET`, `PAYPAL_WEBHOOK_ID`, `PAYPAL_ENVIRONMENT` y el gate `PAYPAL_CHECKOUT_ENABLED`. Para Live, el webhook debe pertenecer a la misma aplicación y apuntar a `/api/payments/paypal/webhook`. Un Client ID aislado nunca habilita el cobro. El retorno inicia la captura una sola vez con `POST`; las consultas posteriores usan `GET` y no capturan, concilian ni notifican. Retorno y webhook calculan el mismo `eventId` a partir de captura + estado, sin depender de la fuente ni de la hora de llegada.
 

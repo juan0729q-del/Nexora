@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyCheckoutInventory } from "@/lib/automation/supplier-sync";
 import { CjAuthenticationError, CjQuotaError, CjRequestError, createCjClient } from "@/lib/automation/cj-client";
-import { getCatalog } from "@/lib/catalog-store";
+import { getOperationalCatalog } from "@/lib/catalog-store";
 import { isMarket, markets } from "@/lib/i18n/config";
 import {
   PaymentConfigurationError,
@@ -11,6 +11,7 @@ import {
   type CheckoutLineItem,
 } from "@/lib/payments/hosted-checkout";
 import { isStoreProductAvailable } from "@/lib/products";
+import { recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
 import { getSalesLedgerStatus, recordCheckoutCreated, SalesLedgerError } from "@/lib/sales-ledger";
 import { getSiteUrl } from "@/lib/site";
 import { CjShippingQuoteError, normalizeCjShippingDestination } from "@/lib/shipping/cj-shipping";
@@ -111,20 +112,36 @@ export async function POST(request: Request) {
     if (destination.email.trim().toLowerCase() !== email) return NextResponse.json({ message: "Usa el mismo correo para la cotización y la confirmación del pedido." }, { status: 400 });
     enforceCheckoutRateLimit(request, `${email}|${requestedItems.map((item) => item.shippingQuoteToken).sort().join("|")}`);
 
-    const catalog = await getCatalog();
+    const catalog = await getOperationalCatalog({ fresh: true });
     const productsBySlug = new Map(catalog.map((product) => [product.slug, product]));
     const checkoutItems: CheckoutLineItem[] = [];
+    let checkoutRateContext: { exchangeRateCopPerUsd: number; rateUpdatedAt: string } | undefined;
     let inventoryClient: ReturnType<typeof createCjClient> | undefined;
     for (const requested of requestedItems) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
       const quoteToken = readShippingQuoteToken(requested.shippingQuoteToken);
+      if (!checkoutRateContext) {
+        checkoutRateContext = {
+          exchangeRateCopPerUsd: quoteToken.exchangeRateCopPerUsd,
+          rateUpdatedAt: quoteToken.rateUpdatedAt,
+        };
+      } else if (
+        checkoutRateContext.exchangeRateCopPerUsd !== quoteToken.exchangeRateCopPerUsd
+        || checkoutRateContext.rateUpdatedAt !== quoteToken.rateUpdatedAt
+      ) {
+        return NextResponse.json({ message: "Las cotizaciones del carrito usan tasas distintas. Vuelve a calcular el envío para obtener un total coherente." }, { status: 409 });
+      }
+      const expectedProductPriceCop = recommendedSalePriceCopFromSupplierCost({
+        supplierCostUsd: quoteToken.supplierCostUsd,
+        copPerUsd: quoteToken.exchangeRateCopPerUsd,
+      });
       if (!checkoutQuoteMatches(quoteToken, {
         market: body.market,
         locale: markets[body.market].locale,
         currency: markets[body.market].currency,
         productSlug: product.slug,
-        productPriceCop: product.price,
+        productPriceCop: expectedProductPriceCop,
         quantity: requested.quantity,
         variantSku: requested.variantSku,
       })) {
@@ -160,6 +177,7 @@ export async function POST(request: Request) {
         product,
         quantity: requested.quantity,
         unitPrice: quoteToken.productPrice,
+        unitPriceCop: quoteToken.productPriceCop,
         shipping,
         supplierCostUsd: quoteToken.supplierCostUsd,
         exchangeRateCopPerUsd: quoteToken.exchangeRateCopPerUsd,
@@ -170,12 +188,13 @@ export async function POST(request: Request) {
     if (!ledger.configured && (body.market === "us" || requireSalesLedger())) {
       return NextResponse.json({ message: "El registro seguro de pedidos está terminando de conectarse. Intenta nuevamente en unos minutos; no se realizará ningún cobro mientras no quede listo." }, { status: 503 });
     }
+    if (!checkoutRateContext) return NextResponse.json({ message: "No fue posible validar la tasa de la cotización." }, { status: 409 });
     const checkout = await createHostedCheckout(checkoutItems, getCheckoutSiteUrl(request), email, {
       market: body.market,
       locale: markets[body.market].locale,
       currency: markets[body.market].currency,
-      exchangeRateCopPerUsd: checkoutItems[0]?.exchangeRateCopPerUsd || 0,
-      rateUpdatedAt: readShippingQuoteToken(requestedItems[0].shippingQuoteToken).rateUpdatedAt,
+      exchangeRateCopPerUsd: checkoutRateContext.exchangeRateCopPerUsd,
+      rateUpdatedAt: checkoutRateContext.rateUpdatedAt,
     }, ledger.configured ? recordCheckoutCreated : undefined);
     return NextResponse.json(toPublicCheckoutSession(checkout), { status: 201 });
   } catch (error) {

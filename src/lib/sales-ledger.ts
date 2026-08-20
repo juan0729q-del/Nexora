@@ -397,8 +397,8 @@ function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
       productName: getProductPresentation(item.product, checkout.market).title,
       niche: niches[item.product.niche].menuLabel,
       quantity: item.quantity,
-      unitPriceCop: item.product.price,
-      subtotalCop: item.product.price * item.quantity,
+      unitPriceCop: item.unitPriceCop,
+      subtotalCop: item.unitPriceCop * item.quantity,
       unitPrice: item.unitPrice,
       subtotal: Math.round(item.unitPrice * item.quantity * (checkout.currency === "USD" ? 100 : 1)) / (checkout.currency === "USD" ? 100 : 1),
       currency: checkout.currency,
@@ -764,7 +764,11 @@ function parseIntelligenceProposal(value: unknown): IntelligenceProposal | null 
   const title = stringValue(row.title);
   const action = stringValue(row.action) as IntelligenceProposal["action"];
   const niche = stringValue(row.niche) as IntelligenceProposal["niche"];
-  const status = stringValue(row.status) as IntelligenceProposal["status"];
+  const persistedStatus = stringValue(row.status) as IntelligenceProposal["status"];
+  const decisionNote = nullableString(row.decisionNote) || undefined;
+  const status = persistedStatus === "authorized" && decisionNote?.includes("[NEXORA_EXECUTED_V1]")
+    ? "executed"
+    : persistedStatus;
   const execution = stringValue(row.execution) as IntelligenceProposal["execution"];
   if (!id || !title || !["promote_product", "monitor_product", "pause_product", "start_experiment", "source_candidate"].includes(action)) return null;
   if (!["jewelry", "technologyHome", "wellbeing"].includes(niche) || !["proposed", "authorized", "rejected", "executed", "expired"].includes(status)) return null;
@@ -789,7 +793,7 @@ function parseIntelligenceProposal(value: unknown): IntelligenceProposal | null 
     evidence: Array.isArray(row.evidence) ? row.evidence.filter((item): item is IntelligenceProposal["evidence"][number] => Boolean(item) && typeof item === "object").slice(0, 20) : [],
     execution,
     decidedAt: nullableString(row.decidedAt) || undefined,
-    decisionNote: nullableString(row.decisionNote) || undefined,
+    decisionNote,
   };
 }
 

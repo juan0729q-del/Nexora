@@ -26,6 +26,8 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   const variantSku = variantContext?.variantSku ?? localVariantSku;
   const setVariantSku = variantContext?.setVariantSku ?? setLocalVariantSku;
   const selectedVariant = product.variants.find((variant) => variant.sku === variantSku);
+  const displayedPrice = selectedVariant?.price ?? product.price;
+  const displayedPriceCop = selectedVariant?.sourcePriceCop ?? product.sourcePriceCop;
   const presentation = getProductPresentation(product, product.market);
   const dictionary = getDictionary(product.market);
   const productHref = productPath(product.market, product.slug);
@@ -42,7 +44,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
     announceProduct({ category: product.category, market: product.market }, intent);
     if (intent === "view") {
       trackIntelligenceEvent({ type: "product_viewed", page: productHref, productSlug: product.slug, productSku: product.sku, niche: product.niche, ...intelligenceContext });
-      trackCommerceEvent({ name: "select_item", market: product.market, itemListId: product.niche, items: [{ item_id: product.sku, item_name: presentation.title, item_category: product.niche, price: product.price ?? undefined, quantity: 1 }] });
+      trackCommerceEvent({ name: "select_item", market: product.market, itemListId: product.niche, items: [{ item_id: product.sku, item_name: presentation.title, item_category: product.niche, price: displayedPrice ?? undefined, quantity: 1 }] });
     }
   }
 
@@ -68,8 +70,8 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
       return;
     }
     addItem({ productSlug: product.slug, variantSku, quantity });
-    trackIntelligenceEvent({ type: "cart_added", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku, niche: product.niche, quantity, valueCop: product.sourcePriceCop * quantity, value: product.price === null ? undefined : product.price * quantity, ...intelligenceContext });
-    trackCommerceEvent({ name: "add_to_cart", market: product.market, value: product.price === null ? undefined : product.price * quantity, items: [{ item_id: product.sku, item_name: presentation.title, item_category: product.niche, item_variant: selectedVariant?.options || selectedVariant?.label || variantSku, price: product.price ?? undefined, quantity }] });
+    trackIntelligenceEvent({ type: "cart_added", page: window.location.pathname, productSlug: product.slug, productSku: product.sku, variantSku, niche: product.niche, quantity, valueCop: displayedPriceCop === null ? undefined : displayedPriceCop * quantity, value: displayedPrice === null ? undefined : displayedPrice * quantity, ...intelligenceContext });
+    trackCommerceEvent({ name: "add_to_cart", market: product.market, value: displayedPrice === null ? undefined : displayedPrice * quantity, items: [{ item_id: product.sku, item_name: presentation.title, item_category: product.niche, item_variant: selectedVariant?.options || selectedVariant?.label || variantSku, price: displayedPrice ?? undefined, quantity }] });
     announceInterest("buy");
     setStatus({ message: product.market === "co" ? `${quantity} unidad${quantity === 1 ? "" : "es"} agregada${quantity === 1 ? "" : "s"}. Puedes seguir comprando o revisar el carrito.` : `${quantity} unit${quantity === 1 ? "" : "s"} added. Continue shopping or review your cart.`, tone: "success" });
   }
@@ -91,7 +93,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
       </div>
       <p className="mt-2 min-h-10 text-sm leading-5 text-silver/70">{presentation.cardDescription}</p>
       <div className="mt-5">
-        <p className="text-lg font-semibold text-white">{product.price === null ? dictionary.exchangeUnavailable : formatMoney(product.price, product.market)}</p>
+        <p className="text-lg font-semibold text-white">{displayedPrice === null ? dictionary.exchangeUnavailable : <>{!selectedVariant && product.variants.length > 1 ? (product.market === "co" ? "Desde " : "From ") : ""}{formatMoney(displayedPrice, product.market)}</>}</p>
         <p className="mt-1 text-[11px] text-silver/55">{dictionary.shippingCalculated}</p>
       </div>
 
@@ -105,10 +107,9 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
         <QuantityStepper value={quantity} max={maximumProductQuantity} onChange={setQuantity} disabled={!product.available} market={product.market} />
       </div>
       {product.variants.length > 1 && !variantSku && <p id={`${product.slug}-style-help`} className="mt-2 text-xs text-amber-100">{dictionary.selectStyleHelp}</p>}
-      {product.market === "us" && <p className="mt-3 rounded-lg border border-amber-300/30 bg-amber-300/[.07] px-3 py-2 text-xs leading-5 text-amber-100">{dictionary.usCheckoutUnavailable}</p>}
       {!product.variants.length && <p className="mt-3 rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-200">{product.market === "co" ? "CJ no reportó un estilo verificable; este artículo no puede añadirse al checkout todavía." : "CJ did not report a verifiable style, so this item cannot be added to checkout yet."}</p>}
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !product.variants.length || product.price === null} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
+        <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !product.variants.length || displayedPrice === null} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
         <Link href={cartPath(product.market)} className="rounded-full border border-silver/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald hover:text-emerald">{dictionary.viewCart}</Link>
       </div>
       {status && <p role={status.tone === "warning" ? "alert" : "status"} className={`mt-3 rounded-lg px-3 py-2 text-xs ${status.tone === "warning" ? "bg-amber-300/10 text-amber-100" : "bg-emerald/10 text-emerald"}`}>{status.message}</p>}

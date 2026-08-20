@@ -14,7 +14,7 @@ const anchorByNiche: Record<ProductNiche, string> = {
 
 export async function NicheCatalogSection({ niche, market = "co", priority = false, headingLevel = "h2" }: { niche: ProductNiche; market?: Market; priority?: boolean; headingLevel?: "h1" | "h2" }) {
   const dictionary = getDictionary(market);
-  const exchangeRate = market === "us" ? getExchangeRateSnapshot() : undefined;
+  const exchangeRate = getExchangeRateSnapshot();
   const products = (await getStoreCatalog(niche))
     .filter((product) => hasCompleteEditorial(product, market))
     .map((product) => toStorefrontProduct(product, market, exchangeRate))

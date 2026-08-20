@@ -1,7 +1,7 @@
 import "server-only";
 
 import { createHash } from "crypto";
-import { getCatalog } from "@/lib/catalog-store";
+import { getOperationalCatalog } from "@/lib/catalog-store";
 import { markets, productPath, type Market } from "@/lib/i18n/config";
 import { getExchangeRateSnapshot, getMarketCommerceReadiness } from "@/lib/market-pricing";
 import { getProductPresentation, hasCompleteEditorial, toStorefrontProduct } from "@/lib/product-presentation";
@@ -36,7 +36,7 @@ export async function buildGoogleMerchantFeed(market: Market) {
   if (market === "us" && !exchangeRate.valid) throw new MerchantFeedNotConfiguredError(exchangeRate.detail);
 
   const baseUrl = getSiteUrl();
-  const products = (await getCatalog()).filter((product) => isStoreProductAvailable(product) && hasCompleteEditorial(product, market));
+  const products = (await getOperationalCatalog()).filter((product) => isStoreProductAvailable(product) && hasCompleteEditorial(product, market));
   const items = products.flatMap((product) => {
     const storefront = toStorefrontProduct(product, market, exchangeRate);
     if (!storefront.available || storefront.price === null) return [];

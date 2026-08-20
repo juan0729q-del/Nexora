@@ -12,6 +12,7 @@ export type CheckoutLineItem = {
   product: Product;
   quantity: number;
   unitPrice: number;
+  unitPriceCop: number;
   shipping: CheckoutShipping;
   supplierCostUsd: number;
   exchangeRateCopPerUsd: number;
@@ -125,7 +126,7 @@ function resultUrl(siteUrl: string, market: Market, provider: PaymentProvider, e
 }
 
 function checkoutAmounts(items: CheckoutLineItem[], currency: StoreCurrency) {
-  const productSubtotalCop = items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  const productSubtotalCop = items.reduce((total, item) => total + item.unitPriceCop * item.quantity, 0);
   const shippingCostCop = items.reduce((total, item) => total + Math.round(item.shipping.selected.amountCop), 0);
   if (!Number.isSafeInteger(productSubtotalCop) || productSubtotalCop <= 0 || !Number.isSafeInteger(shippingCostCop) || shippingCostCop < 0) {
     throw new PaymentConfigurationError("El carrito o la cotización de envío no contiene valores válidos.");
@@ -254,7 +255,7 @@ async function createMercadoPagoPreference(items: CheckoutLineItem[], siteUrl: s
       items: items.flatMap((item) => {
         const presentation = getProductPresentation(item.product);
         return [
-          { id: item.product.sku, title: presentation.title, description: presentation.cardDescription, quantity: item.quantity, unit_price: item.product.price, currency_id: "COP" },
+          { id: item.product.sku, title: presentation.title, description: presentation.cardDescription, quantity: item.quantity, unit_price: item.unitPriceCop, currency_id: "COP" },
           { id: `shipping-${item.shipping.selected.id}`, title: `Envío CJ — ${presentation.title}`, description: `${item.shipping.selected.method}${item.shipping.selected.estimatedDelivery ? ` · ${item.shipping.selected.estimatedDelivery}` : ""}`, quantity: 1, unit_price: item.shipping.selected.amountCop, currency_id: "COP" },
         ];
       }),

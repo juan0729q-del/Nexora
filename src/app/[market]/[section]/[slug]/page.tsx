@@ -88,7 +88,8 @@ export default async function LocalizedProductPage({ params }: Props) {
   if (!isMarket(rawMarket)) notFound();
   const market = rawMarket;
   if (section === "p") {
-    const shortProduct = await getProductBySku(slug);
+    const versionedProduct = await getProductBySku(slug);
+    const shortProduct = versionedProduct ? await getProduct(versionedProduct.slug) : undefined;
     if (!shortProduct || !isStoreProductAvailable(shortProduct) || !hasCompleteEditorial(shortProduct, market)) notFound();
     permanentRedirect(productPath(market, shortProduct.slug));
   }
@@ -98,7 +99,7 @@ export default async function LocalizedProductPage({ params }: Props) {
 
   const dictionary = getDictionary(market);
   const presentation = getProductPresentation(product, market);
-  const exchangeRate = market === "us" ? getExchangeRateSnapshot() : undefined;
+  const exchangeRate = getExchangeRateSnapshot();
   const storefrontProduct = toStorefrontProduct(product, market, exchangeRate);
   const canonicalUrl = siteUrlFor(productPath(market, product.slug));
   const commerce = getMarketCommerceReadiness(market);
@@ -122,7 +123,20 @@ export default async function LocalizedProductPage({ params }: Props) {
       image: variant.image ? { ...variant.image, alt: `${presentation.title} — ${localizeVariantOption(variant.options || variant.label, market) || variant.label}` } : undefined,
     })),
   };
-  const offer = storefrontProduct.price !== null && commerce.checkoutEnabled ? {
+  const variantPrices = storefrontProduct.variants
+    .map((variant) => variant.price)
+    .filter((price): price is number => typeof price === "number" && Number.isFinite(price));
+  const offer = storefrontProduct.price !== null && commerce.checkoutEnabled ? variantPrices.length > 1 ? {
+    "@type": "AggregateOffer",
+    url: canonicalUrl,
+    priceCurrency: storefrontProduct.currency,
+    lowPrice: Math.min(...variantPrices),
+    highPrice: Math.max(...variantPrices),
+    offerCount: variantPrices.length,
+    availability: "https://schema.org/InStock",
+    itemCondition: "https://schema.org/NewCondition",
+    seller: { "@type": "Organization", name: "Nexora", url: siteUrlFor() },
+  } : {
     "@type": "Offer",
     url: canonicalUrl,
     priceCurrency: storefrontProduct.currency,
@@ -187,7 +201,7 @@ export default async function LocalizedProductPage({ params }: Props) {
               <div><dt className="text-silver/55">{dictionary.availability}</dt><dd className="mt-1 font-medium text-white">{product.stock} {dictionary.units}</dd></div>
               {shippingFacts.map(([label, value]) => <div key={label}><dt className="text-silver/55">{label}</dt><dd className="mt-1 font-medium text-white">{value}</dd></div>)}
             </dl>
-            <p className="mt-6 text-2xl font-semibold text-white">{storefrontProduct.price === null ? dictionary.exchangeUnavailable : formatMoney(storefrontProduct.price, market)}</p>
+            <p className="mt-6 text-2xl font-semibold text-white">{storefrontProduct.price === null ? dictionary.exchangeUnavailable : <>{storefrontProduct.variants.length > 1 ? (market === "co" ? "Desde " : "From ") : ""}{formatMoney(storefrontProduct.price, market)}</>}</p>
             <div className="mt-6"><ProductCard product={storefrontProduct} showArt={false} /></div>
           </div>
         </article>

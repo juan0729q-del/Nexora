@@ -118,13 +118,22 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
   const productsBySlug = useMemo(() => new Map(products.map((product) => [product.slug, product])), [products]);
   const visibleItems = useMemo(() => items.flatMap((item) => {
     const product = productsBySlug.get(item.productSlug);
-    return product ? [{ ...item, product }] : [];
+    if (!product) return [];
+    const variant = product.variants.find((entry) => entry.sku === item.variantSku);
+    return [{
+      ...item,
+      product,
+      variant,
+      unitPrice: variant?.price ?? null,
+      unitPriceCop: variant?.sourcePriceCop ?? null,
+    }];
   }), [items, productsBySlug]);
   const orphanedItems = useMemo(() => items.filter((item) => !productsBySlug.has(item.productSlug)), [items, productsBySlug]);
   const invalidItems = useMemo(() => items.filter((item) => {
     const product = productsBySlug.get(item.productSlug);
-    return !product || !product.available || product.price === null || product.stock < item.quantity
-      || !product.variants.some((variant) => variant.sku === item.variantSku);
+    const variant = product?.variants.find((entry) => entry.sku === item.variantSku);
+    return !product || !product.available || variant?.price === null || variant?.price === undefined
+      || variant.sourcePriceCop === null || product.stock < item.quantity || !variant;
   }), [items, productsBySlug]);
 
   useEffect(() => () => requestControllerRef.current?.abort(), []);
@@ -134,8 +143,8 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
     trackCommerceEvent({
       name: "view_cart",
       market,
-      value: visibleItems.reduce((total, item) => total + (item.product.price ?? 0) * item.quantity, 0),
-      items: visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.product.price ?? undefined, quantity: item.quantity })),
+      value: visibleItems.reduce((total, item) => total + (item.unitPrice ?? 0) * item.quantity, 0),
+      items: visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.unitPrice ?? undefined, quantity: item.quantity })),
       dedupeKey: `view_cart:${market}:${items.map((item) => `${item.productSlug}:${item.variantSku}:${item.quantity}`).join("|")}`,
     });
   }, [hydrated, items, market, visibleItems]);
@@ -235,7 +244,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
       });
       trackIntelligenceEvent({ type: "shipping_quote_succeeded", page: cartPath(market), quantity: payload.items.reduce((total, item) => total + item.quantity, 0), valueCop: payload.productSubtotalCop, value: payload.productSubtotal, ...intelligenceContext });
       const suggestedShipping = payload.items.reduce((total, line) => total + (line.options.find((option) => option.recommendation === "cheapest") || line.options[0]).amountUsd, 0);
-      trackCommerceEvent({ name: "add_shipping_info", market, value: market === "co" ? payload.productSubtotalCop + payload.items.reduce((total, line) => total + (line.options.find((option) => option.recommendation === "cheapest") || line.options[0]).amountCop, 0) : payload.productSubtotal + suggestedShipping, shippingTier: "cj-lowest-cost", items: visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.product.price ?? undefined, quantity: item.quantity })) });
+      trackCommerceEvent({ name: "add_shipping_info", market, value: market === "co" ? payload.productSubtotalCop + payload.items.reduce((total, line) => total + (line.options.find((option) => option.recommendation === "cheapest") || line.options[0]).amountCop, 0) : payload.productSubtotal + suggestedShipping, shippingTier: "cj-lowest-cost", items: visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.unitPrice ?? undefined, quantity: item.quantity })) });
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
       if (!failureRecorded) recordCheckoutAuditEvent("shipping-failed", { reason: "client-or-validation" });
@@ -281,7 +290,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
       }),
     });
     trackIntelligenceEvent({ type: "checkout_started", page: cartPath(market), quantity: checkoutItems.reduce((total, item) => total + item.quantity, 0), valueCop: quote.productSubtotalCop + quote.items.reduce((total, line) => total + (line.options.find((option) => option.id === selectedMethods[lineId(line.productSlug, line.variantSku)])?.amountCop || 0), 0), value: checkoutTotal, ...intelligenceContext });
-    const analyticsItems = visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.product.price ?? undefined, quantity: item.quantity }));
+    const analyticsItems = visibleItems.map((item) => ({ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.unitPrice ?? undefined, quantity: item.quantity }));
     trackCommerceEvent({ name: "begin_checkout", market, value: checkoutTotal, items: analyticsItems });
     try {
       setIsPreparing(true);
@@ -347,7 +356,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
       </div>}
       <div className="mt-8 space-y-3">
         {visibleItems.map((item) => {
-          const variant = item.product.variants.find((entry) => entry.sku === item.variantSku);
+          const variant = item.variant;
           const maximumQuantity = Math.max(1, Math.min(
             maxUnitsPerLine,
             item.product.stock,
@@ -358,12 +367,12 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
             <div>
               <h2 className="font-semibold text-white">{item.product.name}</h2>
               <p className="mt-1 text-xs text-silver/60">{es ? "Estilo" : "Style"}: {variant?.options || variant?.label || item.variantSku}</p>
-              <p className="mt-2 text-sm font-semibold text-emerald">{formatMoney(item.product.price ?? 0, market)} {es ? "por unidad" : "per unit"}</p>
+              <p className="mt-2 text-sm font-semibold text-emerald">{formatMoney(item.unitPrice ?? 0, market)} {es ? "por unidad" : "per unit"}</p>
               {!item.product.available || !variant || item.product.stock < item.quantity ? <p className="mt-2 text-xs font-semibold text-amber-100">{es ? "No disponible para esta cantidad o estilo." : "Unavailable for this quantity or style."}</p> : null}
             </div>
             <div className="flex items-end gap-3">
               <QuantityStepper value={item.quantity} max={maximumQuantity} onChange={(quantity) => { updateQuantity(item.productSlug, item.variantSku, quantity); recordCheckoutAuditEvent("cart-quantity-changed", { productSlug: item.productSlug, variantSku: item.variantSku, quantity }); clearQuote(); }} className="w-36" market={market} />
-              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); trackIntelligenceEvent({ type: "cart_removed", page: cartPath(market), productSlug: item.productSlug, productSku: item.product.sku, variantSku: item.variantSku, niche: item.product.niche, quantity: item.quantity, valueCop: item.product.sourcePriceCop * item.quantity, value: (item.product.price ?? 0) * item.quantity, ...intelligenceContext }); trackCommerceEvent({ name: "remove_from_cart", market, value: (item.product.price ?? 0) * item.quantity, items: [{ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.product.price ?? undefined, quantity: item.quantity }] }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">{es ? "Quitar" : "Remove"}</button>
+              <button type="button" onClick={() => { removeItem(item.productSlug, item.variantSku); recordCheckoutAuditEvent("cart-item-removed", { productSlug: item.productSlug, variantSku: item.variantSku }); trackIntelligenceEvent({ type: "cart_removed", page: cartPath(market), productSlug: item.productSlug, productSku: item.product.sku, variantSku: item.variantSku, niche: item.product.niche, quantity: item.quantity, valueCop: (item.unitPriceCop ?? 0) * item.quantity, value: (item.unitPrice ?? 0) * item.quantity, ...intelligenceContext }); trackCommerceEvent({ name: "remove_from_cart", market, value: (item.unitPrice ?? 0) * item.quantity, items: [{ item_id: item.product.sku, item_name: item.product.name, item_category: item.product.niche, item_variant: item.variantSku, price: item.unitPrice ?? undefined, quantity: item.quantity }] }); clearQuote(); }} className="rounded-lg border border-red-300/30 px-3 py-2 text-xs font-semibold text-red-200 hover:border-red-300">{es ? "Quitar" : "Remove"}</button>
             </div>
           </article>;
         })}

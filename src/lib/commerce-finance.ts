@@ -1,4 +1,5 @@
 import { getExchangeRateSnapshot } from "@/lib/market-pricing";
+import { defaultCommercePricingPolicy, getCommercePricingPolicy } from "@/lib/pricing-policy";
 
 export type WompiFeeConfiguration = {
   percentageRate: number;
@@ -20,9 +21,9 @@ export type ContributionEstimate = WompiFeeBreakdown & {
 };
 
 const defaultWompiFeeConfiguration: WompiFeeConfiguration = {
-  percentageRate: 0.0265,
-  fixedFeeCop: 700,
-  vatRate: 0.19,
+  percentageRate: defaultCommercePricingPolicy.wompiPercentageRate,
+  fixedFeeCop: defaultCommercePricingPolicy.wompiFixedFeeCop,
+  vatRate: defaultCommercePricingPolicy.wompiVatRate,
 };
 
 function positiveNumber(value: string | undefined, fallback: number, minimum = 0) {
@@ -94,11 +95,11 @@ export function estimateContribution({
 }
 
 export function getTargetContributionMargin() {
-  return positiveNumber(process.env.CATALOG_TARGET_CONTRIBUTION_MARGIN, 0.5, 0.01);
+  return getCommercePricingPolicy().targetContributionMargin;
 }
 
 export function getFulfillmentReserveCop() {
-  return positiveNumber(process.env.CATALOG_LANDED_COST_RESERVE_COP, 0);
+  return getCommercePricingPolicy().fulfillmentReserveCop;
 }
 
 /**

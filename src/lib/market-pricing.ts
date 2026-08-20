@@ -1,5 +1,6 @@
 import "server-only";
 
+import exchangeRateDocument from "@/data/exchange-rate.json";
 import type { Market } from "@/lib/i18n/config";
 import { getMarketPaymentProvider } from "@/lib/payments/market-provider";
 
@@ -10,7 +11,7 @@ export type ExchangeRateSnapshot = {
   updatedAt: string | null;
   valid: boolean;
   stale: boolean;
-  source: "environment" | "unconfigured";
+  source: "environment" | "versioned-official" | "unconfigured";
   detail: string;
 };
 
@@ -23,6 +24,35 @@ export function getExchangeRateSnapshot(now = Date.now()): ExchangeRateSnapshot 
   const validDate = Number.isFinite(updatedAtMs) && updatedAtMs <= now + 5 * 60_000;
   const stale = validDate ? now - updatedAtMs > maximumRateAgeDays * 86_400_000 : true;
 
+  if (validRate && validDate && !stale) {
+    return {
+      copPerUsd: rate,
+      updatedAt: new Date(updatedAtMs).toISOString(),
+      valid: true,
+      stale: false,
+      source: "environment",
+      detail: "Tasa COP por USD configurada manualmente y dentro de su ventana de vigencia.",
+    };
+  }
+
+  const versionedRate = Number(exchangeRateDocument.copPerUsd);
+  const versionedAtMs = Date.parse(exchangeRateDocument.updatedAt);
+  const versionedRateValid = Number.isFinite(versionedRate) && versionedRate >= 1_000 && versionedRate <= 10_000;
+  const versionedDateValid = Number.isFinite(versionedAtMs) && versionedAtMs <= now + 5 * 60_000;
+  const versionedStale = versionedDateValid ? now - versionedAtMs > maximumRateAgeDays * 86_400_000 : true;
+  if (versionedRateValid && versionedDateValid) {
+    return {
+      copPerUsd: versionedRate,
+      updatedAt: new Date(versionedAtMs).toISOString(),
+      valid: !versionedStale,
+      stale: versionedStale,
+      source: "versioned-official",
+      detail: versionedStale
+        ? `La TRM oficial versionada tiene más de ${maximumRateAgeDays} días; la automatización debe actualizarla antes de nuevos cobros.`
+        : `TRM oficial versionada (${exchangeRateDocument.effectiveFrom}) obtenida de Datos Abiertos Colombia.`,
+    };
+  }
+
   if (!validRate || !validDate) {
     return {
       copPerUsd: null,
@@ -34,16 +64,7 @@ export function getExchangeRateSnapshot(now = Date.now()): ExchangeRateSnapshot 
     };
   }
 
-  return {
-    copPerUsd: rate,
-    updatedAt: new Date(updatedAtMs).toISOString(),
-    valid: !stale,
-    stale,
-    source: "environment",
-    detail: stale
-      ? `La tasa tiene más de ${maximumRateAgeDays} días y debe actualizarse antes de habilitar cobros en USD.`
-      : "Tasa COP por USD configurada manualmente y dentro de su ventana de vigencia.",
-  };
+  return { copPerUsd: rate, updatedAt: new Date(updatedAtMs).toISOString(), valid: false, stale: true, source: "environment", detail: `La tasa configurada tiene más de ${maximumRateAgeDays} días.` };
 }
 
 export function marketPriceFromCop(priceCop: number, market: Market, snapshot = getExchangeRateSnapshot()) {

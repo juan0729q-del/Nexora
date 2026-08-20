@@ -3,6 +3,7 @@ import "server-only";
 import { getCatalog } from "@/lib/catalog-store";
 import type { Product } from "@/lib/products";
 import { getUsdToCopRate } from "@/lib/commerce-finance";
+import { startingSalePriceCop } from "@/lib/pricing-policy";
 import { CjQuotaError, createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 import { evaluateSupplierCost } from "./pricing";
 
@@ -85,8 +86,8 @@ function supplementalCostUrlFor(sku: string) {
   return url.toString();
 }
 
-function usdToCop(costUsd: number) {
-  return costUsd * getUsdToCopRate();
+function usdToCop(costUsd: number, exchangeRate = getUsdToCopRate()) {
+  return costUsd * exchangeRate;
 }
 
 /** Consulta el endpoint oficial CJ de inventario por SKU y suma sus bodegas. */
@@ -196,16 +197,17 @@ export async function syncSupplierCatalog(client: CjClient = createCjClient()) {
       continue;
     }
 
+    const exchangeRate = getUsdToCopRate();
     const decision = evaluateSupplierCost({
-      salePrice: product.price,
-      previousCost: usdToCop(product.supplier.costUsd),
-      nextCost: usdToCop(providerCostUsd),
+      salePrice: startingSalePriceCop(product, exchangeRate),
+      previousCost: usdToCop(product.supplier.costUsd, exchangeRate),
+      nextCost: usdToCop(providerCostUsd, exchangeRate),
     });
     updates.push({
       sku: product.sku,
       stock,
       providerCostUsd,
-      providerCostCop: Math.round(usdToCop(providerCostUsd)),
+      providerCostCop: Math.round(usdToCop(providerCostUsd, exchangeRate)),
       action: stock <= stockPauseThreshold() ? "pause_product" : decision.action,
       marginPercent: decision.marginPercent,
       alert: stock <= stockPauseThreshold() ? "Inventario crítico confirmado por CJ." : decision.reason,

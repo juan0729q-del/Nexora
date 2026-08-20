@@ -14,19 +14,20 @@ El selector escribe una cookie `HttpOnly`, `Secure`, `SameSite=Lax` y navega a l
 
 ## Monedas y tasa de cambio
 
-El catálogo canónico conserva precios comerciales en COP y costos CJ en USD. `USD_TO_COP_RATE` significa COP por 1 USD. `USD_TO_COP_RATE_UPDATED_AT` debe ser una fecha ISO UTC aprobada por el propietario. La aplicación rechaza tasas fuera de 1.000–10.000 COP/USD, fechas futuras y registros con más de siete días.
+El catálogo canónico conserva el costo real de cada estilo CJ en USD. El precio comercial se calcula para el estilo exacto con una política única: costo CJ convertido a COP + reserva operativa configurada + la estructura de comisión más costosa entre Wompi y PayPal, manteniendo `CATALOG_TARGET_CONTRIBUTION_MARGIN`. Para PayPal Colombia se documenta 5,40 % + USD 0,30; puede actualizarse con `PAYPAL_FEE_PERCENTAGE` y `PAYPAL_FEE_FIXED_USD` si el contrato del comercio cambia. COP se redondea hacia arriba a centenas y USD se deriva del mismo precio canónico a centavos; no existen listas de precios independientes por país.
 
-No hay consulta externa en cada render ni tasa de respaldo. Sin una tasa válida se bloquean precios USD, márgenes, feeds y automatizaciones que dependen de conversión.
+La TRM oficial vive versionada en `src/data/exchange-rate.json` y se obtiene de la Superintendencia Financiera de Colombia a través de Datos Abiertos Colombia. El workflow `update-exchange-rate.yml` la consulta una vez cada día hábil, ejecuta validaciones y pruebas y sólo publica el JSON si cambió. No hay consulta externa en cada render. Si el registro supera siete días, se bloquean precios, cotizaciones y cobros.
 
-Procedimiento semanal:
+`USD_TO_COP_RATE` y `USD_TO_COP_RATE_UPDATED_AT` son una anulación manual opcional: sólo tienen prioridad si ambos valores son válidos, no futuros y vigentes. Si no, Nexora usa el registro oficial versionado.
 
-1. Consultar una fuente financiera aprobada por el propietario.
-2. Registrar la tasa y su hora UTC, sin añadir un margen oculto.
-3. Actualizar ambas variables en Vercel para Production y Preview.
-4. Redeploy y revisar `/admin/ventas`.
-5. Documentar internamente fuente, responsable y fecha. La orden conserva la tasa usada.
+Procedimiento de contingencia:
 
-COP se redondea a pesos enteros; USD a centavos. El envío y el total se calculan en la moneda de la orden y nunca se mezclan.
+1. Ejecutar manualmente `Update official COP USD rate` en GitHub Actions o `pnpm exchange-rate:update` localmente.
+2. Validar `src/data/exchange-rate.json`, origen, vigencia y diff.
+3. Si la fuente oficial no responde, no introducir una tasa estimada. Una anulación manual requiere documentar fuente, responsable y fecha.
+4. Revisar `/admin/ventas`; cada orden conserva tasa, fecha, mercado, moneda y precio del estilo exacto.
+
+El envío real de CJ se suma después de elegir dirección y método. El margen objetivo se aplica al producto, no se oculta dentro de la conversión ni se inventa sobre el flete.
 
 ## Estado operativo
 

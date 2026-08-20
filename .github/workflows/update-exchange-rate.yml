@@ -1,0 +1,51 @@
+name: Update official COP USD rate
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "20 13 * * 1-5"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nexora-official-exchange-rate
+  cancel-in-progress: false
+
+jobs:
+  update-and-version:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 11.9.0
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Read official TRM
+        run: pnpm exchange-rate:update
+      - name: Verify pricing and application
+        run: |
+          pnpm catalog:validate
+          pnpm lint
+          pnpm typecheck
+          pnpm test
+      - name: Commit verified rate
+        run: |
+          if git diff --quiet -- src/data/exchange-rate.json; then
+            echo "Official rate unchanged."
+            exit 0
+          fi
+          git config user.name "nexora-rate-bot"
+          git config user.email "nexora-rate-bot@users.noreply.github.com"
+          git add src/data/exchange-rate.json
+          git commit -m "Update official COP USD rate"
+          git push

@@ -6,7 +6,7 @@ import { CommerceViewTracker } from "@/components/analytics/commerce-view-tracke
 import { ProductCard } from "@/components/store/product-card";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
-import { getCatalog } from "@/lib/catalog-store";
+import { getOperationalCatalog } from "@/lib/catalog-store";
 import { categoryPath, getDictionary, isMarket, markets, type Market } from "@/lib/i18n/config";
 import { getExchangeRateSnapshot } from "@/lib/market-pricing";
 import { getMerchantIdentity } from "@/lib/merchant-identity";
@@ -79,17 +79,17 @@ export default async function LocalizedSectionPage({ params }: Props) {
   if (!isMarket(rawMarket)) notFound();
   const market = rawMarket;
   const dictionary = getDictionary(market);
-  const exchangeRate = market === "us" ? getExchangeRateSnapshot() : undefined;
+  const exchangeRate = getExchangeRateSnapshot();
 
   if (section === markets[market].cartSegment) {
-    const products = (await getCatalog()).filter((product) => hasCompleteEditorial(product, market)).map((product) => toStorefrontProduct(product, market, exchangeRate));
+    const products = (await getOperationalCatalog()).filter((product) => hasCompleteEditorial(product, market)).map((product) => toStorefrontProduct(product, market, exchangeRate));
     return <><StoreHeader market={market} /><main id="page-content" tabIndex={-1} className="mx-auto min-h-[70vh] max-w-7xl px-5 py-10 outline-none sm:px-8 lg:px-12"><CartCheckout products={products} market={market} /></main><StoreFooter market={market} /></>;
   }
 
   const niche = categoryForSection(market, section);
   if (niche) {
     const copy = categoryCopy[market][niche];
-    const products = (await getCatalog()).filter((product) => product.niche === niche && isStoreProductAvailable(product) && hasCompleteEditorial(product, market)).map((product) => toStorefrontProduct(product, market, exchangeRate));
+    const products = (await getOperationalCatalog()).filter((product) => product.niche === niche && isStoreProductAvailable(product) && hasCompleteEditorial(product, market)).map((product) => toStorefrontProduct(product, market, exchangeRate));
     const canonical = siteUrlFor(categoryPath(market, niche));
     const schemas = [{ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: [{ "@type": "ListItem", position: 1, name: dictionary.home, item: siteUrlFor(markets[market].homePath) }, { "@type": "ListItem", position: 2, name: copy.title, item: canonical }] }, { "@context": "https://schema.org", "@type": "ItemList", name: copy.title, numberOfItems: products.length, itemListElement: products.map((product, index) => ({ "@type": "ListItem", position: index + 1, url: siteUrlFor(`${markets[market].homePath}/${markets[market].productSegment}/${product.slug}`), name: product.name })) }];
     return <><StoreHeader market={market} /><main id="page-content" tabIndex={-1} className="mx-auto min-h-[70vh] max-w-7xl px-5 py-10 outline-none sm:px-8 lg:px-12"><CommerceViewTracker market={market} type="view_item_list" id={niche} name={copy.title} items={products.map((product) => ({ item_id: product.sku, item_name: product.name, item_category: product.niche, price: product.price ?? undefined, quantity: 1 }))} /><nav aria-label={dictionary.breadcrumbs} className="text-xs text-silver/65"><Link href={markets[market].homePath} className="hover:text-emerald">{dictionary.home}</Link> / <span aria-current="page" className="text-white">{copy.title}</span></nav><header className="max-w-3xl py-10"><p className="text-xs font-bold tracking-[.16em] text-emerald uppercase">{dictionary.categoryEyebrow}</p><h1 className="mt-3 text-4xl font-semibold text-white sm:text-5xl">{copy.title}</h1><p className="mt-5 text-lg leading-8 text-silver/75">{copy.description}</p></header>{products.length ? <section aria-label={copy.title} className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">{products.map((product, index) => <ProductCard key={product.slug} product={product} priority={index === 0} />)}</section> : <p className="rounded-2xl border border-silver/15 p-6 text-silver/70">{dictionary.emptyCategory}</p>}<nav className="mt-12 flex flex-wrap gap-4 border-t border-silver/15 pt-8 text-sm" aria-label={market === "co" ? "Otras categorías" : "Other categories"}>{(Object.keys(markets[market].categorySlugs) as ProductNiche[]).filter((candidate) => candidate !== niche).map((candidate) => <Link key={candidate} href={categoryPath(market, candidate)} className="text-emerald hover:text-white">{categoryCopy[market][candidate].title}</Link>)}</nav><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(schemas).replace(/</g, "\\u003c") }} /></main><StoreFooter market={market} /></>;

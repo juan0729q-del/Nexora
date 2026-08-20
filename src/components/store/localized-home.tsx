@@ -5,9 +5,11 @@ import { NicheCatalogSection } from "@/components/store/niche-catalog-section";
 import { StoreFooter } from "@/components/store/store-footer";
 import { StoreHeader } from "@/components/store/store-header";
 import { TechnologyCatalogSection } from "@/components/store/technology-catalog-section";
+import { getMarketCommerceReadiness } from "@/lib/market-pricing";
 
 export function LocalizedHome({ market }: { market: Market }) {
   const dictionary = getDictionary(market);
+  const commerce = getMarketCommerceReadiness(market);
   return <>
     <StoreHeader market={market} />
     <main id="page-content" tabIndex={-1} className="outline-none">
@@ -23,10 +25,10 @@ export function LocalizedHome({ market }: { market: Market }) {
             </div>
             <dl className="mt-12 grid max-w-md grid-cols-3 gap-4 border-t border-silver/20 pt-5 text-sm">
               <div><dt className="text-silver/65">{dictionary.catalog}</dt><dd className="mt-1 font-semibold text-white">{dictionary.verified}</dd></div>
-              <div><dt className="text-silver/65">{dictionary.payment}</dt><dd className="mt-1 font-semibold text-white">{market === "co" ? dictionary.protected : "Not configured"}</dd></div>
+              <div><dt className="text-silver/65">{dictionary.payment}</dt><dd className="mt-1 font-semibold text-white">{commerce.checkoutEnabled ? dictionary.protected : (market === "co" ? "No configurado" : "Not configured")}</dd></div>
               <div><dt className="text-silver/65">{dictionary.images}</dt><dd className="mt-1 font-semibold text-white">{dictionary.original}</dd></div>
             </dl>
-            {market === "us" ? <p className="mt-5 max-w-xl rounded-xl border border-amber-300/30 bg-amber-300/[.07] p-3 text-xs leading-5 text-amber-100">{dictionary.usCheckoutUnavailable}</p> : null}
+            {!commerce.checkoutEnabled ? <p className="mt-5 max-w-xl rounded-xl border border-amber-300/30 bg-amber-300/[.07] p-3 text-xs leading-5 text-amber-100">{market === "us" ? dictionary.usCheckoutUnavailable : commerce.reason}</p> : null}
           </div>
           <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-[2rem] border border-silver/20 bg-[radial-gradient(circle_at_55%_40%,rgba(0,148,115,0.28),transparent_31%),linear-gradient(135deg,#181818,#090909)] p-8 shadow-2xl shadow-black/50">
             <div className="absolute inset-6 rounded-[1.4rem] border border-silver/15" />

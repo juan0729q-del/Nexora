@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/admin-auth";
 import { buildIntelligenceSnapshot } from "@/lib/intelligence/engine";
-import { decideIntelligenceProposalAtomically, SalesLedgerError } from "@/lib/sales-ledger";
+import { executeIntelligenceProposal, executedDecisionNote, failedDecisionNote } from "@/lib/intelligence/execution";
+import { getCatalog, invalidateOperationalCatalogCache } from "@/lib/catalog-store";
+import { decideIntelligenceProposal, decideIntelligenceProposalAtomically, SalesLedgerError } from "@/lib/sales-ledger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -22,11 +24,34 @@ export async function POST(request: Request) {
     const snapshot = await buildIntelligenceSnapshot();
     const proposal = snapshot.proposals.find((item) => item.id === proposalId);
     if (!proposal) return NextResponse.json({ message: "La propuesta expiró o ya no corresponde al catálogo actual. Recarga la página." }, { status: 409 });
-    if (proposal.status !== "proposed") return NextResponse.json({ message: "Esta propuesta ya tiene una decisión registrada." }, { status: 409 });
+    if (!["proposed", "authorized"].includes(proposal.status)) return NextResponse.json({ message: "Esta propuesta ya tiene una decisión definitiva." }, { status: 409 });
 
-    const result = await decideIntelligenceProposalAtomically(proposal, decision, text(body.note, 800));
-    console.info("[intelligence/decision] recorded", { proposalId, decision, execution: proposal.execution });
-    return NextResponse.json({ updated: true, decision: result.status, execution: proposal.execution });
+    const operatorNote = text(body.note, 800);
+    const result = await decideIntelligenceProposalAtomically(proposal, decision, operatorNote);
+    if (decision === "rejected") {
+      console.info("[intelligence/decision] rejected", { proposalId, execution: proposal.execution });
+      return NextResponse.json({ updated: true, decision: result.status, executed: false, execution: proposal.execution });
+    }
+
+    try {
+      const executionResult = await executeIntelligenceProposal(proposal, operatorNote, await getCatalog());
+      await decideIntelligenceProposal(proposal.id, "authorized", executedDecisionNote(operatorNote, executionResult));
+      invalidateOperationalCatalogCache();
+      console.info("[intelligence/decision] executed", { proposalId, action: proposal.action, execution: proposal.execution });
+      return NextResponse.json({ updated: true, decision: "executed", executed: true, execution: proposal.execution, result: executionResult });
+    } catch (executionError) {
+      await decideIntelligenceProposal(proposal.id, "authorized", failedDecisionNote(operatorNote, executionError)).catch(() => undefined);
+      console.error("[intelligence/decision] execution failed", {
+        proposalId,
+        action: proposal.action,
+        message: executionError instanceof Error ? executionError.message : "unknown",
+      });
+      return NextResponse.json({
+        message: executionError instanceof Error ? executionError.message : "La decisión se autorizó, pero no pudo ejecutarse.",
+        authorized: true,
+        executed: false,
+      }, { status: 502 });
+    }
   } catch (error) {
     if (error instanceof SalesLedgerError) {
       console.error("[intelligence/decision] ledger rejected request", { message: error.message });

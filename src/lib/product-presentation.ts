@@ -1,6 +1,7 @@
 import { isStoreProductAvailable, type Product } from "@/lib/products";
 import type { Market } from "@/lib/i18n/config";
 import type { ExchangeRateSnapshot } from "@/lib/market-pricing";
+import { salePriceCopForVariant, startingSalePriceCop } from "@/lib/pricing-policy";
 import type { ProviderImage } from "@/lib/provider-product-details";
 
 export type ProductPresentation = {
@@ -29,7 +30,14 @@ export type StorefrontProduct = Pick<
   sourcePriceCop: number;
   currency: "COP" | "USD";
   exchangeRateCopPerUsd: number | null;
-  variants: Array<{ sku: string; label: string; options?: string; image?: ProviderImage }>;
+  variants: Array<{
+    sku: string;
+    label: string;
+    options?: string;
+    image?: ProviderImage;
+    price: number | null;
+    sourcePriceCop: number | null;
+  }>;
 };
 
 const editorialBySku: Record<string, ProductEditorial> = {
@@ -505,11 +513,14 @@ export function toStorefrontProduct(
   exchangeRate?: ExchangeRateSnapshot,
 ): StorefrontProduct {
   const presentation = getProductPresentation(product, market);
-  const marketPrice = market === "co"
-    ? { amount: product.price, exchangeRateCopPerUsd: 1 }
-    : exchangeRate?.valid && exchangeRate.copPerUsd
-      ? { amount: Math.round((product.price / exchangeRate.copPerUsd) * 100) / 100, exchangeRateCopPerUsd: exchangeRate.copPerUsd }
+  const copPerUsd = exchangeRate?.valid ? exchangeRate.copPerUsd : null;
+  const canonicalStartingPriceCop = copPerUsd ? startingSalePriceCop(product, copPerUsd) : null;
+  const localizedAmount = (priceCop: number) => market === "co"
+    ? priceCop
+    : copPerUsd
+      ? Math.round((priceCop / copPerUsd) * 100) / 100
       : null;
+  const marketPrice = canonicalStartingPriceCop === null ? null : localizedAmount(canonicalStartingPriceCop);
   return {
     slug: product.slug,
     name: presentation.title,
@@ -517,25 +528,30 @@ export function toStorefrontProduct(
     niche: product.niche,
     sku: product.sku,
     image: { ...product.image, alt: presentation.imageAlt },
-    price: marketPrice?.amount ?? null,
-    sourcePriceCop: product.price,
+    price: marketPrice,
+    sourcePriceCop: canonicalStartingPriceCop ?? product.price,
     currency: market === "co" ? "COP" : "USD",
-    exchangeRateCopPerUsd: marketPrice?.exchangeRateCopPerUsd ?? null,
+    exchangeRateCopPerUsd: copPerUsd,
     compareAtPrice: undefined,
     rating: product.rating,
     reviewCount: product.reviewCount,
     stock: product.stock,
     available: isStoreProductAvailable(product) && hasCompleteEditorial(product, market),
     market,
-    variants: product.variants.map((variant) => ({
-      sku: variant.sku,
-      label: localizeVariantOption(variant.options || variant.label, market) || variant.sku,
-      options: localizeVariantOption(variant.options, market),
-      image: variant.image
-        ? { ...variant.image, alt: `${presentation.title} — ${localizeVariantOption(variant.options || variant.label, market) || variant.sku}. ${market === "co" ? "Imagen oficial de CJ." : "Official CJ image."}` }
-        : product.variants.length === 1
-          ? { ...product.image, alt: presentation.imageAlt }
-          : undefined,
-    })),
+    variants: product.variants.map((variant) => {
+      const sourcePriceCop = copPerUsd ? salePriceCopForVariant(product, variant.sku, copPerUsd) : null;
+      return {
+        sku: variant.sku,
+        label: localizeVariantOption(variant.options || variant.label, market) || variant.sku,
+        options: localizeVariantOption(variant.options, market),
+        image: variant.image
+          ? { ...variant.image, alt: `${presentation.title} — ${localizeVariantOption(variant.options || variant.label, market) || variant.sku}. ${market === "co" ? "Imagen oficial de CJ." : "Official CJ image."}` }
+          : product.variants.length === 1
+            ? { ...product.image, alt: presentation.imageAlt }
+            : undefined,
+        sourcePriceCop,
+        price: sourcePriceCop === null ? null : localizedAmount(sourcePriceCop),
+      };
+    }),
   };
 }

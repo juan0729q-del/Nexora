@@ -1,6 +1,6 @@
 import "server-only";
 
-import { getCatalog } from "@/lib/catalog-store";
+import { getOperationalCatalog } from "@/lib/catalog-store";
 import { categoryPath, markets, productPath, type Market } from "@/lib/i18n/config";
 import { hasCompleteEditorial } from "@/lib/product-presentation";
 import { isStoreProductAvailable } from "@/lib/products";
@@ -11,7 +11,7 @@ import { getSiteUrl, siteUrlFor } from "@/lib/site";
 export const indexNowKey = "ad4e336c7e0f4058b480a03d2d460918";
 
 export async function getIndexableUrls() {
-  const products = await getCatalog();
+  const products = await getOperationalCatalog();
   const marketIds: Market[] = ["co", "us"];
   return [
     ...marketIds.flatMap((market) => [

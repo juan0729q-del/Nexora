@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
+import { getCatalogImportMetadata, getOperationalCatalog } from "@/lib/catalog-store";
 import { categoryPath, markets, productPath, type Market } from "@/lib/i18n/config";
 import { hasCompleteEditorial } from "@/lib/product-presentation";
 import { isStoreProductAvailable } from "@/lib/products";
@@ -16,7 +16,7 @@ function xmlSafeImageUrl(url: string) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
-  const products = await getCatalog();
+  const products = await getOperationalCatalog();
   const metadata = getCatalogImportMetadata();
   const lastModified = metadata.importedAt ? new Date(metadata.importedAt) : undefined;
 

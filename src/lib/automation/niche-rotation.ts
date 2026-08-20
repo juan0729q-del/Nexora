@@ -8,8 +8,8 @@ import {
   type ProviderVariant,
 } from "@/lib/provider-product-details";
 import { getCatalog } from "@/lib/catalog-store";
-import { recommendedPriceForContribution } from "@/lib/commerce-finance";
 import { getExchangeRateSnapshot } from "@/lib/market-pricing";
+import { recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
 import { isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
@@ -460,8 +460,7 @@ function priceInCop(supplierCostUsd: number) {
   if (!exchangeRate.valid || !exchangeRate.copPerUsd) {
     throw new Error(`La rotación no puede calcular precios: ${exchangeRate.detail}`);
   }
-  const supplierCostCop = supplierCostUsd * exchangeRate.copPerUsd;
-  return recommendedPriceForContribution({ supplierCostCop, roundingCop: 100 });
+  return recommendedSalePriceCopFromSupplierCost({ supplierCostUsd, copPerUsd: exchangeRate.copPerUsd });
 }
 
 function ensureSustainablePrice(product: Product): Product {

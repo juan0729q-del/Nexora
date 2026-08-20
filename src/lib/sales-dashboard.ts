@@ -11,6 +11,7 @@ import {
 import { getCatalog } from "@/lib/catalog-store";
 import { isOfficialCjImageUrl } from "@/lib/cj-assets";
 import { getExchangeRateSnapshot, getMarketCommerceReadiness } from "@/lib/market-pricing";
+import { getCommercePricingPolicy, recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
 import { marketIds, type Market } from "@/lib/i18n/config";
 import { getProductPresentation, hasCompleteEditorial } from "@/lib/product-presentation";
 import { isStoreProductAvailable, niches, type Product, type ProductNiche } from "@/lib/products";
@@ -75,9 +76,18 @@ export async function getSalesDashboardSnapshot({ includePersistedSales = true }
   const wompi = getWompiFeeConfiguration();
   const exchangeRate = getExchangeRateSnapshot();
   const unitEconomics: CatalogUnitEconomics[] = exchangeRate.valid ? products.map((product) => {
-    const supplierCostCop = usdToCop(product.supplier.costUsd);
+    const variantCosts = product.variants
+      .map((variant) => variant.supplierCostUsd)
+      .filter((cost): cost is number => typeof cost === "number" && Number.isFinite(cost) && cost > 0);
+    const supplierCostUsd = variantCosts.length ? Math.min(...variantCosts) : product.supplier.costUsd;
+    const supplierCostCop = usdToCop(supplierCostUsd);
+    const salePriceCop = recommendedSalePriceCopFromSupplierCost({
+      supplierCostUsd,
+      copPerUsd: exchangeRate.copPerUsd!,
+      policy: getCommercePricingPolicy(),
+    });
     const estimate = estimateContribution({
-      salePriceCop: product.price,
+      salePriceCop,
       supplierCostCop,
       fulfillmentReserveCop,
       configuration: wompi,
@@ -90,7 +100,7 @@ export async function getSalesDashboardSnapshot({ includePersistedSales = true }
       roundingCop: 100,
     });
     return {
-      product,
+      product: { ...product, price: salePriceCop },
       supplierCostCop,
       wompiFeeCop: estimate.totalFeeCop,
       contributionCop: estimate.contributionCop,

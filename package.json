@@ -12,6 +12,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --import tsx --test tests/*.test.ts",
     "diagnose:cj": "node scripts/diagnose-cj-quota.mjs",
+    "exchange-rate:update": "node scripts/update-exchange-rate.mjs",
     "catalog:apply-import": "node scripts/persist-catalog-import.mjs",
     "catalog:enrich-provider-details": "node scripts/enrich-catalog-provider-details.mjs",
     "catalog:validate": "node scripts/validate-catalog.mjs"
