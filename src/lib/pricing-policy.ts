@@ -101,3 +101,36 @@ export function startingSalePriceCop(product: Pick<Product, "supplier" | "varian
     : [product.supplier.costUsd];
   return Math.min(...costs.map((supplierCostUsd) => recommendedSalePriceCopFromSupplierCost({ supplierCostUsd, copPerUsd })));
 }
+
+/**
+ * Estimación comparable a la de Wompi para el panel comercial de EE. UU.
+ * El flete no se mezcla con el producto: CJ lo cotiza y se cobra como una
+ * línea separada. La reserva operativa sí se convierte con la misma TRM
+ * versionada usada por la orden.
+ */
+export function estimatePayPalContributionUsd({
+  salePriceUsd,
+  supplierCostUsd,
+  copPerUsd,
+  policy = getCommercePricingPolicy(),
+}: {
+  salePriceUsd: number;
+  supplierCostUsd: number;
+  copPerUsd: number;
+  policy?: CommercePricingPolicy;
+}) {
+  if (!Number.isFinite(salePriceUsd) || salePriceUsd <= 0
+    || !Number.isFinite(supplierCostUsd) || supplierCostUsd <= 0
+    || !Number.isFinite(copPerUsd) || copPerUsd < 1_000) {
+    throw new Error("El precio USD, costo CJ o tasa COP/USD no permite calcular el margen PayPal.");
+  }
+  const paypalFeeUsd = (salePriceUsd * policy.paypalPercentageRate) + policy.paypalFixedFeeUsd;
+  const fulfillmentReserveUsd = policy.fulfillmentReserveCop / copPerUsd;
+  const contributionUsd = salePriceUsd - supplierCostUsd - fulfillmentReserveUsd - paypalFeeUsd;
+  return {
+    paypalFeeUsd,
+    fulfillmentReserveUsd,
+    contributionUsd,
+    contributionMarginPercent: (contributionUsd / salePriceUsd) * 100,
+  };
+}

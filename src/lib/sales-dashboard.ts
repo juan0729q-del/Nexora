@@ -11,7 +11,7 @@ import {
 import { getCatalog } from "@/lib/catalog-store";
 import { isOfficialCjImageUrl } from "@/lib/cj-assets";
 import { getExchangeRateSnapshot, getMarketCommerceReadiness } from "@/lib/market-pricing";
-import { getCommercePricingPolicy, recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
+import { estimatePayPalContributionUsd, getCommercePricingPolicy, recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
 import { marketIds, type Market } from "@/lib/i18n/config";
 import { getProductPresentation, hasCompleteEditorial } from "@/lib/product-presentation";
 import { isStoreProductAvailable, niches, type Product, type ProductNiche } from "@/lib/products";
@@ -133,8 +133,16 @@ export async function getSalesDashboardSnapshot({ includePersistedSales = true }
       const officialImageCount = product.images.filter((image) => isOfficialCjImageUrl(image.src)).length;
       const editorialComplete = hasCompleteEditorial(product, market);
       const publicEligible = isStoreProductAvailable(product) && officialImageCount > 0;
-      const economics = market === "co" ? economicsBySku.get(product.sku) : undefined;
-      const contributionMarginPercent = economics?.contributionMarginPercent ?? null;
+      const economics = economicsBySku.get(product.sku);
+      const contributionMarginPercent = economics
+        ? market === "co"
+          ? economics.contributionMarginPercent
+          : estimatePayPalContributionUsd({
+            salePriceUsd: Math.round((economics.product.price / exchangeRate.copPerUsd!) * 100) / 100,
+            supplierCostUsd: economics.supplierCostCop / exchangeRate.copPerUsd!,
+            copPerUsd: exchangeRate.copPerUsd!,
+          }).contributionMarginPercent
+        : null;
       const shippingEvidenceCount = (persistedSales?.recentOrders || []).filter((order) =>
         order.market === market && order.productSku.split(",").map((sku) => sku.trim()).includes(product.sku)
           && (market === "us" ? order.supplierShippingCost !== null : order.supplierShippingCostCop !== null),

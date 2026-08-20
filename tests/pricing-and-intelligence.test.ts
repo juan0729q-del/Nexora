@@ -3,7 +3,7 @@ import test from "node:test";
 import catalogDocument from "../src/data/catalog.json";
 import { applyExecutedCatalogDecisions } from "../src/lib/intelligence/catalog-overlay";
 import type { IntelligenceProposal } from "../src/lib/intelligence/types";
-import { defaultCommercePricingPolicy, recommendedSalePriceCopFromSupplierCost, salePriceCopForVariant } from "../src/lib/pricing-policy";
+import { defaultCommercePricingPolicy, estimatePayPalContributionUsd, recommendedSalePriceCopFromSupplierCost, salePriceCopForVariant } from "../src/lib/pricing-policy";
 import type { Product } from "../src/lib/products";
 
 test("el precio por estilo conserva el margen y aumenta con el costo real de CJ", () => {
@@ -28,6 +28,8 @@ test("COP y USD representan el mismo precio canónico salvo redondeo de centavos
   const cop = recommendedSalePriceCopFromSupplierCost({ supplierCostUsd: 4.25, copPerUsd: 3053.48 });
   const usd = Math.round((cop / 3053.48) * 100) / 100;
   assert.ok(Math.abs(usd * 3053.48 - cop) <= 3053.48 / 200);
+  const paypal = estimatePayPalContributionUsd({ salePriceUsd: usd, supplierCostUsd: 4.25, copPerUsd: 3053.48 });
+  assert.ok(paypal.contributionMarginPercent >= defaultCommercePricingPolicy.targetContributionMargin * 100);
 });
 
 test("sólo una decisión ejecutada pausa o prioriza el catálogo", () => {
