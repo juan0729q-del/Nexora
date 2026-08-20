@@ -7,8 +7,8 @@ import { formatCOP } from "@/lib/products";
 import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
 import { logout } from "../actions";
 
-function metric(value: number | null, formatter: (amount: number) => string) {
-  return value === null ? "Pendiente" : formatter(value);
+function metric(value: number | null, formatter: (amount: number) => string, hasActivity = true) {
+  return value === null || !hasActivity ? "Sin datos" : formatter(value);
 }
 
 function formatDay(day: string) {
@@ -53,21 +53,28 @@ function SalesDashboardSkeleton() {
 
 async function SalesDashboardContent() {
   const dashboard = await getSalesDashboardSnapshot();
+  const hasOrderActivity = dashboard.recentOrders.length > 0
+    || (dashboard.sales.approvedOrders ?? 0) > 0
+    || (dashboard.sales.pendingOrders ?? 0) > 0
+    || (dashboard.sales.declinedOrders ?? 0) > 0;
+  const hasApprovedSales = (dashboard.sales.approvedOrders ?? 0) > 0;
+  const hasApprovedCopSales = (dashboard.sales.approvedOrdersCop ?? 0) > 0;
+  const hasApprovedUsdSales = (dashboard.sales.approvedOrdersUsd ?? 0) > 0;
   const targetPercent = Math.round(dashboard.targetContributionMargin * 100);
   const standardFee = `${(dashboard.wompi.percentageRate * 100).toLocaleString("es-CO", { maximumFractionDigits: 2 })}% + ${formatCOP(dashboard.wompi.fixedFeeCop)} + IVA`;
   const salesMetrics = [
-    { label: "Pedidos aprobados", value: metric(dashboard.sales.approvedOrders, String), detail: "Total conciliado entre ambos mercados." },
-    { label: "Pedidos Colombia", value: metric(dashboard.sales.approvedOrdersCop, String), detail: "Pagos COP conciliados con Wompi." },
-    { label: "Recaudo Colombia", value: metric(dashboard.sales.grossRevenueCop, formatCOP), detail: "Producto + envío cobrados en COP." },
-    { label: "Envío cobrado Colombia", value: metric(dashboard.sales.shippingRevenueCop, formatCOP), detail: "Flete CJ cobrado en COP." },
-    { label: "Costo envío CJ Colombia", value: metric(dashboard.sales.supplierShippingCostCop, formatCOP), detail: "Costo real de las cotizaciones aprobadas en COP." },
-    { label: "Contribución Colombia", value: metric(dashboard.sales.contributionCop, formatCOP), detail: "Después de costo CJ, envío y tarifa Wompi." },
-    { label: "Ticket promedio Colombia", value: metric(dashboard.sales.averageTicketCop, formatCOP), detail: "Promedio conciliado en COP, incluido envío." },
-    { label: "Pedidos EE. UU.", value: metric(dashboard.sales.approvedOrdersUsd, String), detail: "Pagos USD conciliados con PayPal." },
-    { label: "Recaudo EE. UU.", value: metric(dashboard.sales.grossRevenueUsd, formatUSD), detail: "Producto + envío cobrados en USD." },
-    { label: "Envío cobrado EE. UU.", value: metric(dashboard.sales.shippingRevenueUsd, formatUSD), detail: "Flete CJ seleccionado y cobrado en USD." },
-    { label: "Costo envío CJ EE. UU.", value: metric(dashboard.sales.supplierShippingCostUsd, formatUSD), detail: "Costo real de las cotizaciones aprobadas en USD." },
-    { label: "Ticket promedio EE. UU.", value: metric(dashboard.sales.averageTicketUsd, formatUSD), detail: "Promedio conciliado en USD, incluido envío." },
+    { label: "Pedidos aprobados", value: metric(dashboard.sales.approvedOrders, String, hasOrderActivity), detail: "Total conciliado entre ambos mercados." },
+    { label: "Pedidos Colombia", value: metric(dashboard.sales.approvedOrdersCop, String, hasOrderActivity), detail: "Pagos COP conciliados con Wompi." },
+    { label: "Recaudo Colombia", value: metric(dashboard.sales.grossRevenueCop, formatCOP, hasApprovedCopSales), detail: "Producto + envío cobrados en COP." },
+    { label: "Envío cobrado Colombia", value: metric(dashboard.sales.shippingRevenueCop, formatCOP, hasApprovedCopSales), detail: "Flete CJ cobrado en COP." },
+    { label: "Costo envío CJ Colombia", value: metric(dashboard.sales.supplierShippingCostCop, formatCOP, hasApprovedCopSales), detail: "Costo real de las cotizaciones aprobadas en COP." },
+    { label: "Contribución Colombia", value: metric(dashboard.sales.contributionCop, formatCOP, hasApprovedCopSales), detail: "Después de costo CJ, envío y tarifa Wompi." },
+    { label: "Ticket promedio Colombia", value: metric(dashboard.sales.averageTicketCop, formatCOP, hasApprovedCopSales), detail: "Promedio conciliado en COP, incluido envío." },
+    { label: "Pedidos EE. UU.", value: metric(dashboard.sales.approvedOrdersUsd, String, hasOrderActivity), detail: "Pagos USD conciliados con PayPal." },
+    { label: "Recaudo EE. UU.", value: metric(dashboard.sales.grossRevenueUsd, formatUSD, hasApprovedUsdSales), detail: "Producto + envío cobrados en USD." },
+    { label: "Envío cobrado EE. UU.", value: metric(dashboard.sales.shippingRevenueUsd, formatUSD, hasApprovedUsdSales), detail: "Flete CJ seleccionado y cobrado en USD." },
+    { label: "Costo envío CJ EE. UU.", value: metric(dashboard.sales.supplierShippingCostUsd, formatUSD, hasApprovedUsdSales), detail: "Costo real de las cotizaciones aprobadas en USD." },
+    { label: "Ticket promedio EE. UU.", value: metric(dashboard.sales.averageTicketUsd, formatUSD, hasApprovedUsdSales), detail: "Promedio conciliado en USD, incluido envío." },
   ];
   const pipeline = [
     { label: "Pendientes de pago", value: dashboard.sales.pendingOrders, tone: "text-amber-100" },
@@ -104,13 +111,13 @@ async function SalesDashboardContent() {
       </section>
 
       <section className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4" aria-label="Embudo de postventa">
-        {pipeline.map((item) => <article key={item.label} className="rounded-xl border border-silver/15 bg-white/[.018] px-4 py-4"><p className="text-xs text-silver/60">{item.label}</p><p className={`mt-2 text-2xl font-semibold ${item.tone}`}>{metric(item.value, String)}</p></article>)}
+        {pipeline.map((item) => <article key={item.label} className="rounded-xl border border-silver/15 bg-white/[.018] px-4 py-4"><p className="text-xs text-silver/60">{item.label}</p><p className={`mt-2 text-2xl font-semibold ${item.tone}`}>{metric(item.value, String, hasOrderActivity)}</p></article>)}
       </section>
 
       <section className="mt-8 grid gap-5 lg:grid-cols-[1.35fr_.65fr]">
         <article className="rounded-2xl border border-silver/15 bg-white/[.025] p-5">
-          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><h2 className="font-semibold text-white">Ingresos Colombia por día</h2><p className="mt-1 text-xs leading-5 text-silver/60">Suma sólo cobros COP aprobados y conciliados con Wompi; no mezcla importes USD.</p></div><span className="w-fit rounded-full bg-emerald/10 px-3 py-1 text-xs font-semibold text-emerald">Tasa de aprobación global: {metric(dashboard.sales.approvalRatePercent, (value) => `${value.toFixed(1)}%`)}</span></div>
-          {!dashboard.dailySales.length ? <p className="mt-8 text-sm leading-6 text-silver/60">La gráfica aparecerá con la primera venta aprobada real.</p> : <ol className="mt-8 grid grid-cols-7 items-end gap-2" aria-label="Gráfica de ingresos diarios">{dashboard.dailySales.map((item) => { const height = item.grossRevenueCop > 0 ? Math.max(4, (item.grossRevenueCop / greatestDailyRevenue) * 100) : 0; return <li key={item.date} className="grid min-w-0 gap-2 text-center"><span className="sr-only">{formatDay(item.date)}: {formatCOP(item.grossRevenueCop)}, {item.approvedOrders} pedidos aprobados.</span><div aria-hidden="true" className="flex h-40 items-end rounded-t-lg bg-white/[.04] px-1"><div className="w-full rounded-t-md bg-emerald transition" style={{ height: `${height}%` }} /></div><span aria-hidden="true" className="truncate text-[10px] text-silver/60">{formatDay(item.date)}</span></li>; })}</ol>}
+          <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start"><div><h2 className="font-semibold text-white">Ingresos Colombia por día</h2><p className="mt-1 text-xs leading-5 text-silver/60">Suma sólo cobros COP aprobados y conciliados con Wompi; no mezcla importes USD.</p></div><span className="w-fit rounded-full bg-emerald/10 px-3 py-1 text-xs font-semibold text-emerald">Tasa de aprobación global: {metric(dashboard.sales.approvalRatePercent, (value) => `${value.toFixed(1)}%`, hasOrderActivity)}</span></div>
+          {!hasApprovedSales ? <p className="mt-8 text-sm leading-6 text-silver/60">La gráfica aparecerá con la primera venta aprobada real.</p> : <ol className="mt-8 grid grid-cols-7 items-end gap-2" aria-label="Gráfica de ingresos diarios">{dashboard.dailySales.map((item) => { const height = item.grossRevenueCop > 0 ? Math.max(4, (item.grossRevenueCop / greatestDailyRevenue) * 100) : 0; return <li key={item.date} className="grid min-w-0 gap-2 text-center"><span className="sr-only">{formatDay(item.date)}: {formatCOP(item.grossRevenueCop)}, {item.approvedOrders} pedidos aprobados.</span><div aria-hidden="true" className="flex h-40 items-end rounded-t-lg bg-white/[.04] px-1"><div className="w-full rounded-t-md bg-emerald transition" style={{ height: `${height}%` }} /></div><span aria-hidden="true" className="truncate text-[10px] text-silver/60">{formatDay(item.date)}</span></li>; })}</ol>}
         </article>
         <aside className="rounded-2xl border border-silver/15 bg-white/[.025] p-5"><h2 className="font-semibold text-white">Tarifa Wompi aplicada</h2><p className="mt-3 text-3xl font-semibold tracking-tight text-emerald">{standardFee}</p><p className="mt-3 text-xs leading-5 text-silver/60">La comisión se estima por transacción exitosa y el IVA se calcula sobre ella. Ajusta estas variables sólo cuando Wompi confirme una tarifa distinta para el comercio.</p><a href="https://comercios.wompi.co/" target="_blank" rel="noreferrer" className="mt-5 inline-flex rounded-full border border-silver/25 px-4 py-2 text-sm font-semibold text-silver hover:border-emerald hover:text-emerald">Abrir reportes de Wompi ↗</a></aside>
       </section>
