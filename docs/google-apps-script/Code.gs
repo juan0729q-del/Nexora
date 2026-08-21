@@ -417,6 +417,7 @@ function readSalesOrderForFulfillment_(reference) {
     return {
       sku: safeIntelligenceText_(line.sku, 180),
       variantSku: safeIntelligenceText_(line.variantSku, 180),
+      providerVariantId: safeIntelligenceText_(line.providerVariantId, 180),
       productName: safeIntelligenceText_(line.productName || line.title, 300),
       quantity: quantity,
     };
@@ -1183,7 +1184,7 @@ function normalizeItems_(value) {
     const currency = String(item.currency || "COP").toUpperCase();
     if (["COP", "USD"].indexOf(currency) === -1) throw new Error("invalid item currency");
     return {
-      sku: cellText_(item.sku, 140), variantSku: cellText_(item.variantSku, 180), variantLabel: cellText_(item.variantLabel, 300),
+      sku: cellText_(item.sku, 140), variantSku: cellText_(item.variantSku, 180), providerVariantId: cellText_(item.providerVariantId, 180), variantLabel: cellText_(item.variantLabel, 300),
       productName: requiredText_(item.productName, 300), niche: cellText_(item.niche, 80), quantity: integerOrNull_(item.quantity),
       unitPriceCop: moneyOrNull_(item.unitPriceCop), subtotalCop: moneyOrNull_(item.subtotalCop), supplierCostUsd: decimalOrNull_(item.supplierCostUsd),
       unitPrice: decimalOrNull_(item.unitPrice), subtotal: decimalOrNull_(item.subtotal), currency: currency,

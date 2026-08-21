@@ -54,6 +54,8 @@ type LedgerFinance = {
 type LedgerOrderItem = {
   sku: string;
   variantSku: string;
+  /** Identificador oficial de la variante CJ; nunca se expone al cliente. */
+  providerVariantId?: string;
   variantLabel?: string;
   productName: string;
   niche: string;
@@ -205,7 +207,7 @@ export type SalesLedgerFulfillmentOrder = {
     method: string; carrier: string; estimatedDelivery: string;
     originCountryCode: string; optionId: string;
   };
-  items: Array<{ sku: string; variantSku: string; productName: string; quantity: number }>;
+  items: Array<{ sku: string; variantSku: string; providerVariantId?: string; productName: string; quantity: number }>;
 };
 
 export type SalesLedgerDailyMetric = {
@@ -413,6 +415,7 @@ function checkoutOrder(checkout: CheckoutSession): LedgerOrder {
     return {
       sku: item.product.sku,
       variantSku: item.shipping.selected.variantSku,
+      providerVariantId: selectedVariant?.providerVariantId?.trim() || undefined,
       variantLabel: selectedVariant?.options || selectedVariant?.label,
       productName: getProductPresentation(item.product, checkout.market).title,
       niche: niches[item.product.niche].menuLabel,
@@ -867,7 +870,7 @@ function parseFulfillmentOrder(value: unknown): SalesLedgerFulfillmentOrder | nu
   const rawItems = Array.isArray(row.items) ? row.items : [];
   const items = rawItems.map((item) => {
     const value = item && typeof item === "object" ? item as Record<string, unknown> : {};
-    return { sku: stringValue(value.sku), variantSku: stringValue(value.variantSku), productName: stringValue(value.productName), quantity: finiteNumber(value.quantity) };
+    return { sku: stringValue(value.sku), variantSku: stringValue(value.variantSku), providerVariantId: stringValue(value.providerVariantId), productName: stringValue(value.productName), quantity: finiteNumber(value.quantity) };
   }).filter((item) => item.variantSku && item.productName && Number.isInteger(item.quantity) && item.quantity > 0).slice(0, 6);
   if (!reference || (market !== "co" && market !== "us") || (currency !== "COP" && currency !== "USD") || !items.length) return null;
   return {

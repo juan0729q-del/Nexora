@@ -1,5 +1,6 @@
 import "server-only";
 
+import { getCatalog } from "@/lib/catalog-store";
 import type { SalesLedgerFulfillmentOrder } from "@/lib/sales-ledger";
 
 export type CjCreateOrderV2Payload = {
@@ -22,7 +23,15 @@ export type CjCreateOrderV2Payload = {
   shopLogisticsType: 2;
   orderFlow: 1;
   storeOrderTime: number;
-  products: Array<{ sku: string; quantity: number; storeLineItemId: string; storeSku: string; storeProductName: string }>;
+  products: Array<{
+    /** CJ recomienda el identificador de la variante exacta; SKU queda como compatibilidad histórica. */
+    vid?: string;
+    sku?: string;
+    quantity: number;
+    storeLineItemId: string;
+    storeSku: string;
+    storeProductName: string;
+  }>;
 };
 
 export class CjOrderValidationError extends Error {}
@@ -33,7 +42,18 @@ function required(value: string, label: string, maximum = 300) {
   return clean;
 }
 
-export function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentOrder): CjCreateOrderV2Payload {
+async function providerVariantId(item: SalesLedgerFulfillmentOrder["items"][number]) {
+  const persisted = item.providerVariantId?.trim();
+  if (persisted) return persisted.slice(0, 180);
+
+  // Los pedidos creados antes de guardar providerVariantId siguen siendo
+  // recuperables desde el catálogo versionado. No consulta CJ ni consume cuota.
+  const normalizedSku = item.variantSku.trim().toUpperCase();
+  const product = (await getCatalog()).find((candidate) => candidate.variants.some((variant) => variant.sku.trim().toUpperCase() === normalizedSku));
+  return product?.variants.find((variant) => variant.sku.trim().toUpperCase() === normalizedSku)?.providerVariantId?.trim().slice(0, 180) || "";
+}
+
+export async function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentOrder): Promise<CjCreateOrderV2Payload> {
   if (order.paymentStatus.toUpperCase() !== "APPROVED" || order.needsReview) throw new CjOrderValidationError("Sólo se puede crear en CJ un pago aprobado y conciliado.");
   if (order.cjOrderId) throw new CjOrderValidationError("Esta orden ya tiene un pedido CJ asociado.");
   const destination = order.market === "co"
@@ -41,12 +61,16 @@ export function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentOrder):
     : { code: "US" as const, country: "United States" };
   const recipient = required(order.shipping.recipient || order.customer.name, "el destinatario", 180);
   const address1 = required(order.shipping.address1, "la dirección", 300);
-  const products = order.items.map((item, index) => ({
-    sku: required(item.variantSku, `el SKU de estilo ${index + 1}`, 180),
-    quantity: item.quantity,
-    storeLineItemId: `${order.reference}-${index + 1}`,
-    storeSku: required(item.variantSku, `el SKU de estilo ${index + 1}`, 180),
-    storeProductName: required(item.productName, `el nombre del producto ${index + 1}`, 300),
+  const products = await Promise.all(order.items.map(async (item, index) => {
+    const variantSku = required(item.variantSku, `el SKU de estilo ${index + 1}`, 180);
+    const vid = await providerVariantId(item);
+    return {
+      ...(vid ? { vid } : { sku: variantSku }),
+      quantity: item.quantity,
+      storeLineItemId: `${order.reference}-${index + 1}`,
+      storeSku: variantSku,
+      storeProductName: required(item.productName, `el nombre del producto ${index + 1}`, 300),
+    };
   }));
   return {
     orderNumber: required(order.reference, "la referencia", 140),

@@ -14,8 +14,11 @@ test("la creación manual CJ usa una sola solicitud y nunca cobra ni despacha", 
   assert.match(route, /fulfillmentStatus\.trim\(\)\.toUpperCase\(\) !== "PAGO CONFIRMADO"/);
   assert.match(route, /CREACIÓN CJ EN CURSO/);
   assert.match(route, /postJsonOnce/);
+  assert.match(route, /CJ_CREATE_FAILED/);
   assert.match(builder, /payType: 3/);
   assert.match(builder, /orderFlow: 1/);
+  assert.match(builder, /providerVariantId/);
+  assert.match(builder, /\bvid\b/);
   const once = client.slice(client.indexOf("async postJsonOnce"), client.indexOf("export function createCjClient"));
   assert.doesNotMatch(once, /renewSession\(/);
   assert.doesNotMatch(once, /retryAfterMilliseconds\(/);
@@ -27,6 +30,7 @@ test("la lectura para CJ permanece firmada en Apps Script y no se publica por GE
   assert.match(appsScript, /input\.action === "sales\.order\.fulfillment\.read"/);
   assert.match(appsScript, /function readSalesOrderForFulfillment_/);
   assert.match(appsScript, /Artículos JSON/);
+  assert.match(appsScript, /providerVariantId/);
   assert.match(ledger, /action: "sales\.order\.fulfillment\.read"/);
   const getHandler = appsScript.slice(appsScript.indexOf("function doGet"), appsScript.indexOf("function workbookReady_"));
   assert.doesNotMatch(getHandler, /fulfillment\.read/);
