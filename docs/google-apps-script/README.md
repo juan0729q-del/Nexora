@@ -18,7 +18,7 @@ Este archivo se implementa en una cuenta de Google de Nexora y no contiene clave
 
 Estados Unidos sólo puede cobrar cuando PayPal está explícitamente habilitado y completo, el webhook pertenece a la misma aplicación/entorno y este contrato del libro responde correctamente. La presencia de columnas USD o credenciales aisladas no equivale a una integración operativa. El panel separa COP y USD; no estima la comisión PayPal mientras no exista un desglose conciliado y una tarifa contractual aprobada.
 
-El contrato `2026-08-13.6` incorpora una lectura firmada `sales.order.read`, sin PII y sin escrituras. La orden PayPal debe existir en `Pedidos` antes de crearla en PayPal. La captura se solicita por `POST`; el `GET` posterior sólo consulta PayPal y el libro. El `eventId` financiero es `paypal:<CAPTURE_ID>:<ESTADO>`: retorno y webhook producen el mismo valor aunque difieran la fuente o la hora. `LockService` serializa ambas llegadas; un evento duplicado no vuelve a conciliar la orden y sólo reintenta un aviso previamente fallido. Un aviso marcado `ENVIADO` u `OMITIDO` nunca se repite.
+El contrato `2026-08-13.6` incorpora las lecturas firmadas `sales.order.read` y `sales.order.fulfillment.read`. La segunda entrega PII limitada sólo a la Route Handler administrativa para preparar un pedido CJ manual; nunca se ofrece por GET ni al storefront. La orden PayPal debe existir en `Pedidos` antes de crearla en PayPal. La captura se solicita por `POST`; el `GET` posterior sólo consulta PayPal y el libro. El `eventId` financiero es `paypal:<CAPTURE_ID>:<ESTADO>`: retorno y webhook producen el mismo valor aunque difieran la fuente o la hora. `LockService` serializa ambas llegadas; un evento duplicado no vuelve a conciliar la orden y sólo reintenta un aviso previamente fallido. Un aviso marcado `ENVIADO` u `OMITIDO` nunca se repite.
 
 ## Actualización obligatoria antes del redeploy de Nexora
 
@@ -30,3 +30,12 @@ El contrato `2026-08-13.6` incorpora una lectura firmada `sales.order.read`, sin
 6. Sólo entonces redepliega Vercel con las variables PayPal Live.
 
 La cuenta Gmail personal tiene cuotas de Apps Script, incluyendo un límite diario de destinatarios de correo; Nexora sólo enviará correos de pago aprobado y cambios de envío, no de cada intento de checkout. El pedido a CJ se crea manualmente después de que el pago quede conciliado: el libro deja visibles cada referencia, cantidad, variante exacta, método de envío y costo para evitar despachar un artículo equivocado.
+
+## Creación manual de pedido CJ
+
+1. En **Ventas y postventa**, confirma que el pago figure como `APPROVED`, sin revisión pendiente y con estado `PAGO CONFIRMADO`.
+2. Pulsa **Crear pedido en CJ (sin pagar)** y confirma el aviso. Nexora envía una única creación `createOrderV2` con `payType=3`: no carga saldo de CJ, no paga al proveedor y no solicita despacho.
+3. Si CJ devuelve un ID, Nexora registra `PEDIDO EN CJ` y el ID en el libro. Busca ese pedido en **MyCJ → Pedidos de la tienda** o por la referencia `NXR-CART-…`, revisa dirección, variante, flete e importe, y paga manualmente allí.
+4. Si se muestra `CREACIÓN CJ EN CURSO`, no vuelvas a pulsar el botón. Primero busca la referencia en MyCJ: una interrupción de red puede dejar incierto si CJ creó la orden. Registra el ID encontrado en la postventa o resuelve el incidente antes de reintentar.
+
+Este flujo sigue exigiendo aprobación humana para pagar y despachar. No hay ninguna tarea cron ni webhook que cree, pague o envíe pedidos CJ por su cuenta.

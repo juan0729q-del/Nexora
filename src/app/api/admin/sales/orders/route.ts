@@ -7,6 +7,7 @@ export const dynamic = "force-dynamic";
 
 const allowedStatuses = new Set([
   "PAGO CONFIRMADO",
+  "CREACIÓN CJ EN CURSO",
   "PEDIDO EN CJ",
   "EN PREPARACIÓN",
   "ENVIADO",

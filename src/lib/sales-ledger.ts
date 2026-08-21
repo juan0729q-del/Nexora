@@ -188,6 +188,26 @@ export type SalesLedgerPaymentStatus = {
   needsReview: boolean;
 };
 
+/** PII sólo para una Route Handler administrativa; nunca se serializa al cliente. */
+export type SalesLedgerFulfillmentOrder = {
+  reference: string;
+  paymentStatus: string;
+  fulfillmentStatus: string;
+  needsReview: boolean;
+  cjOrderId: string | null;
+  fulfillmentNote: string | null;
+  market: "co" | "us" | null;
+  currency: "COP" | "USD" | null;
+  customer: { name: string; email: string; phone: string };
+  shipping: {
+    recipient: string; address1: string; address2: string; houseNumber: string;
+    city: string; region: string; country: string; postalCode: string;
+    method: string; carrier: string; estimatedDelivery: string;
+    originCountryCode: string; optionId: string;
+  };
+  items: Array<{ sku: string; variantSku: string; productName: string; quantity: number }>;
+};
+
 export type SalesLedgerDailyMetric = {
   date: string;
   approvedOrders: number;
@@ -834,6 +854,44 @@ export async function getPersistedSalesOrder(reference: string) {
   if (!getConfiguration()) return null;
   const result = await sendSignedAction<unknown>({ action: "sales.order.read", reference });
   return parsePaymentStatus(result);
+}
+
+function parseFulfillmentOrder(value: unknown): SalesLedgerFulfillmentOrder | null {
+  if (!value || typeof value !== "object") return null;
+  const row = value as Record<string, unknown>;
+  const reference = stringValue(row.reference);
+  const market = stringValue(row.market).toLowerCase();
+  const currency = stringValue(row.currency).toUpperCase();
+  const customer = row.customer && typeof row.customer === "object" ? row.customer as Record<string, unknown> : {};
+  const shipping = row.shipping && typeof row.shipping === "object" ? row.shipping as Record<string, unknown> : {};
+  const rawItems = Array.isArray(row.items) ? row.items : [];
+  const items = rawItems.map((item) => {
+    const value = item && typeof item === "object" ? item as Record<string, unknown> : {};
+    return { sku: stringValue(value.sku), variantSku: stringValue(value.variantSku), productName: stringValue(value.productName), quantity: finiteNumber(value.quantity) };
+  }).filter((item) => item.variantSku && item.productName && Number.isInteger(item.quantity) && item.quantity > 0).slice(0, 6);
+  if (!reference || (market !== "co" && market !== "us") || (currency !== "COP" && currency !== "USD") || !items.length) return null;
+  return {
+    reference,
+    paymentStatus: stringValue(row.paymentStatus),
+    fulfillmentStatus: stringValue(row.fulfillmentStatus),
+    needsReview: row.needsReview === true,
+    cjOrderId: nullableString(row.cjOrderId),
+    fulfillmentNote: nullableString(row.fulfillmentNote),
+    market,
+    currency,
+    customer: { name: stringValue(customer.name), email: stringValue(customer.email), phone: stringValue(customer.phone) },
+    shipping: {
+      recipient: stringValue(shipping.recipient), address1: stringValue(shipping.address1), address2: stringValue(shipping.address2), houseNumber: stringValue(shipping.houseNumber), city: stringValue(shipping.city), region: stringValue(shipping.region), country: stringValue(shipping.country), postalCode: stringValue(shipping.postalCode), method: stringValue(shipping.method), carrier: stringValue(shipping.carrier), estimatedDelivery: stringValue(shipping.estimatedDelivery), originCountryCode: stringValue(shipping.originCountryCode), optionId: stringValue(shipping.optionId),
+    },
+    items,
+  };
+}
+
+/** Lectura firmada con PII limitada exclusivamente al backend de postventa. */
+export async function getPersistedSalesFulfillmentOrder(reference: string) {
+  if (!getConfiguration()) return null;
+  const result = await sendSignedAction<unknown>({ action: "sales.order.fulfillment.read", reference });
+  return parseFulfillmentOrder(result);
 }
 
 /** Registra propuesta y decisión bajo una sola operación firmada. */

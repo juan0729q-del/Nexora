@@ -110,6 +110,12 @@ function doPost(e) {
     if (input && input.action === "sales.order.read") {
       return json_({ ok: true, data: readSalesOrderStatus_(input.reference) });
     }
+    // Esta lectura contiene el mínimo de PII indispensable para crear un
+    // pedido manual en CJ desde el administrador. Sigue protegida por HMAC y
+    // jamás se expone mediante GET ni al storefront.
+    if (input && input.action === "sales.order.fulfillment.read") {
+      return json_({ ok: true, data: readSalesOrderForFulfillment_(input.reference) });
+    }
     if (input && input.action === "intelligence.events.write") {
       return json_({ ok: true, data: writeIntelligenceEvents_(input.events) });
     }
@@ -389,6 +395,64 @@ function readSalesOrderStatus_(reference) {
     paidAmount: numberOrNull_(order["Total pagado"]),
     currency: String(order["Moneda"] || ""),
     needsReview: String(order["Revisar"] || "").toUpperCase() === "SÍ",
+  };
+}
+
+/**
+ * Lectura privada para la Route Handler administrativa que crea el pedido en
+ * CJ con payType=3. No cobra, no confirma el pedido CJ y no despacha nada.
+ */
+function readSalesOrderForFulfillment_(reference) {
+  const normalizedReference = requiredText_(reference, 140);
+  if (!/^NXR-CART-[A-Z0-9]{12,32}$/.test(normalizedReference)) throw new Error("invalid order reference");
+  const config = getConfig_();
+  const spreadsheet = SpreadsheetApp.openById(config.spreadsheetId);
+  const orders = ensureSheet_(spreadsheet, NEXORA.ORDERS_SHEET, ORDER_HEADERS);
+  const row = findRowByValue_(orders, ORDER_HEADERS, "Referencia Wompi", normalizedReference);
+  if (!row) return null;
+  const order = readRow_(orders, row, ORDER_HEADERS);
+  const items = parseJsonArray_(order["Artículos JSON"]).map(function (item) {
+    const line = item && typeof item === "object" ? item : {};
+    const quantity = Math.floor(Number(line.quantity) || 0);
+    return {
+      sku: safeIntelligenceText_(line.sku, 180),
+      variantSku: safeIntelligenceText_(line.variantSku, 180),
+      productName: safeIntelligenceText_(line.productName || line.title, 300),
+      quantity: quantity,
+    };
+  }).filter(function (item) {
+    return item.variantSku && item.productName && item.quantity > 0;
+  }).slice(0, 6);
+  return {
+    reference: String(order["Referencia Wompi"] || ""),
+    paymentStatus: String(order["Estado pago"] || "PENDING"),
+    fulfillmentStatus: String(order["Estado postventa"] || "PENDIENTE DE PAGO"),
+    needsReview: String(order["Revisar"] || "").toUpperCase() === "SÍ",
+    cjOrderId: String(order["ID pedido CJ"] || ""),
+    fulfillmentNote: String(order["Notas"] || ""),
+    market: String(order["Mercado"] || "").toLowerCase(),
+    currency: String(order["Moneda"] || "").toUpperCase(),
+    customer: {
+      name: String(order["Cliente"] || ""),
+      email: String(order["Email cliente"] || ""),
+      phone: String(order["Teléfono cliente"] || ""),
+    },
+    shipping: {
+      recipient: String(order["Destinatario envío"] || ""),
+      address1: String(order["Dirección envío 1"] || ""),
+      address2: String(order["Dirección envío 2"] || ""),
+      houseNumber: String(order["Número de casa envío"] || ""),
+      city: String(order["Ciudad envío"] || ""),
+      region: String(order["Departamento/estado"] || ""),
+      country: String(order["País envío"] || ""),
+      postalCode: String(order["Código postal"] || ""),
+      method: String(order["Método envío CJ"] || ""),
+      carrier: String(order["Canal envío CJ"] || ""),
+      estimatedDelivery: String(order["Entrega estimada CJ"] || ""),
+      originCountryCode: String(order["Origen envío CJ"] || ""),
+      optionId: String(order["ID opción logística CJ"] || ""),
+    },
+    items: items,
   };
 }
 

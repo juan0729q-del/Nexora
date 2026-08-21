@@ -454,6 +454,28 @@ export class CjClient {
     }
     throw new CjRequestError(result.detail, failureMetadata(result.payload));
   }
+
+  /**
+   * Envía una operación con efectos en CJ una única vez. A diferencia de
+   * postJson(), este método no renueva el token ni reintenta tras enviar el
+   * cuerpo: si la red se corta, no se puede saber con seguridad si CJ creó el
+   * pedido. El llamador debe conservar una reserva idempotente antes de usarlo
+   * y resolver cualquier estado incierto revisando MyCJ por orderNumber.
+   */
+  async postJsonOnce<T>(url: string, body: unknown): Promise<T> {
+    const session = await this.getSession();
+    const result = await this.request(url, session.accessToken, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (isSuccessful(result.response, result.payload)) return result.payload as T;
+    if (isQuotaExhausted(result.response, result.payload)) throw quotaError(result);
+    if (isAuthenticationFailure(result.response, result.payload)) {
+      throw new CjAuthenticationError(result.detail, failureMetadata(result.payload));
+    }
+    throw new CjRequestError(result.detail, failureMetadata(result.payload));
+  }
 }
 
 export function createCjClient(options?: { minimumPointsReserve?: number }) {
