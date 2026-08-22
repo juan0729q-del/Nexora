@@ -6,7 +6,7 @@ async function source(path: string) {
   return readFile(new URL(`../${path}`, import.meta.url), "utf8");
 }
 
-test("la creación manual CJ usa una sola solicitud y nunca cobra ni despacha", async () => {
+test("la creación manual CJ usa una sola solicitud, host oficial y nunca cobra ni despacha", async () => {
   const route = await source("src/app/api/admin/sales/orders/cj/route.ts");
   const builder = await source("src/lib/fulfillment/cj-order.ts");
   const client = await source("src/lib/automation/cj-client.ts");
@@ -15,7 +15,10 @@ test("la creación manual CJ usa una sola solicitud y nunca cobra ni despacha", 
   assert.match(route, /CREACIÓN CJ EN CURSO/);
   assert.match(route, /postJsonOnce/);
   assert.match(route, /CJ_CREATE_FAILED/);
+  assert.doesNotMatch(route, /payBalance/);
+  assert.doesNotMatch(builder, /payBalance/);
   assert.match(builder, /payType: 3/);
+  assert.match(builder, /developers\.cjdropshipping\.com\/api2\.0\/v1\/shopping\/order\/createOrderV2/);
   assert.match(builder, /orderFlow: 1/);
   assert.match(builder, /providerVariantId/);
   assert.match(builder, /\bvid\b/);
@@ -41,4 +44,5 @@ test("la interfaz exige confirmación humana para crear en CJ sin pago", async (
   assert.match(table, /window\.confirm/);
   assert.match(table, /Crear pedido en CJ \(sin pagar\)/);
   assert.match(table, /No reintentes: busca la referencia Nexora en MyCJ/);
+  assert.doesNotMatch(table, /Pagar saldo CJ/);
 });

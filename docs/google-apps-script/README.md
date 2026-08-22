@@ -34,7 +34,7 @@ La cuenta Gmail personal tiene cuotas de Apps Script, incluyendo un límite diar
 ## Creación manual de pedido CJ
 
 1. En **Ventas y postventa**, confirma que el pago figure como `APPROVED`, sin revisión pendiente y con estado `PAGO CONFIRMADO`.
-2. Pulsa **Crear pedido en CJ (sin pagar)** y confirma el aviso. Nexora envía una única creación `createOrderV2` con `payType=3`: no carga saldo de CJ, no paga al proveedor y no solicita despacho.
+2. Pulsa **Crear pedido en CJ (sin pagar)** y confirma el aviso. Nexora envía una única creación `createOrderV2` al host oficial con `payType=3`: no carga saldo de CJ, no paga al proveedor y no solicita despacho.
 3. Si CJ devuelve un ID, Nexora registra `PEDIDO EN CJ` y el ID en el libro. Busca ese pedido en **MyCJ → Pedidos de la tienda** o por la referencia `NXR-CART-…`, revisa dirección, variante, flete e importe, y paga manualmente allí.
 4. Si se muestra `CREACIÓN CJ EN CURSO`, no vuelvas a pulsar el botón. Primero busca la referencia en MyCJ: una interrupción de red puede dejar incierto si CJ creó la orden. Registra el ID encontrado en la postventa o resuelve el incidente antes de reintentar.
 

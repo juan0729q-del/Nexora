@@ -2,22 +2,13 @@ import { randomUUID } from "crypto";
 import { NextResponse } from "next/server";
 import { isAdmin } from "@/lib/admin-auth";
 import { createCjClient, CjAuthenticationError, CjQuotaError, CjRequestError } from "@/lib/automation/cj-client";
-import { buildCjCreateOrderV2Payload, CjOrderValidationError } from "@/lib/fulfillment/cj-order";
+import { buildCjCreateOrderV2Payload, cjCreateOrderV2Url, CjOrderValidationError, orderIdFromCjCreateResult } from "@/lib/fulfillment/cj-order";
 import { getPersistedSalesFulfillmentOrder, SalesLedgerError, updateFulfillment } from "@/lib/sales-ledger";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const createOrderV2 = "/api2.0/v1/shopping/order/createOrderV2";
 const referencePattern = /^NXR-CART-[A-Z0-9]{12,32}$/;
-
-function orderIdFrom(payload: unknown) {
-  if (!payload || typeof payload !== "object") return "";
-  const data = (payload as { data?: unknown }).data;
-  if (!data || typeof data !== "object") return "";
-  const id = (data as { orderId?: unknown }).orderId;
-  return typeof id === "string" || typeof id === "number" ? String(id).trim().slice(0, 140) : "";
-}
 
 function failure(error: unknown) {
   if (error instanceof CjOrderValidationError) return { status: 400, message: error.message };
@@ -58,16 +49,16 @@ export async function POST(request: Request) {
     const payload = await buildCjCreateOrderV2Payload(order);
     const client = createCjClient();
     await client.authenticateAndAssertPoints(0);
-    const result = await client.postJsonOnce<unknown>(createOrderV2, payload);
-    const cjOrderId = orderIdFrom(result);
+    const result = await client.postJsonOnce<unknown>(cjCreateOrderV2Url, payload);
+    const cjOrderId = orderIdFromCjCreateResult(result);
     if (!cjOrderId) throw new CjRequestError("CJ no devolvió un ID de pedido.");
     try {
-      await updateFulfillment({ reference, fulfillmentStatus: "PEDIDO EN CJ", cjOrderId, note: `Pedido CJ ${cjOrderId} creado con payType=3. No se pagó ni se despachó automáticamente; entra a MyCJ y paga al proveedor cuando confirmes el total.` });
+      await updateFulfillment({ reference, fulfillmentStatus: "PEDIDO EN CJ", cjOrderId, note: `Pedido CJ ${cjOrderId} creado con payType=3. Quedó pendiente de pago en MyCJ; Nexora no cobró saldo ni solicitó despacho.` });
     } catch (error) {
       console.error("CJ order was created but ledger finalization failed", { reference, cjOrderId, error: error instanceof Error ? error.message : "unknown" });
       return NextResponse.json({ created: true, cjOrderId, reconciliationRequired: true, message: `CJ creó el pedido ${cjOrderId}, pero Nexora no pudo cerrar el registro privado. Anota el ID y actualiza manualmente la postventa antes de pagar en MyCJ.` }, { status: 202 });
     }
-    return NextResponse.json({ created: true, cjOrderId, message: "Pedido creado en CJ sin pago automático. Revísalo y págalo manualmente en MyCJ antes de solicitar el despacho." });
+    return NextResponse.json({ created: true, cjOrderId, message: "Pedido creado en CJ y dejado pendiente de pago. Revísalo y págalo manualmente en MyCJ antes de solicitar el despacho." });
   } catch (error) {
     if (reservationStarted && reference && error instanceof CjRequestError) {
       const code = typeof error.code === "number" ? ` code=${error.code}` : "";

@@ -466,7 +466,7 @@ export class CjClient {
     const session = await this.getSession();
     const result = await this.request(url, session.accessToken, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", platformToken: "" },
       body: JSON.stringify(body),
     });
     if (isSuccessful(result.response, result.payload)) return result.payload as T;

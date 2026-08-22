@@ -3,6 +3,8 @@ import "server-only";
 import { getCatalog } from "@/lib/catalog-store";
 import type { SalesLedgerFulfillmentOrder } from "@/lib/sales-ledger";
 
+export const cjCreateOrderV2Url = "https://developers.cjdropshipping.com/api2.0/v1/shopping/order/createOrderV2";
+
 export type CjCreateOrderV2Payload = {
   orderNumber: string;
   shippingZip: string;
@@ -14,6 +16,7 @@ export type CjCreateOrderV2Payload = {
   shippingCustomerName: string;
   shippingAddress: string;
   shippingAddress2?: string;
+  houseNumber?: string;
   email: string;
   remark: string;
   payType: 3;
@@ -40,6 +43,11 @@ function required(value: string, label: string, maximum = 300) {
   const clean = value.trim().slice(0, maximum);
   if (!clean) throw new CjOrderValidationError(`Falta ${label} en el pedido. Vuelve a cotizar o completa la dirección antes de crear el pedido en CJ.`);
   return clean;
+}
+
+function textId(value: unknown, maximum = 140) {
+  if (typeof value === "string" || typeof value === "number") return String(value).trim().slice(0, maximum);
+  return "";
 }
 
 async function providerVariantId(item: SalesLedgerFulfillmentOrder["items"][number]) {
@@ -83,6 +91,7 @@ export async function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentO
     shippingCustomerName: recipient,
     shippingAddress: address1,
     ...(order.shipping.address2 ? { shippingAddress2: order.shipping.address2.slice(0, 300) } : {}),
+    ...(order.shipping.houseNumber ? { houseNumber: order.shipping.houseNumber.slice(0, 20) } : {}),
     email: required(order.customer.email, "el correo del cliente", 254),
     remark: `Nexora ${order.reference}`,
     payType: 3,
@@ -94,4 +103,11 @@ export async function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentO
     storeOrderTime: Math.floor(Date.now() / 1000),
     products,
   };
+}
+
+export function orderIdFromCjCreateResult(payload: unknown) {
+  if (!payload || typeof payload !== "object") return "";
+  const data = (payload as { data?: unknown }).data;
+  if (!data || typeof data !== "object") return "";
+  return textId((data as { orderId?: unknown }).orderId);
 }
