@@ -101,14 +101,36 @@ export async function POST(request: Request) {
       if (product.stock < requested.quantity) {
         return NextResponse.json({ message: market === "co" ? `Solo quedan ${product.stock} unidades disponibles de ${getProductPresentation(product, market).title}.` : `Only ${product.stock} units of ${getProductPresentation(product, market).title} remain available.` }, { status: 409 });
       }
-      const quote = await quoteCjShipping({
-        product,
-        variantSku: requested.variantSku,
-        quantity: requested.quantity,
-        destination,
-        exchangeRateCopPerUsd: exchangeRate.copPerUsd,
-        client,
-      });
+      let quote: Awaited<ReturnType<typeof quoteCjShipping>>;
+
+      if (product.supplier.source === "dropi") {
+        const { getDropiShippingQuote } = await import("@/lib/shipping/dropi-shipping");
+        const options = await getDropiShippingQuote(destination, requested.quantity);
+        const quotedAt = new Date();
+        const expiresAt = new Date(quotedAt.getTime() + 10 * 60 * 1000); // 10 minutos
+        
+        quote = {
+          productSlug: product.slug,
+          variantSku: requested.variantSku || product.variants[0]?.sku || "",
+          quantity: requested.quantity,
+          supplierCostUsd: product.supplier.costUsd || ((product.supplier.costCop || 0) / exchangeRate.copPerUsd) || 0,
+          exchangeRateCopPerUsd: exchangeRate.copPerUsd,
+          inventoryVerifiedAt: quotedAt.toISOString(),
+          verifiedStock: product.stock,
+          quotedAt: quotedAt.toISOString(),
+          expiresAt: expiresAt.toISOString(),
+          options,
+        };
+      } else {
+        quote = await quoteCjShipping({
+          product,
+          variantSku: requested.variantSku,
+          quantity: requested.quantity,
+          destination,
+          exchangeRateCopPerUsd: exchangeRate.copPerUsd,
+          client,
+        });
+      }
       const selectedVariant = product.variants.find((variant) => variant.sku.toUpperCase() === quote.variantSku.toUpperCase());
       const productPriceCop = recommendedSalePriceCopFromSupplierCost({
         supplierCostUsd: quote.supplierCostUsd,

@@ -53,11 +53,13 @@ export const technologySegments = {
 } as const;
 export type ProductSupplier = {
   name: string;
+  source?: "cj" | "dropi";
   sourcePage: string;
   sourceUrl: string;
   reference: string;
   /** Costo vigente informado por CJ en USD; nunca se expone al storefront. */
   costUsd: number;
+  costCop?: number;
 };
 export type ProductPerformance = {
   salesLast30Days: number;
@@ -117,7 +119,17 @@ export function isStoreProductAvailable(product: Product) {
 
 /** Invariante de Nexora: nunca renderizar ni vender imágenes sustitutas. */
 export function hasNativeProviderImage(product: Product) {
-  if (product.image.source !== "provider" || product.supplier.name !== "CJ Dropshipping") return false;
+  if (product.image.source !== "provider") return false;
+  
+  if (product.supplier.source === "dropi") {
+    return product.supplier.name === "Dropi"
+      && Array.isArray(product.images)
+      && product.images.length > 0
+      && product.images.every(isValidProviderImage)
+      && product.images.some((image) => image.src === product.image.src);
+  }
+
+  if (product.supplier.name !== "CJ Dropshipping") return false;
   return isOfficialCjImageUrl(product.image.src)
     && Array.isArray(product.images)
     && product.images.length > 0
@@ -154,7 +166,9 @@ export function isValidCatalogProduct(value: unknown): value is Product {
     && isValidProductShippingDetails(product.shipping)
     && Array.isArray(product.variants)
     && product.variants.every(isValidProviderVariant);
-  const hasExpectedSupplier = supplier.name === "CJ Dropshipping" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costUsd === "number" && Number.isFinite(supplier.costUsd) && supplier.costUsd > 0;
+  const hasExpectedSupplier = supplier.source === "dropi"
+    ? (supplier.name === "Dropi" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costCop === "number" && Number.isFinite(supplier.costCop) && supplier.costCop >= 0)
+    : (supplier.name === "CJ Dropshipping" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costUsd === "number" && Number.isFinite(supplier.costUsd) && supplier.costUsd > 0);
   const hasExpectedFlags = typeof product.active === "boolean" && ["emerald", "silver", "warm"].includes(product.accent || "");
   return hasRequiredStrings && hasValidNumbers && hasKnownNiche && hasExpectedImage && hasProviderContent && hasExpectedSupplier && hasExpectedFlags && hasNativeProviderImage(product as Product);
 }

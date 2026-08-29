@@ -73,3 +73,8 @@ export function getCatalogImportMetadata() {
   const document = catalog();
   return { version: document.version, importedAt: document.importedAt, source: document.source };
 }
+
+export async function getProductsBySupplier(source: import('@/lib/suppliers/types').SupplierSource) {
+  const catalog = await getCatalog();
+  return catalog.filter((product) => (product.supplier.source || 'cj') === source);
+}
