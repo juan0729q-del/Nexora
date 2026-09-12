@@ -3,7 +3,7 @@ name: Update official COP USD rate
 on:
   workflow_dispatch:
   schedule:
-    - cron: "20 13 * * 1-5"
+    - cron: "20 13 * * *"
 
 permissions:
   contents: write
