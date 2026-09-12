@@ -2,14 +2,14 @@ import "server-only";
 
 import { createCjClient } from "@/lib/automation/cj-client";
 import { fetchTrendingProductsForNiche } from "@/lib/automation/niche-rotation";
-import type { Product } from "@/lib/products";
+import { isArtificialIntelligenceProduct, type Product } from "@/lib/products";
 import type { IntelligenceProposal } from "./types";
 
 export const intelligenceExecutionMarker = "[NEXORA_EXECUTED_V1]";
 export const intelligenceExecutionFailureMarker = "[NEXORA_EXECUTION_FAILED_V1]";
 
 function clean(value: string, maximum: number) {
-  return value.replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, maximum);
+  return value.replace(/\[NEXORA_[A-Z0-9_]+\]/g, "").replace(/[\r\n]+/g, " ").replace(/\s+/g, " ").trim().slice(0, maximum);
 }
 
 function asksForReplacement(note: string) {
@@ -18,14 +18,17 @@ function asksForReplacement(note: string) {
 
 async function discoverCandidate(proposal: IntelligenceProposal, catalog: Product[]) {
   const excluded = new Set(catalog.map((product) => product.sku.toUpperCase()));
+  const requiresAi = /tecnología con IA verificable/i.test(proposal.title);
   const candidates = await fetchTrendingProductsForNiche(
     proposal.niche,
-    1,
-    createCjClient({ minimumPointsReserve: 0 }),
+    requiresAi ? 5 : 1,
+    createCjClient(),
     undefined,
     excluded,
   );
-  const candidate = candidates[0];
+  const candidate = requiresAi
+    ? candidates.find((item) => isArtificialIntelligenceProduct({ name: item.name, category: item.categoryPath, material: item.material, providerDetails: item.providerDetails }))
+    : candidates[0];
   if (!candidate) throw new Error("CJ no devolvió un candidato nuevo que superara la validación de ficha, imagen, estilo, stock y costo.");
   return `Candidato CJ validado para revisión humana: ${clean(candidate.name, 150)} (${clean(candidate.sku, 80)}), categoría ${clean(candidate.categoryPath, 140)}. No fue publicado automáticamente.`;
 }

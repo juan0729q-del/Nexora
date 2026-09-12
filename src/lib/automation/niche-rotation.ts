@@ -10,9 +10,10 @@ import {
 import { getCatalog } from "@/lib/catalog-store";
 import { getExchangeRateSnapshot } from "@/lib/market-pricing";
 import { recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
-import { isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
+import { getCatalogDecision, isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
 import type { NicheCatalogDecision } from "./catalog-optimizer";
 import { createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
+import { getOfficialCjStock } from "./supplier-sync";
 
 const cjOrigin = "https://developers.cjdropshipping.com";
 const categoryEndpoint = `${cjOrigin}/api2.0/v1/product/getCategory`;
@@ -306,7 +307,7 @@ function normalizeListedCandidate(item: CjListProduct, fallbackCategory: CjCateg
   const stock = Math.floor(numberOrZero(item.totalVerifiedInventory ?? item.warehouseInventoryNum));
   const saleStatus = String(item.saleStatus ?? "");
   const authorityStatus = String(item.authorityStatus ?? "");
-  if (!id || !sku || !name || supplierCostUsd <= 0 || stock < 1 || !isOfficialCjImageUrl(item.bigImage) || saleStatus !== "3" || authorityStatus !== "1") return undefined;
+  if (!id || !sku || !name || supplierCostUsd <= 0 || stock <= 2 || !isOfficialCjImageUrl(item.bigImage) || saleStatus !== "3" || authorityStatus !== "1") return undefined;
   return {
     id,
     sku,
@@ -541,6 +542,7 @@ export async function enrichPublishedCatalogDetails(client: CjClient = createCjC
   const products: Product[] = [];
 
   for (const product of catalog) {
+    if (product.supplier.source === "dropi") continue;
     const productId = productIdFrom(product);
     if (!productId) throw new Error(`No se pudo recuperar el identificador CJ de ${product.sku}; la ficha no fue modificada.`);
 
@@ -608,10 +610,15 @@ export async function collectInitialCatalog(perNiche = 5): Promise<{ products: P
     const candidates = await fetchTrendingProductsForNiche(niche, limit, client, categories, excludedSkus);
     const selected = candidates.map((candidate) => candidateToProduct(candidate, niche));
     if (selected.length < 5) {
-      const recovered = verifiedCatalog
-        .filter((product) => product.niche === niche && product.active && product.stock > 0 && !excludedSkus.has(product.sku) && !selected.some((entry) => entry.sku === product.sku))
-        .map(ensureSustainablePrice)
+      const recoveryCandidates = verifiedCatalog
+        .filter((product) => product.supplier.source !== "dropi" && product.niche === niche && product.active && getCatalogDecision(product) !== "pause" && !excludedSkus.has(product.sku) && !selected.some((entry) => entry.sku === product.sku))
         .slice(0, 5 - selected.length);
+      const recovered: Product[] = [];
+      for (const product of recoveryCandidates) {
+        const stock = await getOfficialCjStock(product.sku, client);
+        if (stock === undefined || stock <= 2) continue;
+        recovered.push(ensureSustainablePrice({ ...product, stock }));
+      }
       if (recovered.length) {
         selected.push(...recovered);
         continuityFallbackNiches.push(niche);

@@ -521,7 +521,7 @@ function readIntelligenceSnapshot_() {
   const coverageParts = [];
   if (quoteRequests) coverageParts.push(Math.min(1, ((counts.shipping_quote_succeeded || 0) + (counts.shipping_quote_failed || 0)) / quoteRequests));
   if (checkoutStarts) coverageParts.push(Math.min(1, ((counts.checkout_created || 0) + (counts.checkout_failed || 0)) / checkoutStarts));
-  const proposals = decisionRows.slice(-60).reverse().map(function (values) {
+  const proposals = decisionRows.slice().reverse().map(function (values) {
     const row = {};
     INTELLIGENCE_DECISION_HEADERS.forEach(function (header, index) { row[header] = values[index]; });
     return {

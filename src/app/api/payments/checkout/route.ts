@@ -120,6 +120,7 @@ export async function POST(request: Request) {
     for (const requested of requestedItems) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
+      if (product.supplier.source === "dropi") return NextResponse.json({ message: "El proveedor local todavía no tiene una cotización e inventario habilitados para pago." }, { status: 503 });
       const quoteToken = readShippingQuoteToken(requested.shippingQuoteToken);
       if (!checkoutRateContext) {
         checkoutRateContext = {

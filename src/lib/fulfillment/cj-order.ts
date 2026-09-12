@@ -64,6 +64,8 @@ async function providerVariantId(item: SalesLedgerFulfillmentOrder["items"][numb
 export async function buildCjCreateOrderV2Payload(order: SalesLedgerFulfillmentOrder): Promise<CjCreateOrderV2Payload> {
   if (order.paymentStatus.toUpperCase() !== "APPROVED" || order.needsReview) throw new CjOrderValidationError("Sólo se puede crear en CJ un pago aprobado y conciliado.");
   if (order.cjOrderId) throw new CjOrderValidationError("Esta orden ya tiene un pedido CJ asociado.");
+  const catalog = await getCatalog();
+  if (order.items.some((item) => catalog.some((product) => product.supplier.source === "dropi" && (product.sku === item.sku || product.variants.some((variant) => variant.sku === item.variantSku))))) throw new CjOrderValidationError("Un pedido con productos Dropi no se puede crear en CJ.");
   const destination = order.market === "co"
     ? { code: "CO" as const, country: "Colombia" }
     : { code: "US" as const, country: "United States" };

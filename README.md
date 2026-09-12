@@ -59,6 +59,12 @@ Estos son canales públicos comerciales; no constituyen por sí solos identidad 
 
 ## Documentación operativa
 
+### Proveedor local Dropi
+
+La base multi-proveedor conserva CJ como origen predeterminado y separa los costos COP y las imágenes de Dropi. La integración local todavía no está habilitada para vender: la credencial de la integración 398741 (DropPage) devuelve HTTP 401 al consultar productos. Cotización, checkout y creación de pedidos Dropi se bloquean hasta verificar el contrato oficial; no se generan tarifas estimadas ni pedidos de importe cero.
+
+`pnpm diagnose:dropi -- --production` realiza únicamente una consulta de catálogo y muestra el resultado sin revelar la credencial. El ambiente predeterminado es test y cada ambiente exige su host oficial. Consulta el [informe de revisión](docs/operations-review-2026-09-12.md) para las fases pendientes.
+
 - [Internacionalización y lanzamiento](docs/internationalization-and-launch.md)
 - [Analítica y preparación SEM](docs/analytics-and-sem.md)
 - [Merchant Center](docs/merchant-center.md)

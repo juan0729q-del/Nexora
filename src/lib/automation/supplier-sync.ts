@@ -183,6 +183,7 @@ export async function syncSupplierCatalog(client: CjClient = createCjClient()) {
   }>;
 
   for (const product of catalog) {
+    if (product.supplier.source === "dropi") continue;
     const stock = await getOfficialCjStock(product.sku, client);
     if (stock === undefined) continue;
 

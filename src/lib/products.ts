@@ -1,4 +1,5 @@
 import { isOfficialCjApiUrl, isOfficialCjImageUrl } from "./cj-assets";
+import { isOfficialDropiApiUrl, isValidDropiImage } from "./suppliers/dropi-assets";
 import {
   isValidProductShippingDetails,
   isValidProviderDetails,
@@ -91,6 +92,8 @@ export type Product = {
   reviewCount: number;
   stock: number;
   active: boolean;
+  /** Applied only from a persisted operator decision, never supplier metrics. */
+  operationalMonitoring?: boolean;
   sku: string;
   material: string;
   accent: "emerald" | "silver" | "warm";
@@ -109,7 +112,7 @@ export function getCatalogDecision(product: Product): CatalogDecision {
   const { salesLast30Days, conversionRate, returnRate } = product.performance;
   // Métricas desconocidas se representan como 0; no se interpretan como ventas malas.
   if (product.stock <= stockPauseThreshold || returnRate >= 7 || (salesLast30Days > 0 && salesLast30Days < 5 && conversionRate < 1)) return "pause";
-  if (product.stock < 5 || returnRate >= 4 || (conversionRate > 0 && conversionRate < 2)) return "monitor";
+  if (product.operationalMonitoring || product.stock < 5 || returnRate >= 4 || (conversionRate > 0 && conversionRate < 2)) return "monitor";
   return "feature";
 }
 
@@ -123,9 +126,10 @@ export function hasNativeProviderImage(product: Product) {
   
   if (product.supplier.source === "dropi") {
     return product.supplier.name === "Dropi"
+      && isOfficialDropiApiUrl(product.supplier.sourceUrl)
       && Array.isArray(product.images)
       && product.images.length > 0
-      && product.images.every(isValidProviderImage)
+      && product.images.every(isValidDropiImage)
       && product.images.some((image) => image.src === product.image.src);
   }
 
@@ -151,23 +155,25 @@ export function isValidCatalogProduct(value: unknown): value is Product {
   const product = value as Partial<Product>;
   const image = value.image as Partial<Product["image"]>;
   const supplier = value.supplier as Partial<ProductSupplier>;
+  if (supplier.source !== undefined && supplier.source !== "cj" && supplier.source !== "dropi") return false;
+  const validImage = supplier.source === "dropi" ? isValidDropiImage : isValidProviderImage;
   const performance = value.performance as Partial<ProductPerformance>;
   const strings = [product.slug, product.name, product.category, product.description, product.longDescription, product.sku, product.material];
   const hasRequiredStrings = strings.every((field) => typeof field === "string" && field.trim().length > 0);
   const numericFields = [product.price, product.rating, product.reviewCount, product.stock, performance.salesLast30Days, performance.conversionRate, performance.returnRate];
   const hasValidNumbers = numericFields.every((field) => typeof field === "number" && Number.isFinite(field) && field >= 0);
-  const hasKnownNiche = typeof product.niche === "string" && product.niche in niches;
-  const hasExpectedImage = isValidProviderImage(image);
+  const hasKnownNiche = typeof product.niche === "string" && Object.hasOwn(niches, product.niche);
+  const hasExpectedImage = validImage(image);
   const hasProviderContent = Array.isArray(product.images)
     && product.images.length > 0
-    && product.images.every(isValidProviderImage)
+    && product.images.every(validImage)
     && product.images.some((entry) => entry.src === image.src)
     && isValidProviderDetails(product.providerDetails)
     && isValidProductShippingDetails(product.shipping)
     && Array.isArray(product.variants)
-    && product.variants.every(isValidProviderVariant);
+    && product.variants.every((variant) => isValidProviderVariant({ ...variant, image: undefined }) && (variant.image === undefined || validImage(variant.image)));
   const hasExpectedSupplier = supplier.source === "dropi"
-    ? (supplier.name === "Dropi" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costCop === "number" && Number.isFinite(supplier.costCop) && supplier.costCop >= 0)
+    ? (supplier.name === "Dropi" && typeof supplier.sourcePage === "string" && isOfficialDropiApiUrl(supplier.sourceUrl) && typeof supplier.reference === "string" && typeof supplier.costCop === "number" && Number.isFinite(supplier.costCop) && supplier.costCop > 0)
     : (supplier.name === "CJ Dropshipping" && typeof supplier.sourcePage === "string" && typeof supplier.sourceUrl === "string" && typeof supplier.reference === "string" && typeof supplier.costUsd === "number" && Number.isFinite(supplier.costUsd) && supplier.costUsd > 0);
   const hasExpectedFlags = typeof product.active === "boolean" && ["emerald", "silver", "warm"].includes(product.accent || "");
   return hasRequiredStrings && hasValidNumbers && hasKnownNiche && hasExpectedImage && hasProviderContent && hasExpectedSupplier && hasExpectedFlags && hasNativeProviderImage(product as Product);

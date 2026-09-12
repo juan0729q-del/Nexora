@@ -49,7 +49,8 @@ export function invalidateOperationalCatalogCache() {
 export async function getOperationalCatalog({ fresh = false }: { fresh?: boolean } = {}) {
   if (!fresh && operationalCache && operationalCache.expiresAt > Date.now()) return operationalCache.products;
   const products = await getCatalog();
-  const ledger = await getIntelligenceLedgerSnapshot().catch(() => null);
+  // A failed read must never silently reactivate an operator-paused product.
+  const ledger = await getIntelligenceLedgerSnapshot();
   const operational = applyExecutedCatalogDecisions(products, ledger?.proposals || []);
   operationalCache = { expiresAt: Date.now() + 30_000, products: operational };
   return operational;

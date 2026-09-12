@@ -10,7 +10,7 @@ export function AdminProductsTable({ initialProducts }: { initialProducts: reado
       <table className="min-w-full text-left text-sm">
         <thead className="bg-white/[.025] text-xs tracking-wide text-silver/55 uppercase"><tr><th className="px-5 py-3">Producto</th><th className="px-5 py-3">Proveedor y origen</th><th className="px-5 py-3">Precio</th><th className="px-5 py-3">Stock</th><th className="px-5 py-3">Estado</th></tr></thead>
         <tbody>{initialProducts.map((product) => {
-          const decision = getCatalogDecision(product);
+          const decision = product.active ? getCatalogDecision(product) : "pause";
           return <tr key={product.slug} className="border-t border-silver/10">
             <td className="px-5 py-4"><p className="font-medium text-white">{product.name}</p><p className="mt-1 font-mono text-xs text-silver/45">{product.sku}</p></td>
             <td className="px-5 py-4"><p className="text-xs font-medium text-silver">{product.supplier.name}</p><a href={product.supplier.sourceUrl} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-emerald hover:underline">{product.supplier.sourcePage} →</a><p className="mt-1 font-mono text-[10px] text-silver/45">{product.supplier.reference}</p></td>

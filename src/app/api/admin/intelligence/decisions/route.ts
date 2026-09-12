@@ -26,7 +26,8 @@ export async function POST(request: Request) {
     if (!proposal) return NextResponse.json({ message: "La propuesta expiró o ya no corresponde al catálogo actual. Recarga la página." }, { status: 409 });
     if (!["proposed", "authorized"].includes(proposal.status)) return NextResponse.json({ message: "Esta propuesta ya tiene una decisión definitiva." }, { status: 409 });
 
-    const operatorNote = text(body.note, 800);
+    if (proposal.status === "proposed" && (!Number.isFinite(Date.parse(proposal.expiresAt)) || Date.parse(proposal.expiresAt) <= Date.now())) return NextResponse.json({ message: "La propuesta expiró. Recarga el panel." }, { status: 409 });
+    const operatorNote = text(body.note, 800).replace(/\[NEXORA_[A-Z0-9_]+\]/g, "");
     const result = await decideIntelligenceProposalAtomically(proposal, decision, operatorNote);
     if (decision === "rejected") {
       console.info("[intelligence/decision] rejected", { proposalId, execution: proposal.execution });

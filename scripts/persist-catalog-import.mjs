@@ -103,7 +103,17 @@ for (const product of products) {
 }
 
 const currentProducts = Array.isArray(current.products) ? current.products : [];
-if (JSON.stringify(canonicalProducts(currentProducts)) === JSON.stringify(canonicalProducts(products))) {
+const localProducts = currentProducts.filter((product) => product.supplier?.source === "dropi");
+for (const product of localProducts) {
+  if (slugs.has(product.slug) || skus.has(product.sku)) throw new Error("La importación CJ colisiona con un producto local; no se modificó el catálogo.");
+}
+// El proveedor actualiza stock y costo; no es fuente de las métricas propias.
+const previousCjBySku = new Map(currentProducts.filter((product) => (product.supplier?.source ?? "cj") === "cj").map((product) => [product.sku, product]));
+const mergedProducts = [...products.map((product) => {
+  const previous = previousCjBySku.get(product.sku);
+  return previous ? { ...product, performance: previous.performance } : product;
+}), ...localProducts];
+if (JSON.stringify(canonicalProducts(currentProducts)) === JSON.stringify(canonicalProducts(mergedProducts))) {
   console.log("Catálogo CJ sin cambios reales; no se crea commit ni despliegue.");
   process.exit(0);
 }
@@ -112,7 +122,7 @@ const nextCatalog = {
   version: Number.isInteger(current.version) ? current.version + 1 : 1,
   importedAt: new Date().toISOString(),
   source: "CJ Dropshipping — Product List v2 por categoría y número de listados",
-  products,
+  products: mergedProducts,
 };
 
 await writeFile(catalogPath, `${JSON.stringify(nextCatalog, null, 2)}\n`, "utf8");

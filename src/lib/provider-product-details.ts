@@ -49,6 +49,7 @@ export type ProviderVariant = {
   volumeCubicMillimeters?: number;
   /** Costo base vigente informado por CJ en USD; no se expone al storefront. */
   supplierCostUsd?: number;
+  supplierCostCop?: number;
 };
 
 export type ProductShippingDetails = {
@@ -256,7 +257,8 @@ export function isValidProviderVariant(value: unknown): value is ProviderVariant
     && validDimensions
     && (variant.weightGrams === undefined || validPositiveNumber(variant.weightGrams))
     && (variant.volumeCubicMillimeters === undefined || validPositiveNumber(variant.volumeCubicMillimeters))
-    && (variant.supplierCostUsd === undefined || validPositiveNumber(variant.supplierCostUsd));
+    && (variant.supplierCostUsd === undefined || validPositiveNumber(variant.supplierCostUsd))
+    && (variant.supplierCostCop === undefined || validPositiveNumber(variant.supplierCostCop));
 }
 
 export function isValidProductShippingDetails(value: unknown): value is ProductShippingDetails {

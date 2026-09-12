@@ -54,6 +54,22 @@ jobs:
       - name: Validate and persist catalog JSON
         if: steps.config.outputs.configured == 'true' && steps.import.outputs.catalog_ready == 'true'
         run: node scripts/persist-catalog-import.mjs .catalog-import.json
+      - uses: pnpm/action-setup@v4
+        if: steps.import.outputs.catalog_ready == 'true'
+        with:
+          version: 11.9.0
+      - uses: actions/setup-node@v4
+        if: steps.import.outputs.catalog_ready == 'true'
+        with:
+          node-version: 24
+          cache: pnpm
+      - name: Verify candidate before publishing
+        if: steps.import.outputs.catalog_ready == 'true'
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm catalog:validate
+          pnpm test
+          pnpm build
       - name: Commit catalog update
         if: steps.config.outputs.configured == 'true' && steps.import.outputs.catalog_ready == 'true'
         run: |

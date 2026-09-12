@@ -1,8 +1,9 @@
-import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
+import { getOperationalCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
 import { getCatalogDecision } from "@/lib/products";
 import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
 import { getSalesLedgerStatus } from "@/lib/sales-ledger";
 import { getAutomationConfiguration } from "@/lib/automation/runtime-auth";
+import { getExchangeRateSnapshot } from "@/lib/market-pricing";
 
 export type DashboardAlert = {
   id: string;
@@ -12,10 +13,17 @@ export type DashboardAlert = {
 };
 
 export async function getDashboardSnapshot() {
-  const products = await getCatalog();
+  const products = await getOperationalCatalog({ fresh: true });
   const salesDashboard = await getSalesDashboardSnapshot({ includePersistedSales: false });
   const catalogMetadata = getCatalogImportMetadata();
   const alerts: DashboardAlert[] = [];
+  const importedAt = Date.parse(catalogMetadata.importedAt || "");
+  if (!Number.isFinite(importedAt) || Date.now() - importedAt > 48 * 60 * 60 * 1000) alerts.push({
+    id: "catalog-stale", severity: "critical", title: "Inventario pendiente de actualización",
+    detail: "La última importación tiene más de 48 horas o no consta. Las cantidades son una foto histórica, no stock en tiempo real. Revisa la automatización de catálogo y la cuota del proveedor; el checkout exige una cotización vigente.",
+  });
+  const rate = getExchangeRateSnapshot();
+  alerts.push({ id: "official-rate", severity: rate.valid ? "info" : "critical", title: rate.valid ? `TRM: ${rate.copPerUsd?.toLocaleString("es-CO")} COP/USD` : "TRM no vigente", detail: rate.detail });
 
   if (!products.length) {
     alerts.push({
@@ -39,7 +47,7 @@ export async function getDashboardSnapshot() {
     };
   }));
 
-  const paused = products.filter((product) => getCatalogDecision(product) === "pause");
+  const paused = products.filter((product) => !product.active || getCatalogDecision(product) === "pause");
   if (paused.length) {
     alerts.push({
       id: "catalog-performance",

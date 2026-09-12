@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 const readJson = (path) => JSON.parse(readFileSync(new URL(`../${path}`, import.meta.url), "utf8"));
 const catalog = readJson("src/data/catalog.json");
 const imageHosts = new Set(readJson("src/data/cj-image-hosts.json"));
+const dropiImageHosts = new Set(readJson("src/data/dropi-image-hosts.json"));
 const niches = ["jewelry", "technologyHome", "wellbeing"];
 const errors = [];
 
@@ -13,7 +14,7 @@ function nonEmpty(value) {
 function validHttpsUrl(value, expectedHosts) {
   try {
     const url = new URL(value);
-    return url.protocol === "https:" && expectedHosts.has(url.hostname);
+    return url.protocol === "https:" && !url.username && !url.password && !url.port && expectedHosts.has(url.hostname);
   } catch {
     return false;
   }
@@ -40,18 +41,20 @@ for (const [index, product] of products.entries()) {
   skus.add(normalizedSku);
 
   if (!niches.includes(product.niche)) errors.push(`${label} tiene un nicho desconocido.`);
-  else counts[product.niche] += 1;
+  else if (product.supplier?.source !== "dropi") counts[product.niche] += 1;
   if (![product.name, product.description, product.longDescription, product.category].every(nonEmpty)) errors.push(`${label} tiene contenido obligatorio vacío.`);
   if (!Number.isSafeInteger(product.price) || product.price <= 0) errors.push(`${label} tiene un precio inválido.`);
   if (!Number.isInteger(product.stock) || product.stock < 0) errors.push(`${label} tiene stock inválido.`);
   if (typeof product.active !== "boolean") errors.push(`${label} no define active como booleano.`);
 
-  if (product.supplier?.name !== "CJ Dropshipping" || !(product.supplier?.costUsd > 0)) errors.push(`${label} no conserva proveedor/costo CJ válido.`);
-  if (!validHttpsUrl(product.supplier?.sourceUrl, new Set(["developers.cjdropshipping.com"]))) errors.push(`${label} no apunta a la API oficial de CJ.`);
+  const dropi = product.supplier?.source === "dropi";
+  if (![undefined, "cj", "dropi"].includes(product.supplier?.source)) errors.push(`${label} tiene proveedor desconocido.`);
+  if (product.supplier?.name !== (dropi ? "Dropi" : "CJ Dropshipping") || !(Number.isFinite(dropi ? product.supplier?.costCop : product.supplier?.costUsd) && (dropi ? product.supplier?.costCop : product.supplier?.costUsd) > 0)) errors.push(`${label} no conserva proveedor/costo válido.`);
+  if (!validHttpsUrl(product.supplier?.sourceUrl, new Set(dropi ? ["api.dropi.co", "test-api.dropi.co"] : ["developers.cjdropshipping.com"])) || (dropi && !new URL(product.supplier.sourceUrl).pathname.startsWith("/integrations/products/"))) errors.push(`${label} no apunta a la API oficial del proveedor.`);
   if (!Array.isArray(product.images) || product.images.length < 1) errors.push(`${label} no contiene galería oficial.`);
   const images = Array.isArray(product.images) ? product.images : [];
   for (const image of images) {
-    if (image?.source !== "provider" || !validHttpsUrl(image?.src, imageHosts)) errors.push(`${label} contiene una imagen no oficial o de relleno.`);
+    if (image?.source !== "provider" || !nonEmpty(image.alt) || !validHttpsUrl(image?.src, dropi ? dropiImageHosts : imageHosts)) errors.push(`${label} contiene una imagen no oficial o de relleno.`);
   }
   if (!images.some((image) => image.src === product.image?.src)) errors.push(`${label} no incluye su portada en la galería.`);
   if (!Array.isArray(product.variants) || product.variants.length < 1) errors.push(`${label} no tiene variantes CJ cotizables.`);

@@ -47,12 +47,14 @@ export function getCommercePricingPolicy(): CommercePricingPolicy {
   };
 }
 
-export function supplierCostUsdForVariant(product: Pick<Product, "supplier" | "variants">, variantSku?: string) {
+export function supplierCostUsdForVariant(product: Pick<Product, "supplier" | "variants">, variantSku?: string, copPerUsd?: number) {
   const normalized = variantSku?.trim().toUpperCase();
   const variant = normalized
     ? product.variants.find((entry) => entry.sku.trim().toUpperCase() === normalized)
     : undefined;
-  const cost = variant?.supplierCostUsd ?? product.supplier.costUsd;
+  const cost = product.supplier.source === "dropi"
+    ? (variant?.supplierCostCop ?? product.supplier.costCop ?? NaN) / (copPerUsd || NaN)
+    : variant?.supplierCostUsd ?? product.supplier.costUsd;
   if (!Number.isFinite(cost) || cost <= 0) throw new Error("El estilo no tiene un costo CJ válido.");
   return cost;
 }
@@ -90,15 +92,15 @@ export function recommendedSalePriceCopFromSupplierCost({
 
 export function salePriceCopForVariant(product: Pick<Product, "supplier" | "variants">, variantSku: string | undefined, copPerUsd: number) {
   return recommendedSalePriceCopFromSupplierCost({
-    supplierCostUsd: supplierCostUsdForVariant(product, variantSku),
+    supplierCostUsd: supplierCostUsdForVariant(product, variantSku, copPerUsd),
     copPerUsd,
   });
 }
 
 export function startingSalePriceCop(product: Pick<Product, "supplier" | "variants">, copPerUsd: number) {
   const costs = product.variants.length
-    ? product.variants.map((variant) => supplierCostUsdForVariant(product, variant.sku))
-    : [product.supplier.costUsd];
+    ? product.variants.map((variant) => supplierCostUsdForVariant(product, variant.sku, copPerUsd))
+    : [supplierCostUsdForVariant(product, undefined, copPerUsd)];
   return Math.min(...costs.map((supplierCostUsd) => recommendedSalePriceCopFromSupplierCost({ supplierCostUsd, copPerUsd })));
 }
 

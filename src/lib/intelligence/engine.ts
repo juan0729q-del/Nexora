@@ -6,6 +6,7 @@ import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
 import { getCatalogDecision, isArtificialIntelligenceProduct, niches, type Product, type ProductNiche } from "@/lib/products";
 import { getIntelligenceLedgerSnapshot, syncIntelligenceProposals } from "@/lib/sales-ledger";
 import { evaluateAutonomyReadiness } from "./policy";
+import { applyExecutedCatalogDecisions } from "./catalog-overlay";
 import type { IntelligenceEventSummary, IntelligenceProposal, MarketSignal } from "./types";
 
 const emptyEvents: IntelligenceEventSummary = {
@@ -85,7 +86,7 @@ function coverageProposals(products: Product[], signals: MarketSignal[], now: Da
     });
   }
   (Object.keys(niches) as ProductNiche[]).forEach((niche) => {
-    const active = products.filter((product) => product.niche === niche && getCatalogDecision(product) !== "pause").length;
+    const active = products.filter((product) => product.active && product.niche === niche && getCatalogDecision(product) !== "pause").length;
     if (active >= 5) return;
     proposals.push({
       id: proposalId("source_candidate", `${niche}-rotation`, now), ...dates(now), action: "source_candidate", status: "proposed", niche,
@@ -115,12 +116,17 @@ export async function buildIntelligenceSnapshot({ marketSignals = [], persistPro
     getSalesDashboardSnapshot(),
     getIntelligenceLedgerSnapshot().catch(() => null),
   ]);
+  const operationalProducts = applyExecutedCatalogDecisions(products, ledger?.proposals || []);
   const computed = [
     ...products.map((product) => productProposal(product, now)).filter((proposal): proposal is IntelligenceProposal => Boolean(proposal)),
-    ...coverageProposals(products, marketSignals, now),
+    ...coverageProposals(operationalProducts, marketSignals, now),
   ].slice(0, 24);
   const persistedById = new Map((ledger?.proposals || []).map((proposal) => [proposal.id, proposal]));
-  const proposals = computed.map((proposal) => persistedById.get(proposal.id) || proposal);
+  const computedIds = new Set(computed.map((proposal) => proposal.id));
+  const proposals = [
+    ...computed.map((proposal) => persistedById.get(proposal.id) || proposal),
+    ...(ledger?.proposals || []).filter((proposal) => !computedIds.has(proposal.id) && proposal.status !== "proposed"),
+  ];
   if (persistProposals && proposals.length) await syncIntelligenceProposals(proposals);
   const approvedOrders = sales.sales.approvedOrders || 0;
   const reconciled = sales.recentOrders.length
@@ -131,7 +137,7 @@ export async function buildIntelligenceSnapshot({ marketSignals = [], persistPro
   const recommendationPrecisionPercent = evaluated.length ? Math.round(validatedSuccess / evaluated.length * 100) : 0;
   const averageDecisionConfidencePercent = evaluated.length ? Math.round(evaluated.reduce((total, proposal) => total + proposal.confidencePercent, 0) / evaluated.length) : 0;
   const soldSkus = new Set(sales.recentOrders.filter((order) => order.paymentStatus === "APPROVED").flatMap((order) => order.productSku.split(/[·,;\s]+/).filter(Boolean)));
-  const activeProducts = products.filter((product) => getCatalogDecision(product) !== "pause");
+  const activeProducts = operationalProducts.filter((product) => product.active && getCatalogDecision(product) !== "pause");
   const catalogRotationCoveragePercent = activeProducts.length ? Math.round(activeProducts.filter((product) => soldSkus.has(product.sku)).length / activeProducts.length * 100) : 0;
   const events = ledger?.events || emptyEvents;
   return {

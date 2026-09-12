@@ -18,7 +18,7 @@ export default async function AdminPage() {
   const metrics = [
     { label: "Ventas del periodo", value: dashboard.revenue === null ? "Sin datos" : formatCOP(dashboard.revenue), note: "Se habilita con eventos de pago persistidos." },
     { label: "Conversión", value: dashboard.conversion === null ? "Sin datos" : `${dashboard.conversion}%`, note: "Se habilita con visitas y pagos verificados." },
-    { label: "Inventario total", value: String(dashboard.inventory), note: `${dashboard.products.length} productos CJ verificados.` },
+    { label: "Inventario de la última importación", value: String(dashboard.inventory), note: `${dashboard.products.length} productos registrados; consulta la fecha y las alertas de actualización.` },
   ];
 
   return <main id="page-content" tabIndex={-1} className="min-h-screen px-5 py-6 outline-none sm:px-8 lg:px-12">

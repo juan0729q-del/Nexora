@@ -1,7 +1,6 @@
 import "server-only";
 
-const dropiOrigin = "https://api.dropi.co";
-const testDropiOrigin = "https://test-api.dropi.co";
+import { dropiRequestUrl } from "@/lib/suppliers/dropi-config";
 
 export type DropiFailureMetadata = {
   code?: number;
@@ -20,14 +19,8 @@ export class DropiRequestError extends Error {
 
 export class DropiAuthenticationError extends DropiRequestError {}
 
-function getDropiBaseUrl() {
-  const env = process.env.DROPI_ENVIRONMENT?.trim().toLowerCase();
-  if (env === "test") return `${testDropiOrigin}/integrations`;
-  return `${dropiOrigin}/integrations`;
-}
-
 function getIntegrationKey() {
-  const value = process.env.DROPI_INTEGRATION_KEY?.trim();
+  const value = process.env.DROPI_INTEGRATION_KEY?.trim() || process.env.DROPI_API_KEY?.trim();
   if (!value) throw new DropiAuthenticationError("Falta DROPI_INTEGRATION_KEY en la configuración.");
   return value;
 }
@@ -39,7 +32,7 @@ function requestTimeout() {
 
 export class DropiClient {
   private async request(path: string, init?: RequestInit) {
-    const url = `${getDropiBaseUrl()}${path}`;
+    const url = dropiRequestUrl(path);
     const headers = new Headers(init?.headers);
     headers.set("Accept", "application/json");
     headers.set("dropi-integration-key", getIntegrationKey());
@@ -51,6 +44,7 @@ export class DropiClient {
         headers,
         signal: init?.signal || AbortSignal.timeout(requestTimeout()),
         cache: "no-store",
+        redirect: "error",
       });
     } catch (error) {
       const reason = error instanceof Error && error.name === "TimeoutError" ? "Dropi agotó el tiempo de espera." : "No fue posible contactar la API de Dropi.";
@@ -72,11 +66,14 @@ export class DropiClient {
       throw new DropiRequestError(message, { code: response.status });
     }
     
+    let result;
     try {
-      return await response.json();
+      result = await response.json();
     } catch {
       throw new DropiRequestError("Dropi devolvió una respuesta que no es JSON válido.");
     }
+    if (result?.isSuccess === false || result?.success === false) throw new DropiRequestError("Dropi rechazó la operación.", { code: result.status });
+    return result;
   }
 
   async getJson<T>(path: string, init?: RequestInit): Promise<T> {

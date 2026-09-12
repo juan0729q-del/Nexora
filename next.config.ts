@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 import cjImageHosts from "./src/data/cj-image-hosts.json";
+import dropiImageHosts from "./src/data/dropi-image-hosts.json";
+const providerImageHosts = [...cjImageHosts, ...dropiImageHosts];
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -7,7 +9,7 @@ const contentSecurityPolicy = [
   "frame-ancestors 'none'",
   "object-src 'none'",
   "form-action 'self' https://checkout.wompi.co",
-  `img-src 'self' data: blob: https://www.facebook.com https://analytics.tiktok.com ${cjImageHosts.map((hostname) => `https://${hostname}`).join(" ")}`,
+  `img-src 'self' data: blob: https://www.facebook.com https://analytics.tiktok.com ${providerImageHosts.map((hostname) => `https://${hostname}`).join(" ")}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline'",
   "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://connect.facebook.net https://analytics.tiktok.com",
@@ -20,7 +22,7 @@ const nextConfig: NextConfig = {
   images: {
     formats: ["image/avif", "image/webp"],
     // Same allowlist used by catalog validation. No proxies or placeholders.
-    remotePatterns: cjImageHosts.map((hostname) => ({ protocol: "https", hostname, pathname: "/**" })),
+    remotePatterns: providerImageHosts.map((hostname) => ({ protocol: "https", hostname, pathname: "/**" })),
   },
   async headers() {
     return [{
