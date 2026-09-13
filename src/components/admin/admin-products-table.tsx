@@ -1,9 +1,13 @@
 import { formatCOP, getCatalogDecision, type Product } from "@/lib/products";
 
+import { getExchangeRateSnapshot } from "@/lib/market-pricing";
+import { startingSalePriceCop } from "@/lib/pricing-policy";
+
 export function AdminProductsTable({ initialProducts }: { initialProducts: readonly Product[] }) {
+  const rate = getExchangeRateSnapshot();
   return <section className="overflow-hidden rounded-2xl border border-silver/15 bg-white/[.025]">
     <div className="flex items-center justify-between border-b border-silver/15 px-5 py-4">
-      <div><h2 className="font-semibold text-white">Catálogo operativo</h2><p className="mt-1 text-xs text-silver/60">Solo registros CJ versionados con imagen nativa y referencia directa.</p></div>
+      <div><h2 className="font-semibold text-white">Catálogo operativo</h2><p className="mt-1 text-xs text-silver/60">Registros versionados con imagen nativa y referencia directa. Precio desde, calculado con la TRM vigente.</p></div>
       <span className="text-xs text-silver/60">{initialProducts.filter((item) => item.active && getCatalogDecision(item) !== "pause").length} publicados</span>
     </div>
     {!initialProducts.length ? <p className="p-5 text-sm leading-6 text-silver/65">No hay productos publicados. La importación se mantiene bloqueada hasta obtener datos reales y validados de CJ Dropshipping.</p> : <div className="overflow-x-auto">
@@ -14,7 +18,7 @@ export function AdminProductsTable({ initialProducts }: { initialProducts: reado
           return <tr key={product.slug} className="border-t border-silver/10">
             <td className="px-5 py-4"><p className="font-medium text-white">{product.name}</p><p className="mt-1 font-mono text-xs text-silver/45">{product.sku}</p></td>
             <td className="px-5 py-4"><p className="text-xs font-medium text-silver">{product.supplier.name}</p><a href={product.supplier.sourceUrl} target="_blank" rel="noreferrer" className="mt-1 block text-xs text-emerald hover:underline">{product.supplier.sourcePage} →</a><p className="mt-1 font-mono text-[10px] text-silver/45">{product.supplier.reference}</p></td>
-            <td className="px-5 py-4 text-silver/75">{formatCOP(product.price)}</td>
+            <td className="px-5 py-4 text-silver/75">{rate.valid && rate.copPerUsd ? formatCOP(startingSalePriceCop(product, rate.copPerUsd)) : "TRM no vigente"}</td>
             <td className={`px-5 py-4 ${product.stock < 5 ? "text-red-300" : "text-silver/75"}`}>{product.stock} u.</td>
             <td className="px-5 py-4"><p className={`text-xs font-medium ${decision === "pause" ? "text-red-300" : decision === "monitor" ? "text-amber-200" : "text-emerald"}`}>{decision === "pause" ? "Pausado" : decision === "monitor" ? "En monitoreo" : "Activo"}</p></td>
           </tr>;

@@ -31,3 +31,13 @@ Dropi muestra la integración 398741 de tipo DropPage. La consulta de solo lectu
 Para resolver el bloqueo externo, se necesita que Dropi habilite una integración compatible con Nexora y entregue su documentación oficial: permisos del token, dominios/IP aplicables, catálogo, variantes, fletes, creación de pedidos y consulta/reconciliación. No se envió ninguna comunicación a soporte ni se compartieron credenciales.
 
 No se realizaron compras de prueba, cobros ni despachos. Las verificaciones de pagos existentes son pruebas automatizadas, no transacciones reales.
+
+## Comprobación productiva del 13 de septiembre
+
+- La versión 94efa6c pasó GitHub y Vercel. Se desactivaron precargas especulativas de fichas y navegación administrativa para reducir consultas a Google.
+- Se observaron timeouts intermitentes del registro privado; Apps Script completaba sus ejecuciones, mientras algunas respuestas agotaban el tiempo de Nexora. No se restauró el comportamiento que ignoraba pausas cuando Google fallaba. La dependencia externa todavía puede afectar una lectura sin caché.
+- El panel volvió a leer 508 eventos y el historial completo. Se autorizó la pausa del SKU CJBJMRJF00208, ya protegido por stock crítico: el resultado quedó ejecutado, persistió después de recargar y su enlace público devolvió HTTP 404. No se solicitaron candidatos ni se consumió cuota CJ en esta prueba.
+- La ejecución diaria CJ 34754698265 volvió a reportar cero puntos; el inventario no se renovó. La TRM de 3072,27 tiene vigencia oficial del 12 al 14 de septiembre.
+- La tabla administrativa calcula ahora el precio inicial con la misma política y TRM de la tienda, en vez del precio histórico importado. Un error de lectura de Inteligencia ya no indica incorrectamente que deba desplegarse Apps Script.
+
+La integración comercial completa de Dropi continúa pendiente de habilitación y documentación oficial del proveedor; la protección de sus rutas no equivale a un servicio de fulfillment implementado.
