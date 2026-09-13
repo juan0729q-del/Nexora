@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export const maxDuration = 60;
 
 /** Consulta acotada: ajustes gratuitos y una ficha (10 puntos). Sin pedidos. */
-export async function GET() {
+export async function POST() {
   if (!(await isAdmin())) return NextResponse.json({ message: "Sesión administrativa requerida." }, { status: 401 });
   const client = createCjClient();
   const stages: unknown[] = [];

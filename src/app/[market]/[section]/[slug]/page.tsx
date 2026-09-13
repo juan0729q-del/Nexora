@@ -170,7 +170,7 @@ export default async function LocalizedProductPage({ params }: Props) {
       { "@type": "ListItem", position: 3, name: presentation.title, item: canonicalUrl },
     ],
   };
-  const related = (await getStoreCatalog(product.niche))
+  const related = (await getStoreCatalog(product.niche, market))
     .filter((candidate) => candidate.slug !== product.slug && isStoreProductAvailable(candidate) && hasCompleteEditorial(candidate, market))
     .slice(0, 3)
     .map((candidate) => toStorefrontProduct(candidate, market, exchangeRate));

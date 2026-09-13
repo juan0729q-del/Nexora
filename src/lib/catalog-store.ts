@@ -1,6 +1,7 @@
 import "server-only";
 
 import catalogDocument from "@/data/catalog.json";
+import { prioritizeSuppliers } from "@/lib/suppliers/market-priority";
 import { getCatalogDecision, isValidCatalogProduct, type Product, type ProductNiche } from "@/lib/products";
 import { getIntelligenceLedgerSnapshot } from "@/lib/sales-ledger";
 import { applyExecutedCatalogDecisions } from "@/lib/intelligence/catalog-overlay";
@@ -70,8 +71,8 @@ export async function getOperationalCatalog({ fresh = false }: { fresh?: boolean
   }
 }
 
-export async function getStoreCatalog(niche?: ProductNiche) {
-  return (await getOperationalCatalog()).filter((product) => product.active && getCatalogDecision(product) !== "pause" && (!niche || product.niche === niche));
+export async function getStoreCatalog(niche?: ProductNiche, market: import("@/lib/i18n/config").Market = "co") {
+  return prioritizeSuppliers((await getOperationalCatalog()).filter((product) => product.active && getCatalogDecision(product) !== "pause" && (!niche || product.niche === niche)), market);
 }
 
 export async function getProduct(slug: string) {
