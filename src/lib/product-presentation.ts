@@ -41,6 +41,28 @@ export type StorefrontProduct = Pick<
 };
 
 const editorialBySku: Record<string, ProductEditorial> = {
+  CJYDQTJM00256: {
+    co: {
+      title: "Cuerda para Saltar con Contador",
+      seoTitle: "Cuerda de salto ajustable con contador y mangos de espuma",
+      metaDescription: "Cuerda para saltar con contador en el mango, longitud ajustable y agarres de espuma. La ficha indica 287 cm de longitud total y batería no incluida.",
+      cardDescription: "Cuerda ajustable con contador en el mango y agarres de espuma.",
+      detailDescription: "La ficha oficial describe una cuerda para saltar de plástico y espuma, con contador en el mango y longitud ajustable. Informa 287 cm de longitud total y mangos de 17 cm. El paquete contiene una cuerda; la batería no está incluida.",
+      benefits: ["Permite ajustar la longitud", "Contador integrado para registrar saltos"],
+      features: ["Longitud total informada: 287 cm", "Mangos de 17 cm con espuma", "Colores según la variante elegida"],
+      warnings: ["Batería no incluida; confirma el tipo requerido", "Ajusta la longitud y verifica espacio libre antes de usarla"],
+    },
+    us: {
+      title: "Jump Rope with Counter",
+      seoTitle: "Adjustable jump rope with counter and foam handles",
+      metaDescription: "Adjustable jump rope with a handle counter and foam grips. The supplier lists a total length of 287 cm; the required battery is not included.",
+      cardDescription: "Adjustable jump rope with a handle counter and foam grips.",
+      detailDescription: "The official listing describes a plastic and foam jump rope with an integrated handle counter and adjustable length. The supplier lists a total length of 287 cm and 17 cm handles. The package contains one jump rope; the battery is not included.",
+      benefits: ["Adjustable length", "Integrated counter for tracking jumps"],
+      features: ["Listed total length: 287 cm", "17 cm handles with foam grips", "Colors depend on the selected variant"],
+      warnings: ["Battery not included; confirm the required type", "Adjust the length and check for clear space before use"],
+    },
+  },
   CJXFXJWR00053: {
     co: { title: "Mini dron plegable", seoTitle: "Mini dron plegable con control remoto", metaDescription: "Mini dron plegable con control remoto y carga USB. Revisa la variante, los accesorios y la disponibilidad antes de comprar.", cardDescription: "Formato compacto plegable con control remoto.", detailDescription: "La ficha del proveedor indica un cuerpo de 9,5 × 9,5 × 3 cm abierto y 5 × 5 × 3 cm plegado, con carga mediante cable USB. Los accesorios y funciones de cámara dependen de la variante.", benefits: ["Cuerpo plegable para guardarlo"], features: ["Carga USB", "Control remoto"], warnings: ["Verifica las funciones y accesorios de la variante elegida", "Consulta las instrucciones y las restricciones locales antes de volar"] },
     us: { title: "Mini Folding Drone", seoTitle: "Mini folding drone with remote control", metaDescription: "Compact folding drone with remote control and USB charging. Check the selected variant, included accessories and availability.", cardDescription: "A compact folding body with remote control.", detailDescription: "The supplier lists dimensions of 9.5 × 9.5 × 3 cm unfolded and 5 × 5 × 3 cm folded, with USB cable charging. Camera functions and accessories depend on the selected variant.", benefits: ["Folding body for storage"], features: ["USB charging", "Remote control"], warnings: ["Check the selected variant and included accessories", "Read instructions and local flying restrictions before use"] },

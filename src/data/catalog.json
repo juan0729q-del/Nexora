@@ -1,6 +1,6 @@
 {
-  "version": 42,
-  "importedAt": "2026-08-21T06:57:42.412Z",
+  "version": 43,
+  "importedAt": "2026-09-13T19:02:45.912Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
     {
@@ -436,10 +436,10 @@
           "supplierCostUsd": 1.33
         }
       ],
-      "price": 10900,
+      "price": 11000,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 2881,
+      "stock": 2878,
       "active": true,
       "sku": "CJLX1237838",
       "material": "Metal",
@@ -913,7 +913,7 @@
           "supplierCostUsd": 6.92
         }
       ],
-      "price": 20700,
+      "price": 20800,
       "rating": 0,
       "reviewCount": 0,
       "stock": 336,
@@ -1260,7 +1260,7 @@
           "supplierCostUsd": 0.62
         }
       ],
-      "price": 5500,
+      "price": 5600,
       "rating": 0,
       "reviewCount": 0,
       "stock": 15,
@@ -1879,10 +1879,10 @@
           "supplierCostUsd": 1.2
         }
       ],
-      "price": 10300,
+      "price": 10400,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 428,
+      "stock": 426,
       "active": true,
       "sku": "CJLX1206870",
       "material": "Stone",
@@ -2473,7 +2473,7 @@
           "supplierCostUsd": 0.98
         }
       ],
-      "price": 7400,
+      "price": 7500,
       "rating": 0,
       "reviewCount": 0,
       "stock": 157,
@@ -2806,7 +2806,7 @@
           "supplierCostUsd": 22.16
         }
       ],
-      "price": 70800,
+      "price": 71200,
       "rating": 0,
       "reviewCount": 0,
       "stock": 10,
@@ -2972,7 +2972,7 @@
           "supplierCostUsd": 8.33
         }
       ],
-      "price": 59100,
+      "price": 59500,
       "rating": 0,
       "reviewCount": 0,
       "stock": 43,
@@ -3146,8 +3146,8 @@
       "shipping": {
         "unit": "unit(s)",
         "logisticsProperties": [
-          "IS_ELECTRICITY",
-          "OVERSIZE"
+          "OVERSIZE",
+          "IS_ELECTRICITY"
         ]
       },
       "variants": [
@@ -3437,7 +3437,7 @@
           "supplierCostUsd": 30.62
         }
       ],
-      "price": 16700,
+      "price": 16800,
       "rating": 0,
       "reviewCount": 0,
       "stock": 148,
@@ -3727,7 +3727,7 @@
           "supplierCostUsd": 2.52
         }
       ],
-      "price": 20200,
+      "price": 20300,
       "rating": 0,
       "reviewCount": 0,
       "stock": 20,
@@ -4104,7 +4104,7 @@
           "supplierCostUsd": 19.53
         }
       ],
-      "price": 135800,
+      "price": 136600,
       "rating": 0,
       "reviewCount": 0,
       "stock": 39,
@@ -4118,327 +4118,6 @@
         "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=1443510198785413120",
         "reference": "CJZS1305006 · 1443510198785413120",
         "costUsd": 19.53
-      },
-      "performance": {
-        "salesLast30Days": 0,
-        "conversionRate": 0,
-        "returnRate": 0
-      }
-    },
-    {
-      "slug": "rechargeable-automatic-hair-curler-women-portable-hair-curling-iron-lcd--cjbjmrjf00208",
-      "name": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-      "category": "Bienestar",
-      "niche": "wellbeing",
-      "description": "<p><b style=\"font-size: 1em;\">Overview:</b><br/></p><p>New Create beautiful curls or waves anytime, anywhere with the Unbound cordless auto curler from Conair, the creators of the Curl Secret auto curler<br/>Easy to use, No Skill Required ~ replacement for your traditional curling iron or curling wand. Perfect Curls or Waves Every time for Beauty In Motion<br/>Up to 60-minute cord-free run time, Run time will vary based on heat and timer settings selected as well as hair type; Rechargeable Auto Curler ~ Charge fully overnight before first use. Charge time will vary depending on adapter and power source<br/>Multi-directional curl action (left, right, or mixed) with anti-tangle protection<br/><br/><b>Specification:</b><br/>Function: Anti-scalding Mini<br/>Portable power: 25W (inclusive)-39W (inclusive)<br/>Power supply mode: battery<br/>Temperature adjustment gear: 3 gears and above<br/>Modeling time: 5 minutes-10 minutes<br/>Heat conductor material: tourmaline<br/>Ceramic type: single function curling iron<br/>Additional features: constant temperature control digital internal display<br/>Applicable scenarios: travel home<br/>Applicable hair: dry hair<br/>Diameter of heat conductor: 21mm (inclusive) -30mm (inclusive)<br/><br/><br/><b>Package Content :</b><br/>Curling Iron*1<br/><br/><br/></p><p><b>Package Content：</b><br/></p><p><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210323600.jpg\" style=\"max-width:100%;\"/><b><br/></b></p><p><br/></p><p><b>Product Image:<br/></b></p><p><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210327000.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210328900.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220321600.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220323700.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220325300.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220328200.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855230321600.jpg\" style=\"font-size: 14px; max-width: 100%;\"/></p>",
-      "longDescription": "<p><b style=\"font-size: 1em;\">Overview:</b><br/></p><p>New Create beautiful curls or waves anytime, anywhere with the Unbound cordless auto curler from Conair, the creators of the Curl Secret auto curler<br/>Easy to use, No Skill Required ~ replacement for your traditional curling iron or curling wand. Perfect Curls or Waves Every time for Beauty In Motion<br/>Up to 60-minute cord-free run time, Run time will vary based on heat and timer settings selected as well as hair type; Rechargeable Auto Curler ~ Charge fully overnight before first use. Charge time will vary depending on adapter and power source<br/>Multi-directional curl action (left, right, or mixed) with anti-tangle protection<br/><br/><b>Specification:</b><br/>Function: Anti-scalding Mini<br/>Portable power: 25W (inclusive)-39W (inclusive)<br/>Power supply mode: battery<br/>Temperature adjustment gear: 3 gears and above<br/>Modeling time: 5 minutes-10 minutes<br/>Heat conductor material: tourmaline<br/>Ceramic type: single function curling iron<br/>Additional features: constant temperature control digital internal display<br/>Applicable scenarios: travel home<br/>Applicable hair: dry hair<br/>Diameter of heat conductor: 21mm (inclusive) -30mm (inclusive)<br/><br/><br/><b>Package Content :</b><br/>Curling Iron*1<br/><br/><br/></p><p><b>Package Content：</b><br/></p><p><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210323600.jpg\" style=\"max-width:100%;\"/><b><br/></b></p><p><br/></p><p><b>Product Image:<br/></b></p><p><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210327000.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855210328900.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220321600.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220323700.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220325300.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855220328200.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17186688/2406180855230321600.jpg\" style=\"font-size: 14px; max-width: 100%;\"/></p>",
-      "image": {
-        "src": "https://cf.cjdropshipping.com/c20134e0-109c-4db8-a8d8-74f28e66f78d.jpg",
-        "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-        "source": "provider"
-      },
-      "images": [
-        {
-          "src": "https://cf.cjdropshipping.com/c20134e0-109c-4db8-a8d8-74f28e66f78d.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/9e9f905b-b187-4bba-b492-0c8e8fa0fc86.png",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/553c71db-0a9c-4da7-b54b-2088ac748ed0.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/11055363541858.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://oss-cf.cjdropshipping.com/product/2026/07/07/08/86035d52-90f1-4042-8873-23e56ffa700c.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://oss-cf.cjdropshipping.com/product/2026/07/07/08/b4ed8d70-726f-4906-acbc-8c77ed8e9196.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/2216497574802.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/891100732347.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/1805860373781.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/1034768433929.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/084c1f77-1d84-4ec5-b520-8b5bffac2d14.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/9a2ef9d9-2b59-409e-9413-73d3b325e948.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/7816824137109.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/20210101/3343361811630.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://oss-cf.cjdropshipping.com/product/2026/07/07/08/9a526b2a-3cf6-4478-9dec-aca768d2c7b0.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855210323600.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855210327000.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855210328900.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855220321600.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855220323700.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855220325300.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855220328200.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/17186688/2406180855230321600.jpg",
-          "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer",
-          "source": "provider"
-        }
-      ],
-      "providerDetails": {
-        "description": "Overview:\n\nNew Create beautiful curls or waves anytime, anywhere with the Unbound cordless auto curler from Conair, the creators of the Curl Secret auto curler\nEasy to use, No Skill Required ~ replacement for your traditional curling iron or curling wand. Perfect Curls or Waves Every time for Beauty In Motion\nUp to 60-minute cord-free run time, Run time will vary based on heat and timer settings selected as well as hair type; Rechargeable Auto Curler ~ Charge fully overnight before first use. Charge time will vary depending on adapter and power source\nMulti-directional curl action (left, right, or mixed) with anti-tangle protection\n\nSpecification:\nFunction: Anti-scalding Mini\nPortable power: 25W (inclusive)-39W (inclusive)\nPower supply mode: battery\nTemperature adjustment gear: 3 gears and above\nModeling time: 5 minutes-10 minutes\nHeat conductor material: tourmaline\nCeramic type: single function curling iron\nAdditional features: constant temperature control digital internal display\nApplicable scenarios: travel home\nApplicable hair: dry hair\nDiameter of heat conductor: 21mm (inclusive) -30mm (inclusive)\n\nPackage Content :\nCurling Iron*1\n\nPackage Content：\n\nProduct Image:",
-        "sections": [
-          {
-            "title": "Descripción del proveedor",
-            "content": [
-              "New Create beautiful curls or waves anytime, anywhere with the Unbound cordless auto curler from Conair, the creators of the Curl Secret auto curler",
-              "Easy to use, No Skill Required ~ replacement for your traditional curling iron or curling wand. Perfect Curls or Waves Every time for Beauty In Motion",
-              "Up to 60-minute cord-free run time, Run time will vary based on heat and timer settings selected as well as hair type; Rechargeable Auto Curler ~ Charge fully overnight before first use. Charge time will vary depending on adapter and power source",
-              "Multi-directional curl action (left, right, or mixed) with anti-tangle protection"
-            ]
-          },
-          {
-            "title": "Especificaciones",
-            "content": [
-              "Function: Anti-scalding Mini",
-              "Portable power: 25W (inclusive)-39W (inclusive)",
-              "Power supply mode: battery",
-              "Temperature adjustment gear: 3 gears and above",
-              "Modeling time: 5 minutes-10 minutes",
-              "Heat conductor material: tourmaline",
-              "Ceramic type: single function curling iron",
-              "Additional features: constant temperature control digital internal display",
-              "Applicable scenarios: travel home",
-              "Applicable hair: dry hair",
-              "Diameter of heat conductor: 21mm (inclusive) -30mm (inclusive)"
-            ]
-          },
-          {
-            "title": "Contenido del paquete",
-            "content": [
-              "Curling Iron*1",
-              "Product Image:"
-            ]
-          }
-        ],
-        "specifications": [
-          {
-            "label": "Function",
-            "value": "Anti-scalding Mini"
-          },
-          {
-            "label": "Portable power",
-            "value": "25W (inclusive)-39W (inclusive)"
-          },
-          {
-            "label": "Power supply mode",
-            "value": "battery"
-          },
-          {
-            "label": "Temperature adjustment gear",
-            "value": "3 gears and above"
-          },
-          {
-            "label": "Modeling time",
-            "value": "5 minutes-10 minutes"
-          },
-          {
-            "label": "Heat conductor material",
-            "value": "tourmaline"
-          },
-          {
-            "label": "Ceramic type",
-            "value": "single function curling iron"
-          },
-          {
-            "label": "Additional features",
-            "value": "constant temperature control digital internal display"
-          },
-          {
-            "label": "Applicable scenarios",
-            "value": "travel home"
-          },
-          {
-            "label": "Applicable hair",
-            "value": "dry hair"
-          },
-          {
-            "label": "Diameter of heat conductor",
-            "value": "21mm (inclusive) -30mm (inclusive)"
-          }
-        ],
-        "packageContents": [
-          "Curling Iron*1",
-          "Product Image:"
-        ]
-      },
-      "shipping": {
-        "unit": "unit(s)",
-        "logisticsProperties": [
-          "BATTERY"
-        ]
-      },
-      "variants": [
-        {
-          "providerVariantId": "1445983328187584512",
-          "sku": "CJBJMRJF00208-Pinkgrey-USB",
-          "label": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Pinkgrey USB",
-          "options": "Pinkgrey-USB",
-          "image": {
-            "src": "https://cf.cjdropshipping.com/9e9f905b-b187-4bba-b492-0c8e8fa0fc86.png",
-            "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Pinkgrey USB",
-            "source": "provider"
-          },
-          "dimensions": {
-            "lengthMm": 21,
-            "widthMm": 66,
-            "heightMm": 87
-          },
-          "weightGrams": 648,
-          "volumeCubicMillimeters": 120582,
-          "supplierCostUsd": 5.99
-        },
-        {
-          "providerVariantId": "19C5DB95-B79C-4FAC-98CB-1E2E4CA4399F",
-          "sku": "CJBJMRJF00208-Black-USB",
-          "label": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Black USB",
-          "options": "Black-USB",
-          "image": {
-            "src": "https://oss-cf.cjdropshipping.com/product/2026/07/07/08/b4ed8d70-726f-4906-acbc-8c77ed8e9196.jpg",
-            "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Black USB",
-            "source": "provider"
-          },
-          "dimensions": {
-            "lengthMm": 210,
-            "widthMm": 66,
-            "heightMm": 87
-          },
-          "weightGrams": 413,
-          "volumeCubicMillimeters": 1205820,
-          "supplierCostUsd": 5.99
-        },
-        {
-          "providerVariantId": "40BE60EC-A80A-4986-A926-FC8AC8E4BC45",
-          "sku": "CJBJMRJF00208-White-USB",
-          "label": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer White USB",
-          "options": "White-USB",
-          "image": {
-            "src": "https://cf.cjdropshipping.com/20210101/2216497574802.jpg",
-            "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer White USB",
-            "source": "provider"
-          },
-          "dimensions": {
-            "lengthMm": 210,
-            "widthMm": 66,
-            "heightMm": 87
-          },
-          "weightGrams": 415,
-          "volumeCubicMillimeters": 1205820,
-          "supplierCostUsd": 5.99
-        },
-        {
-          "providerVariantId": "725E90A3-936C-4874-8558-C021863C3331",
-          "sku": "CJBJMRJF00208-Pink-USB",
-          "label": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Pink USB",
-          "options": "Pink-USB",
-          "image": {
-            "src": "https://cf.cjdropshipping.com/20210101/891100732347.jpg",
-            "alt": "Rechargeable Automatic Hair Curler Women Portable Hair Curling Iron LCD Display Ceramic Curly Rotating Curling Wave Styer Pink USB",
-            "source": "provider"
-          },
-          "dimensions": {
-            "lengthMm": 210,
-            "widthMm": 66,
-            "heightMm": 87
-          },
-          "weightGrams": 415,
-          "volumeCubicMillimeters": 1205820,
-          "supplierCostUsd": 5.99
-        }
-      ],
-      "price": 43100,
-      "rating": 0,
-      "reviewCount": 0,
-      "stock": 1,
-      "active": true,
-      "sku": "CJBJMRJF00208",
-      "material": "Plastic",
-      "accent": "emerald",
-      "supplier": {
-        "name": "CJ Dropshipping",
-        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Health & Beauty, Hair / Beauty Tools / Curling Iron",
-        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=BA794BD5-9787-4C3F-B7E2-47519B4F9AB5",
-        "reference": "CJBJMRJF00208 · BA794BD5-9787-4C3F-B7E2-47519B4F9AB5",
-        "costUsd": 5.99
       },
       "performance": {
         "salesLast30Days": 0,
@@ -5882,7 +5561,7 @@
           "supplierCostUsd": 2.29
         }
       ],
-      "price": 13500,
+      "price": 13600,
       "rating": 0,
       "reviewCount": 0,
       "stock": 27,
@@ -5896,6 +5575,184 @@
         "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=1419918862924779520",
         "reference": "CJAM1228953 · 1419918862924779520",
         "costUsd": 1.67
+      },
+      "performance": {
+        "salesLast30Days": 0,
+        "conversionRate": 0,
+        "returnRate": 0
+      }
+    },
+    {
+      "slug": "yoga-fitness-rally-cjydqtjm00184",
+      "name": "Yoga Fitness Rally",
+      "category": "Bienestar",
+      "niche": "wellbeing",
+      "description": "<p><span style=\"font-weight: bold;\">Overview:</span><br/></p><p>Multiple combination training, multiple color options, different training and different combination options.<br/>5 thicknesses corresponding to 5 different tensions, multi-purpose fitness.<br/>Green and environmentally friendly, no skin irritation, high purity and bright colors.</p><p><span style=\"font-weight: bold;\"><br/>Specification:</span><br/>Material:&nbsp;<span style=\"font-size: 1em;\">latex</span></p><p>Size: 600*50mm <br/>Color: Black, Red, Yellow, Green, Blue<br/>Weight: Green10g, Blue15g, Yellow20g, Red 25g, Black30g<br/>Thickness: Green0.35mm, Blue0.5mm, Yellow0.7mm, Red0.9mm, Black 1.1mm<br/>Category: Pull ring<br/>Origin: Ningbo<br/>Applicable scene: fitness equipment, fitness body, health massage, dance movement</p><p><span style=\"font-weight: bold;\"><br/>Package Content:</span><br/>5 x Rally</p><p><img src=\"https://cf.cjdropshipping.com/17155584/2405130846400328000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846400329500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410321900.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410325600.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410329800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420323800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420325300.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420327000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/></p>",
+      "longDescription": "<p><span style=\"font-weight: bold;\">Overview:</span><br/></p><p>Multiple combination training, multiple color options, different training and different combination options.<br/>5 thicknesses corresponding to 5 different tensions, multi-purpose fitness.<br/>Green and environmentally friendly, no skin irritation, high purity and bright colors.</p><p><span style=\"font-weight: bold;\"><br/>Specification:</span><br/>Material:&nbsp;<span style=\"font-size: 1em;\">latex</span></p><p>Size: 600*50mm <br/>Color: Black, Red, Yellow, Green, Blue<br/>Weight: Green10g, Blue15g, Yellow20g, Red 25g, Black30g<br/>Thickness: Green0.35mm, Blue0.5mm, Yellow0.7mm, Red0.9mm, Black 1.1mm<br/>Category: Pull ring<br/>Origin: Ningbo<br/>Applicable scene: fitness equipment, fitness body, health massage, dance movement</p><p><span style=\"font-weight: bold;\"><br/>Package Content:</span><br/>5 x Rally</p><p><img src=\"https://cf.cjdropshipping.com/17155584/2405130846400328000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846400329500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410321900.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410325600.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846410329800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420323800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420325300.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17155584/2405130846420327000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/></p>",
+      "image": {
+        "src": "https://oss-cf.cjdropshipping.com/product/2024/05/13/08/ae516411-5a78-49ad-bb58-be539cba4129.jpg",
+        "alt": "Yoga Fitness Rally",
+        "source": "provider"
+      },
+      "images": [
+        {
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/05/13/08/ae516411-5a78-49ad-bb58-be539cba4129.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846400328000.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846400329500.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846410321900.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846410325600.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846410329800.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846420323800.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846420325300.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17155584/2405130846420327000.jpg",
+          "alt": "Yoga Fitness Rally",
+          "source": "provider"
+        }
+      ],
+      "providerDetails": {
+        "description": "Overview:\n\nMultiple combination training, multiple color options, different training and different combination options.\n5 thicknesses corresponding to 5 different tensions, multi-purpose fitness.\nGreen and environmentally friendly, no skin irritation, high purity and bright colors.\n\nSpecification:\nMaterial: latex\nSize: 600*50mm\nColor: Black, Red, Yellow, Green, Blue\nWeight: Green10g, Blue15g, Yellow20g, Red 25g, Black30g\nThickness: Green0.35mm, Blue0.5mm, Yellow0.7mm, Red0.9mm, Black 1.1mm\nCategory: Pull ring\nOrigin: Ningbo\nApplicable scene: fitness equipment, fitness body, health massage, dance movement\n\nPackage Content:\n5 x Rally",
+        "sections": [
+          {
+            "title": "Descripción del proveedor",
+            "content": [
+              "Multiple combination training, multiple color options, different training and different combination options.",
+              "5 thicknesses corresponding to 5 different tensions, multi-purpose fitness.",
+              "Green and environmentally friendly, no skin irritation, high purity and bright colors."
+            ]
+          },
+          {
+            "title": "Especificaciones",
+            "content": [
+              "Material: latex",
+              "Size: 600*50mm",
+              "Color: Black, Red, Yellow, Green, Blue",
+              "Weight: Green10g, Blue15g, Yellow20g, Red 25g, Black30g",
+              "Thickness: Green0.35mm, Blue0.5mm, Yellow0.7mm, Red0.9mm, Black 1.1mm",
+              "Category: Pull ring",
+              "Origin: Ningbo",
+              "Applicable scene: fitness equipment, fitness body, health massage, dance movement"
+            ]
+          },
+          {
+            "title": "Contenido del paquete",
+            "content": [
+              "5 x Rally"
+            ]
+          }
+        ],
+        "specifications": [
+          {
+            "label": "Material",
+            "value": "latex"
+          },
+          {
+            "label": "Size",
+            "value": "600*50mm"
+          },
+          {
+            "label": "Color",
+            "value": "Black, Red, Yellow, Green, Blue"
+          },
+          {
+            "label": "Weight",
+            "value": "Green10g, Blue15g, Yellow20g, Red 25g, Black30g"
+          },
+          {
+            "label": "Thickness",
+            "value": "Green0.35mm, Blue0.5mm, Yellow0.7mm, Red0.9mm, Black 1.1mm"
+          },
+          {
+            "label": "Category",
+            "value": "Pull ring"
+          },
+          {
+            "label": "Origin",
+            "value": "Ningbo"
+          },
+          {
+            "label": "Applicable scene",
+            "value": "fitness equipment, fitness body, health massage, dance movement"
+          }
+        ],
+        "packageContents": [
+          "5 x Rally"
+        ]
+      },
+      "shipping": {
+        "productWeightGrams": 98,
+        "packingWeightGrams": 120,
+        "unit": "unit(s)",
+        "logisticsProperties": [
+          "COMMON"
+        ]
+      },
+      "variants": [
+        {
+          "providerVariantId": "76941501-0A6A-4E02-BA54-2AED6B72D65D",
+          "sku": "CJYDQTJM00184-Five packs",
+          "label": "Yoga Fitness Rally Five packs",
+          "options": "Five packs",
+          "image": {
+            "src": "https://oss-cf.cjdropshipping.com/product/2024/05/13/08/ae516411-5a78-49ad-bb58-be539cba4129.jpg",
+            "alt": "Yoga Fitness Rally Five packs",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 100,
+            "widthMm": 50,
+            "heightMm": 50
+          },
+          "weightGrams": 120,
+          "volumeCubicMillimeters": 250000,
+          "supplierCostUsd": 3.2
+        }
+      ],
+      "price": 24200,
+      "rating": 0,
+      "reviewCount": 0,
+      "stock": 461,
+      "active": true,
+      "sku": "CJYDQTJM00184",
+      "material": "Plastic",
+      "accent": "emerald",
+      "supplier": {
+        "name": "CJ Dropshipping",
+        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Sports & Outdoors / Other Sports Equipment / Fitness & Bodybuilding",
+        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=17B0B35F-1AA1-4D8F-A4B2-785B733AD1D6",
+        "reference": "CJYDQTJM00184 · 17B0B35F-1AA1-4D8F-A4B2-785B733AD1D6",
+        "costUsd": 3.2
       },
       "performance": {
         "salesLast30Days": 0,
@@ -6198,7 +6055,7 @@
           "supplierCostUsd": 13.96
         }
       ],
-      "price": 72900,
+      "price": 73300,
       "rating": 0,
       "reviewCount": 0,
       "stock": 39,
@@ -6220,257 +6077,291 @@
       }
     },
     {
-      "slug": "electric-micro-current-face-massager-ems-firming-micro-current-deedema-d-cjbjmrdd00038",
-      "name": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+      "slug": "fitness-hip-stretch-yoga-belt-inverted-rope-pull-stretch-belt-split-lowe-cjjm1232812",
+      "name": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
       "category": "Bienestar",
       "niche": "wellbeing",
-      "description": "<p><b>Product specifications:</b><br/>Micro-current technology is one of the latest innovations , and is widely used in the best spas and medical institutions to tune, strengthen and firm skin aging.<br/>Reduce skin and fine lines<br/>It provides moisture to the skin and makes the skin softer.<br/>Reduce swelling and Dark circles and bags under the eyes disappeared.<br/><br/>Type: Wrinkle Massager<br/>Material: ABS zinc alloy<br/>Battery capacity: 2.4 V / 800 MAH (included)<br/>Operating voltage: 2.4 V<br/>Output voltage: 5 V<br/>Power: 0.15W<br/>Features: firming, wrinkle removal, face, small size<br/>Size: 10.6 cm × 6.5 cm&nbsp;<br/></p><p><b>Package content:</b></p><p>1 * instrument&nbsp;</p><p>1* USB cable</p><p>1 * cloth bag</p><p>1 * instrution</p><p>Usage: 1. Clean the skin: thoroughly clean the face and dry it before use;<br/>Operate the instrument, select the appropriate gear position, and lift the skin;<br/>Daily skin care: carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance.<br/>Basic operation: 1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean.</p><p><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500323100.jpg\" style=\"max-width:100%;\"/><br/></p><p><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500323600.jpg\" style=\"font-size: 14px;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500324100.jpg\" style=\"font-size: 14px;\"/><img alt=\"undefined\" src=\"https://cf.cjdropshipping.com/17089920/2402270515500324800.jpg\" max-width=\"990\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500325400.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500326700.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500327400.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500328000.jpg\" style=\"font-size: 14px; max-width: 100%;\"/>&nbsp;&nbsp;</p>",
-      "longDescription": "<p><b>Product specifications:</b><br/>Micro-current technology is one of the latest innovations , and is widely used in the best spas and medical institutions to tune, strengthen and firm skin aging.<br/>Reduce skin and fine lines<br/>It provides moisture to the skin and makes the skin softer.<br/>Reduce swelling and Dark circles and bags under the eyes disappeared.<br/><br/>Type: Wrinkle Massager<br/>Material: ABS zinc alloy<br/>Battery capacity: 2.4 V / 800 MAH (included)<br/>Operating voltage: 2.4 V<br/>Output voltage: 5 V<br/>Power: 0.15W<br/>Features: firming, wrinkle removal, face, small size<br/>Size: 10.6 cm × 6.5 cm&nbsp;<br/></p><p><b>Package content:</b></p><p>1 * instrument&nbsp;</p><p>1* USB cable</p><p>1 * cloth bag</p><p>1 * instrution</p><p>Usage: 1. Clean the skin: thoroughly clean the face and dry it before use;<br/>Operate the instrument, select the appropriate gear position, and lift the skin;<br/>Daily skin care: carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance.<br/>Basic operation: 1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean.</p><p><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500323100.jpg\" style=\"max-width:100%;\"/><br/></p><p><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500323600.jpg\" style=\"font-size: 14px;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500324100.jpg\" style=\"font-size: 14px;\"/><img alt=\"undefined\" src=\"https://cf.cjdropshipping.com/17089920/2402270515500324800.jpg\" max-width=\"990\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500325400.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500326700.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500327400.jpg\" style=\"font-size: 14px; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/17089920/2402270515500328000.jpg\" style=\"font-size: 14px; max-width: 100%;\"/>&nbsp;&nbsp;</p>",
+      "description": "<p><b>Overview:</b><br/>1. The stretch strap material is made of silky fabric, which is sturdy, and does not hurt or burn your skin with friction. The folds of fabric are upgraded wide supportive and do not “cut ‘’ into you compared to the traditional narrow strap. A yoga sling is certainly a good way to take yoga to a higher fitness level.<br/>2. No need for a rafter or hardware, you just slip the two foam wheels on each end over your door, then shut it to hold it in place. Because the aerial stretching swing isn’t permanently fixed, you can move it to other rooms or for traveling. It will be great for assistance while stretching your back, waist leg, or practicing to open your shoulder. FREE EXTRA BANDS increase the effectiveness of your exercises.<br/>3. The sash is adjustable for different lengths/stretches, you can adjust it right according to the number on each side. The adjustable swing length is 63\". When fully open it'll cover the bum and most of the back. The waist /leg strap is a great alternative to having those huge bouncy balls taking up unnecessary space in your room.<br/></p><p><br/></p><p><b>Specification:</b><br/>Weight: net weight about 580g, gross weight about 500g<br/>Packing: cloth bag, external opp bag + bubble tape<br/>Packing size: 28cm*30cm*15cm</p><p><br/></p><p><b>Packing list：</b></p><p>Yoga rope X1</p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470325300.jpg\"/><br/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470325900.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470326400.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470326800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470327200.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470327500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328400.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470329300.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155480320500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><br/></p>",
+      "longDescription": "<p><b>Overview:</b><br/>1. The stretch strap material is made of silky fabric, which is sturdy, and does not hurt or burn your skin with friction. The folds of fabric are upgraded wide supportive and do not “cut ‘’ into you compared to the traditional narrow strap. A yoga sling is certainly a good way to take yoga to a higher fitness level.<br/>2. No need for a rafter or hardware, you just slip the two foam wheels on each end over your door, then shut it to hold it in place. Because the aerial stretching swing isn’t permanently fixed, you can move it to other rooms or for traveling. It will be great for assistance while stretching your back, waist leg, or practicing to open your shoulder. FREE EXTRA BANDS increase the effectiveness of your exercises.<br/>3. The sash is adjustable for different lengths/stretches, you can adjust it right according to the number on each side. The adjustable swing length is 63\". When fully open it'll cover the bum and most of the back. The waist /leg strap is a great alternative to having those huge bouncy balls taking up unnecessary space in your room.<br/></p><p><br/></p><p><b>Specification:</b><br/>Weight: net weight about 580g, gross weight about 500g<br/>Packing: cloth bag, external opp bag + bubble tape<br/>Packing size: 28cm*30cm*15cm</p><p><br/></p><p><b>Packing list：</b></p><p>Yoga rope X1</p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470325300.jpg\"/><br/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470325900.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470326400.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470326800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470327200.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470327500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328000.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328400.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470328800.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155470329300.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><img src=\"https://cf.cjdropshipping.com/17058816/2401220155480320500.jpg\" style=\"max-width:100%;\" contenteditable=\"false\"/><br/></p>",
       "image": {
-        "src": "https://cf.cjdropshipping.com/61818f7f-c7b2-4c0b-a308-857ff59f4ddb.jpg",
-        "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+        "src": "https://oss-cf.cjdropshipping.com/product/2024/01/11/06/01ca6d70-f4f5-4793-861b-b593e50a75ee.jpg?cid=2504180519181613804",
+        "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
         "source": "provider"
       },
       "images": [
         {
-          "src": "https://cf.cjdropshipping.com/61818f7f-c7b2-4c0b-a308-857ff59f4ddb.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/01/11/06/01ca6d70-f4f5-4793-861b-b593e50a75ee.jpg?cid=2504180519181613804",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20190406/4806112568447.png",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/e4987f5e-de4b-497f-a2ac-512407f4a21e.jpg?cid=2504180519181613808&cid=2505300809041940209&cid=2508060637021920107&cid=2508160543391950307&cid=2509020919441949407&cid=2509291900501950007&cid=2606030653071924408&cid=2608011216061923107&cid=2608011249341934307&cid=2608030243581958506&cid=2608200302401932806",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20210111/1305815628316.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/c616f6c1-c559-48bc-8789-9df392844a84.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://oss-cf.cjdropshipping.com/product/2024/02/27/05/4b573f09-c289-4558-8bc3-864d57835055.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/b4ac22cc-cf97-4102-985c-3f0cfba02ae9.jpg?bid=1794741315779956736",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20210111/3864059365038.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/d89039ed-57d6-4151-b5bf-2ff9aecc9e00.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20190406/346056367861.png",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/9e7a3c7d-a0f8-4da0-bf28-f0d628d8373a.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20190406/2128174895610.png",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://oss-cf.cjdropshipping.com/product/2024/01/11/06/01ca6d70-f4f5-4793-861b-b593e50a75ee.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20190406/3299930884674.png",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470325300.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/20190406/1892254628768.png",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470325900.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500323100.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470326400.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500323600.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470326800.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500324100.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470327200.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500324800.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470327500.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500325400.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470328000.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500326700.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470328400.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500327400.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470328800.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/17089920/2402270515500328000.jpg",
-          "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument",
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155470329300.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/17058816/2401220155480320500.jpg",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/9e7a3c7d-a0f8-4da0-bf28-f0d628d8373a.jpg?bid=1794741270523416576",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/d89039ed-57d6-4151-b5bf-2ff9aecc9e00.jpg?bid=1794741279973183488",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/e4987f5e-de4b-497f-a2ac-512407f4a21e.jpg?bid=1794741293168463872",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
+          "source": "provider"
+        },
+        {
+          "src": "https://cf.cjdropshipping.com/c616f6c1-c559-48bc-8789-9df392844a84.jpg?bid=1794741305206116352",
+          "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer",
           "source": "provider"
         }
       ],
       "providerDetails": {
-        "description": "Product specifications:\nMicro-current technology is one of the latest innovations , and is widely used in the best spas and medical institutions to tune, strengthen and firm skin aging.\nReduce skin and fine lines\nIt provides moisture to the skin and makes the skin softer.\nReduce swelling and Dark circles and bags under the eyes disappeared.\n\nType: Wrinkle Massager\nMaterial: ABS zinc alloy\nBattery capacity: 2.4 V / 800 MAH (included)\nOperating voltage: 2.4 V\nOutput voltage: 5 V\nPower: 0.15W\nFeatures: firming, wrinkle removal, face, small size\nSize: 10.6 cm × 6.5 cm \n\nPackage content:\n1 * instrument \n1* USB cable\n1 * cloth bag\n1 * instrution\nUsage: 1. Clean the skin: thoroughly clean the face and dry it before use;\nOperate the instrument, select the appropriate gear position, and lift the skin;\nDaily skin care: carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance.\nBasic operation: 1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean.",
+        "description": "Overview:\n1. The stretch strap material is made of silky fabric, which is sturdy, and does not hurt or burn your skin with friction. The folds of fabric are upgraded wide supportive and do not “cut ‘’ into you compared to the traditional narrow strap. A yoga sling is certainly a good way to take yoga to a higher fitness level.\n2. No need for a rafter or hardware, you just slip the two foam wheels on each end over your door, then shut it to hold it in place. Because the aerial stretching swing isn’t permanently fixed, you can move it to other rooms or for traveling. It will be great for assistance while stretching your back, waist leg, or practicing to open your shoulder. FREE EXTRA BANDS increase the effectiveness of your exercises.\n3. The sash is adjustable for different lengths/stretches, you can adjust it right according to the number on each side. The adjustable swing length is 63\". When fully open it'll cover the bum and most of the back. The waist /leg strap is a great alternative to having those huge bouncy balls taking up unnecessary space in your room.\n\nSpecification:\nWeight: net weight about 580g, gross weight about 500g\nPacking: cloth bag, external opp bag + bubble tape\nPacking size: 28cm*30cm*15cm\n\nPacking list：\nYoga rope X1",
         "sections": [
           {
             "title": "Descripción del proveedor",
             "content": [
-              "Product specifications:",
-              "Micro-current technology is one of the latest innovations , and is widely used in the best spas and medical institutions to tune, strengthen and firm skin aging.",
-              "Reduce skin and fine lines",
-              "It provides moisture to the skin and makes the skin softer.",
-              "Reduce swelling and Dark circles and bags under the eyes disappeared.",
-              "Type: Wrinkle Massager",
-              "Material: ABS zinc alloy",
-              "Battery capacity: 2.4 V / 800 MAH (included)",
-              "Operating voltage: 2.4 V",
-              "Output voltage: 5 V",
-              "Power: 0.15W"
+              "1. The stretch strap material is made of silky fabric, which is sturdy, and does not hurt or burn your skin with friction. The folds of fabric are upgraded wide supportive and do not “cut ‘’ into you compared to the traditional narrow strap. A yoga sling is certainly a good way to take yoga to a higher fitness level.",
+              "2. No need for a rafter or hardware, you just slip the two foam wheels on each end over your door, then shut it to hold it in place. Because the aerial stretching swing isn’t permanently fixed, you can move it to other rooms or for traveling. It will be great for assistance while stretching your back, waist leg, or practicing to open your shoulder. FREE EXTRA BANDS increase the effectiveness of your exercises.",
+              "3. The sash is adjustable for different lengths/stretches, you can adjust it right according to the number on each side. The adjustable swing length is 63\". When fully open it'll cover the bum and most of the back. The waist /leg strap is a great alternative to having those huge bouncy balls taking up unnecessary space in your room."
             ]
           },
           {
             "title": "Especificaciones",
             "content": [
-              "Size: 10.6 cm × 6.5 cm"
+              "Weight: net weight about 580g, gross weight about 500g",
+              "Packing: cloth bag, external opp bag + bubble tape",
+              "Packing size: 28cm*30cm*15cm"
             ]
           },
           {
             "title": "Contenido del paquete",
             "content": [
-              "1 * instrument",
-              "1* USB cable",
-              "1 * cloth bag",
-              "1 * instrution",
-              "Usage: 1. Clean the skin: thoroughly clean the face and dry it before use;",
-              "Operate the instrument, select the appropriate gear position, and lift the skin;",
-              "Daily skin care: carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance.",
-              "Basic operation: 1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean."
+              "Yoga rope X1"
             ]
           }
         ],
         "specifications": [
           {
-            "label": "Type",
-            "value": "Wrinkle Massager"
+            "label": "Weight",
+            "value": "net weight about 580g, gross weight about 500g"
           },
           {
-            "label": "Material",
-            "value": "ABS zinc alloy"
+            "label": "Packing",
+            "value": "cloth bag, external opp bag + bubble tape"
           },
           {
-            "label": "Battery capacity",
-            "value": "2.4 V / 800 MAH (included)"
-          },
-          {
-            "label": "Operating voltage",
-            "value": "2.4 V"
-          },
-          {
-            "label": "Output voltage",
-            "value": "5 V"
-          },
-          {
-            "label": "Power",
-            "value": "0.15W"
-          },
-          {
-            "label": "Size",
-            "value": "10.6 cm × 6.5 cm"
-          },
-          {
-            "label": "Usage",
-            "value": "1. Clean the skin: thoroughly clean the face and dry it before use;"
-          },
-          {
-            "label": "Daily skin care",
-            "value": "carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance."
-          },
-          {
-            "label": "Basic operation",
-            "value": "1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean."
+            "label": "Packing size",
+            "value": "28cm*30cm*15cm"
           }
         ],
         "packageContents": [
-          "1 * instrument",
-          "1* USB cable",
-          "1 * cloth bag",
-          "1 * instrution",
-          "Usage: 1. Clean the skin: thoroughly clean the face and dry it before use;",
-          "Operate the instrument, select the appropriate gear position, and lift the skin;",
-          "Daily skin care: carry out skin care steps, moisturizing sunscreen, and paying attention to maintenance.",
-          "Basic operation: 1. The key and gear keys are the same button. Press to turn on the machine and press to switch the gear. 2. Please keep positive and negative 2 balls while touching the skin. 3. After use, please clean the body with cotton pad to keep the instrument clean."
+          "Yoga rope X1"
         ]
       },
       "shipping": {
-        "packingWeightGrams": 320,
-        "unit": "unit(s)",
+        "productWeightGrams": 700,
+        "packingWeightGrams": 720,
         "logisticsProperties": [
-          "BATTERY"
+          "COMMON"
         ]
       },
       "variants": [
         {
-          "providerVariantId": "2CA17EB8-6973-4E50-BBC8-B2C22FA62D9E",
-          "sku": "CJBJMRDD00038-White",
-          "label": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument White",
-          "options": "White",
+          "providerVariantId": "1420963835665321984",
+          "sku": "CJJM123281201AZ",
+          "label": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Blue",
+          "options": "Blue",
           "image": {
-            "src": "https://cf.cjdropshipping.com/20190406/346056367861.png",
-            "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument White",
+            "src": "https://cf.cjdropshipping.com/9e7a3c7d-a0f8-4da0-bf28-f0d628d8373a.jpg?bid=1794741270523416576",
+            "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Blue",
             "source": "provider"
           },
           "dimensions": {
-            "lengthMm": 260,
-            "widthMm": 170,
-            "heightMm": 80
+            "lengthMm": 300,
+            "widthMm": 320,
+            "heightMm": 170
           },
-          "weightGrams": 320,
-          "volumeCubicMillimeters": 3536000,
-          "supplierCostUsd": 11.34
+          "weightGrams": 720,
+          "volumeCubicMillimeters": 16320000,
+          "supplierCostUsd": 3.35
         },
         {
-          "providerVariantId": "BD9629BE-6C24-4026-9226-29CC2CA9F3E9",
-          "sku": "CJBJMRDD00038-Pink",
-          "label": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument Pink",
+          "providerVariantId": "1420963835673710592",
+          "sku": "CJJM123281202BY",
+          "label": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Pink",
           "options": "Pink",
           "image": {
-            "src": "https://oss-cf.cjdropshipping.com/product/2024/02/27/05/4b573f09-c289-4558-8bc3-864d57835055.jpg",
-            "alt": "Electric Micro-Current Face Massager EMS Firming Micro Current Deedema Decree Wrinkle Skin Rejuvenation Beauty Instrument Pink",
+            "src": "https://cf.cjdropshipping.com/d89039ed-57d6-4151-b5bf-2ff9aecc9e00.jpg?bid=1794741279973183488",
+            "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Pink",
             "source": "provider"
           },
           "dimensions": {
-            "lengthMm": 260,
-            "widthMm": 170,
-            "heightMm": 80
+            "lengthMm": 300,
+            "widthMm": 320,
+            "heightMm": 170
           },
-          "weightGrams": 320,
-          "volumeCubicMillimeters": 3536000,
-          "supplierCostUsd": 11.34
+          "weightGrams": 720,
+          "volumeCubicMillimeters": 16320000,
+          "supplierCostUsd": 3.35
+        },
+        {
+          "providerVariantId": "1420963835682099200",
+          "sku": "CJJM123281203CX",
+          "label": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Black",
+          "options": "Black",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/e4987f5e-de4b-497f-a2ac-512407f4a21e.jpg?bid=1794741293168463872",
+            "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Black",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 300,
+            "widthMm": 320,
+            "heightMm": 170
+          },
+          "weightGrams": 720,
+          "volumeCubicMillimeters": 16320000,
+          "supplierCostUsd": 3.35
+        },
+        {
+          "providerVariantId": "1420963835694682112",
+          "sku": "CJJM123281204DW",
+          "label": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Green",
+          "options": "Green",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/c616f6c1-c559-48bc-8789-9df392844a84.jpg?bid=1794741305206116352",
+            "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Green",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 300,
+            "widthMm": 320,
+            "heightMm": 170
+          },
+          "weightGrams": 720,
+          "volumeCubicMillimeters": 16320000,
+          "supplierCostUsd": 3.35
+        },
+        {
+          "providerVariantId": "1420963835707265024",
+          "sku": "CJJM123281205EV",
+          "label": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Purple",
+          "options": "Purple",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/b4ac22cc-cf97-4102-985c-3f0cfba02ae9.jpg?bid=1794741315779956736",
+            "alt": "Fitness Hip Stretch Yoga Belt Inverted Rope Pull Stretch Belt Split Lower Waist Trainer Purple",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 300,
+            "widthMm": 320,
+            "heightMm": 170
+          },
+          "weightGrams": 720,
+          "volumeCubicMillimeters": 16320000,
+          "supplierCostUsd": 3.35
         }
       ],
-      "price": 79700,
+      "price": 25200,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 1,
+      "stock": 68,
       "active": true,
-      "sku": "CJBJMRDD00038",
-      "material": "Metal",
+      "sku": "CJJM1232812",
+      "material": "Cloth",
       "accent": "emerald",
       "supplier": {
         "name": "CJ Dropshipping",
-        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Health & Beauty, Hair / Beauty Tools / Electric Face Cleanser",
-        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=1F998569-751C-4BAB-AE68-21B070812D40",
-        "reference": "CJBJMRDD00038 · 1F998569-751C-4BAB-AE68-21B070812D40",
-        "costUsd": 11.34
+        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Sports & Outdoors > Other Sports Equipment > Fitness & Bodybuilding",
+        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=1420963834264424448",
+        "reference": "CJJM1232812 · 1420963834264424448",
+        "costUsd": 3.35
       },
       "performance": {
         "salesLast30Days": 0,
@@ -6479,177 +6370,210 @@
       }
     },
     {
-      "slug": "mini-neckline-slimmer-neck-exerciser-chin-massager-cjbjmrpf00001",
-      "name": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+      "slug": "skipping-rope-with-counter-adjustable-length-counter-wear-resistant-foam-cjydqtjm00256",
+      "name": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
       "category": "Bienestar",
       "niche": "wellbeing",
-      "description": "<p><b>Overview:<br/></b>1.Chin Massager for the neck, chin and face. Work for massaging your face, neck and chin, also play role in slimming your neckline and chin.<br/>2.Professional designed massager will relax your body.<br/>It is very easy and comfortable to use. Treat yourself to an invigorating massage.<br/>3.In just 2 minutes a day you can have dramatic results. Keep up doing it for a long time, your neckline and chin muscles will be very good exercise. You can see the surprise change of your neck.<br/>4.This is a neck exerciser that has 3 springs that can be changed to increase resistance.<br/>5.100% Brand New and High Quality.<br/>Portable, convenient to carry-on<br/>6 springs, you can use it in a very long time.</p><p><b>Specifications:<br/></b>Material:ABS, TPR<br/>Color: white<br/></p><p><b>Size:</b></p><p>140*60*52MM<br/></p><p><b>Package Content:<br/></b>1 x  Chin Massager<br/>3 x  spring with PP bag<br/>1 x  Instructions<br/>1 x  600D Oxford bag<br/>1 x  Blister shell</p><p><br/></p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/1616637202081.jpg\" style=\"max-width:100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202529.jpg\"/><img src=\"https://cf.cjdropshipping.com/1616637202073.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202085.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202083.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202524.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202523.jpg\" style=\"font-size: 1em; max-width: 100%;\"/></p>",
-      "longDescription": "<p><b>Overview:<br/></b>1.Chin Massager for the neck, chin and face. Work for massaging your face, neck and chin, also play role in slimming your neckline and chin.<br/>2.Professional designed massager will relax your body.<br/>It is very easy and comfortable to use. Treat yourself to an invigorating massage.<br/>3.In just 2 minutes a day you can have dramatic results. Keep up doing it for a long time, your neckline and chin muscles will be very good exercise. You can see the surprise change of your neck.<br/>4.This is a neck exerciser that has 3 springs that can be changed to increase resistance.<br/>5.100% Brand New and High Quality.<br/>Portable, convenient to carry-on<br/>6 springs, you can use it in a very long time.</p><p><b>Specifications:<br/></b>Material:ABS, TPR<br/>Color: white<br/></p><p><b>Size:</b></p><p>140*60*52MM<br/></p><p><b>Package Content:<br/></b>1 x  Chin Massager<br/>3 x  spring with PP bag<br/>1 x  Instructions<br/>1 x  600D Oxford bag<br/>1 x  Blister shell</p><p><br/></p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/1616637202081.jpg\" style=\"max-width:100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202529.jpg\"/><img src=\"https://cf.cjdropshipping.com/1616637202073.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202085.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202083.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202524.jpg\" style=\"font-size: 1em; max-width: 100%;\"/><img src=\"https://cf.cjdropshipping.com/1616637202523.jpg\" style=\"font-size: 1em; max-width: 100%;\"/></p>",
+      "description": "<p><span style=\"font-weight: bold;\">Overview:</span><br/></p><p>1. High-quality soft sponge handle is comfortable, non-slip, and breathable.<br/>2. The counter on the handle can count jumping times during exercise.<br/>3. Very light design and excellent quality.<br/>4. Made for both adults and children who seek fitness<br/>5. High-speed bearing design, 360-degree smooth rotation, the rope is not easy to wind.<br/>Notice:<br/>Battery not included<br/><br/></p><p><span style=\"font-weight: bold;\">Specification:</span></p><p>Size: Total length 287cm, handle length 17cm<br/>Function: With Counter<br/>Material: PLASTIC<br/>Material: Plastic + Sponge<br/><br/></p><p><span style=\"font-weight: bold;\">Package Content:</span></p><p>1x Jump rope</p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/15694272/1536596046560.jpg\" style=\"max-width:100%;\"/><br/></p>",
+      "longDescription": "<p><span style=\"font-weight: bold;\">Overview:</span><br/></p><p>1. High-quality soft sponge handle is comfortable, non-slip, and breathable.<br/>2. The counter on the handle can count jumping times during exercise.<br/>3. Very light design and excellent quality.<br/>4. Made for both adults and children who seek fitness<br/>5. High-speed bearing design, 360-degree smooth rotation, the rope is not easy to wind.<br/>Notice:<br/>Battery not included<br/><br/></p><p><span style=\"font-weight: bold;\">Specification:</span></p><p>Size: Total length 287cm, handle length 17cm<br/>Function: With Counter<br/>Material: PLASTIC<br/>Material: Plastic + Sponge<br/><br/></p><p><span style=\"font-weight: bold;\">Package Content:</span></p><p>1x Jump rope</p><p><br/></p><p><img src=\"https://cf.cjdropshipping.com/15694272/1536596046560.jpg\" style=\"max-width:100%;\"/><br/></p>",
       "image": {
-        "src": "https://cf.cjdropshipping.com/15638112/3846818271982.jpg",
-        "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+        "src": "https://oss-cf.cjdropshipping.com/product/2025/06/16/05/126af1ff-2a81-4034-bebd-e87bf30bfb55.jpg",
+        "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
         "source": "provider"
       },
       "images": [
         {
-          "src": "https://cf.cjdropshipping.com/15638112/3846818271982.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://oss-cf.cjdropshipping.com/product/2025/06/16/05/126af1ff-2a81-4034-bebd-e87bf30bfb55.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/15139008/1460336383112.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/20190926/1287487772143.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/15139008/1570929364400.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/20190926/400775116983.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/15139008/10884985951242.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/20190926/2054277991802.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/7bcc52f8-bcc6-43f1-bcf6-5c469deec604.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/20200412/359568064539.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/1616637202081.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/20190926/3461434998205.png",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         },
         {
-          "src": "https://cf.cjdropshipping.com/1616637202529.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/1616637202073.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/1616637202085.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/1616637202083.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/1616637202524.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
-          "source": "provider"
-        },
-        {
-          "src": "https://cf.cjdropshipping.com/1616637202523.jpg",
-          "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager",
+          "src": "https://cf.cjdropshipping.com/15694272/1536596046560.jpg",
+          "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment",
           "source": "provider"
         }
       ],
       "providerDetails": {
-        "description": "Overview:\n1.Chin Massager for the neck, chin and face. Work for massaging your face, neck and chin, also play role in slimming your neckline and chin.\n2.Professional designed massager will relax your body.\nIt is very easy and comfortable to use. Treat yourself to an invigorating massage.\n3.In just 2 minutes a day you can have dramatic results. Keep up doing it for a long time, your neckline and chin muscles will be very good exercise. You can see the surprise change of your neck.\n4.This is a neck exerciser that has 3 springs that can be changed to increase resistance.\n5.100% Brand New and High Quality.\nPortable, convenient to carry-on\n6 springs, you can use it in a very long time.\nSpecifications:\nMaterial:ABS, TPR\nColor: white\n\nSize:\n140*60*52MM\n\nPackage Content:\n1 x Chin Massager\n3 x spring with PP bag\n1 x Instructions\n1 x 600D Oxford bag\n1 x Blister shell",
+        "description": "Overview:\n\n1. High-quality soft sponge handle is comfortable, non-slip, and breathable.\n2. The counter on the handle can count jumping times during exercise.\n3. Very light design and excellent quality.\n4. Made for both adults and children who seek fitness\n5. High-speed bearing design, 360-degree smooth rotation, the rope is not easy to wind.\nNotice:\nBattery not included\n\nSpecification:\nSize: Total length 287cm, handle length 17cm\nFunction: With Counter\nMaterial: PLASTIC\nMaterial: Plastic + Sponge\n\nPackage Content:\n1x Jump rope",
         "sections": [
           {
             "title": "Descripción del proveedor",
             "content": [
-              "1.Chin Massager for the neck, chin and face. Work for massaging your face, neck and chin, also play role in slimming your neckline and chin.",
-              "2.Professional designed massager will relax your body.",
-              "It is very easy and comfortable to use. Treat yourself to an invigorating massage.",
-              "3.In just 2 minutes a day you can have dramatic results. Keep up doing it for a long time, your neckline and chin muscles will be very good exercise. You can see the surprise change of your neck.",
-              "4.This is a neck exerciser that has 3 springs that can be changed to increase resistance.",
-              "5.100% Brand New and High Quality.",
-              "Portable, convenient to carry-on",
-              "6 springs, you can use it in a very long time."
+              "1. High-quality soft sponge handle is comfortable, non-slip, and breathable.",
+              "2. The counter on the handle can count jumping times during exercise.",
+              "3. Very light design and excellent quality.",
+              "4. Made for both adults and children who seek fitness",
+              "5. High-speed bearing design, 360-degree smooth rotation, the rope is not easy to wind."
+            ]
+          },
+          {
+            "title": "Notas del proveedor",
+            "content": [
+              "Battery not included"
             ]
           },
           {
             "title": "Especificaciones",
             "content": [
-              "Material:ABS, TPR",
-              "Color: white",
-              "Size:",
-              "140*60*52MM"
+              "Size: Total length 287cm, handle length 17cm",
+              "Function: With Counter",
+              "Material: PLASTIC",
+              "Material: Plastic + Sponge"
             ]
           },
           {
             "title": "Contenido del paquete",
             "content": [
-              "1 x Chin Massager",
-              "3 x spring with PP bag",
-              "1 x Instructions",
-              "1 x 600D Oxford bag",
-              "1 x Blister shell"
+              "1x Jump rope"
             ]
           }
         ],
         "specifications": [
           {
-            "label": "Material",
-            "value": "ABS, TPR"
+            "label": "Size",
+            "value": "Total length 287cm, handle length 17cm"
           },
           {
-            "label": "Color",
-            "value": "white"
+            "label": "Function",
+            "value": "With Counter"
+          },
+          {
+            "label": "Material",
+            "value": "PLASTIC"
+          },
+          {
+            "label": "Material",
+            "value": "Plastic + Sponge"
           }
         ],
         "packageContents": [
-          "1 x Chin Massager",
-          "3 x spring with PP bag",
-          "1 x Instructions",
-          "1 x 600D Oxford bag",
-          "1 x Blister shell"
+          "1x Jump rope"
         ]
       },
       "shipping": {
-        "productWeightGrams": 109,
-        "packingWeightGrams": 217,
+        "packingWeightGrams": 120,
         "unit": "unit(s)",
         "logisticsProperties": [
-          "COMMON",
-          "OVERSIZE"
+          "COMMON"
         ]
       },
       "variants": [
         {
-          "providerVariantId": "353F8239-F502-48EF-A3EC-5511B4F9A43F",
-          "sku": "CJBJMRPF00001-default",
-          "label": "Mini Neckline Slimmer Neck Exerciser Chin Massager default",
-          "options": "default",
+          "providerVariantId": "2E69A44E-1D42-49F9-9D45-7423DDD3CA82",
+          "sku": "CJYDQTJM00256-Green",
+          "label": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Green",
+          "options": "Green",
           "image": {
-            "src": "https://cf.cjdropshipping.com/15139008/1570929364400.jpg",
-            "alt": "Mini Neckline Slimmer Neck Exerciser Chin Massager default",
+            "src": "https://cf.cjdropshipping.com/20190926/1287487772143.jpg",
+            "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Green",
             "source": "provider"
           },
           "dimensions": {
-            "lengthMm": 230,
-            "widthMm": 170,
-            "heightMm": 70
+            "lengthMm": 150,
+            "widthMm": 200,
+            "heightMm": 50
           },
-          "weightGrams": 217,
-          "volumeCubicMillimeters": 2737000,
-          "supplierCostUsd": 0.91
+          "weightGrams": 120,
+          "volumeCubicMillimeters": 1500000,
+          "supplierCostUsd": 0.99
+        },
+        {
+          "providerVariantId": "6A4C4BFE-B584-4121-95BD-12B5813C767D",
+          "sku": "CJYDQTJM00256-Orange",
+          "label": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Orange",
+          "options": "Orange",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20200412/359568064539.jpg",
+            "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Orange",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 200,
+            "heightMm": 50
+          },
+          "weightGrams": 120,
+          "volumeCubicMillimeters": 1500000,
+          "supplierCostUsd": 0.99
+        },
+        {
+          "providerVariantId": "94D35DEB-2691-4835-A8CD-61D46651B4F6",
+          "sku": "CJYDQTJM00256-Red",
+          "label": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Red",
+          "options": "Red",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190926/2054277991802.jpg",
+            "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Red",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 200,
+            "heightMm": 50
+          },
+          "weightGrams": 120,
+          "volumeCubicMillimeters": 1500000,
+          "supplierCostUsd": 0.99
+        },
+        {
+          "providerVariantId": "B73839FB-AAEF-425A-88D6-6B6F82BE2F2E",
+          "sku": "CJYDQTJM00256-Blue",
+          "label": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Blue",
+          "options": "Blue",
+          "image": {
+            "src": "https://cf.cjdropshipping.com/20190926/400775116983.jpg",
+            "alt": "Skipping Rope With Counter Adjustable Length Counter Wear-resistant Foam Cotton Handle JumpRope Exercise Portable Sports Training Equipment Blue",
+            "source": "provider"
+          },
+          "dimensions": {
+            "lengthMm": 150,
+            "widthMm": 200,
+            "heightMm": 50
+          },
+          "weightGrams": 120,
+          "volumeCubicMillimeters": 1500000,
+          "supplierCostUsd": 0.99
         }
       ],
-      "price": 8300,
+      "price": 8900,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 3,
+      "stock": 9,
       "active": true,
-      "sku": "CJBJMRPF00001",
+      "sku": "CJYDQTJM00256",
       "material": "Plastic",
       "accent": "emerald",
       "supplier": {
         "name": "CJ Dropshipping",
-        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Health & Beauty, Hair / Beauty Tools / Face Skin Care Tools",
-        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=4DB19228-3607-48B1-9FD1-28A5B1D16285",
-        "reference": "CJBJMRPF00001 · 4DB19228-3607-48B1-9FD1-28A5B1D16285",
-        "costUsd": 0.91
+        "sourcePage": "CJ Product List v2 · Categoría y número de listados · Sports & Outdoors / Other Sports Equipment / Fitness & Bodybuilding",
+        "sourceUrl": "https://developers.cjdropshipping.com/api2.0/v1/product/query?pid=0C862543-E20F-4900-8AA6-24505AA12662",
+        "reference": "CJYDQTJM00256 · 0C862543-E20F-4900-8AA6-24505AA12662",
+        "costUsd": 0.99
       },
       "performance": {
         "salesLast30Days": 0,
