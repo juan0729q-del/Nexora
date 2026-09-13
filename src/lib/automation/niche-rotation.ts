@@ -403,7 +403,7 @@ export async function fetchTrendingProductsForNiche(
   // budget even when a category has few valid products.
   const candidatePoolTarget = Math.min(15, Math.max(limit * 2, 10));
   for (const category of matchingCategories.slice(0, 2)) {
-    client.assertPointsAvailable(50);
+    await client.authenticateAndAssertPoints(50);
     const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: true }));
     addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
     if (candidates.size >= candidatePoolTarget) break;
@@ -418,7 +418,7 @@ export async function fetchTrendingProductsForNiche(
         name: searchTerm,
         path: `Búsqueda oficial CJ › ${niches[niche].label}`,
       };
-      client.assertPointsAvailable(50);
+      await client.authenticateAndAssertPoints(50);
       const payload = await client.getJson<CjProductListResponse>(productListUrl({ keyWord: searchTerm, trendingOnly: true }));
       addListedCandidates(extractProducts(payload), keywordCategory, candidates, excludedSkus, niche);
       if (candidates.size >= candidatePoolTarget) break;
@@ -429,7 +429,7 @@ export async function fetchTrendingProductsForNiche(
   // número de listados y con inventario verificado. No se afirma que sean ventas.
   if (candidates.size < candidatePoolTarget) {
     for (const category of matchingCategories.slice(0, 1)) {
-      client.assertPointsAvailable(50);
+      await client.authenticateAndAssertPoints(50);
       const payload = await client.getJson<CjProductListResponse>(productListUrl({ categoryId: category.id, trendingOnly: false }));
       addListedCandidates(extractProducts(payload), category, candidates, excludedSkus, undefined);
       if (candidates.size >= candidatePoolTarget) break;
@@ -443,7 +443,7 @@ export async function fetchTrendingProductsForNiche(
   let detailAttempts = 0;
   for (const candidate of [...candidates.values()].sort((left, right) => right.listedNum - left.listedNum || left.sku.localeCompare(right.sku))) {
     if (detailAttempts >= detailAttemptLimit) break;
-    client.assertPointsAvailable(10);
+    await client.authenticateAndAssertPoints(10);
     const enriched = await enrichCandidate(candidate, client);
     detailAttempts += 1;
     if (enriched && !excludedSkus.has(enriched.sku) && !selected.some((entry) => entry.sku === enriched.sku)) selected.push(enriched);
@@ -546,7 +546,7 @@ export async function enrichPublishedCatalogDetails(client: CjClient = createCjC
     const productId = productIdFrom(product);
     if (!productId) throw new Error(`No se pudo recuperar el identificador CJ de ${product.sku}; la ficha no fue modificada.`);
 
-    client.assertPointsAvailable(10);
+    await client.authenticateAndAssertPoints(10);
     const payload = await client.getJson<CjProductDetailResponse>(productQueryUrl(productId));
     const detail = payload.data;
     if (!detail || (detail.pid && detail.pid !== productId) || (detail.status !== undefined && String(detail.status) !== "3")) {

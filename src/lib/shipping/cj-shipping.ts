@@ -452,7 +452,7 @@ export async function quoteCjShipping({ product, variantSku, quantity = 1, desti
     };
     let response: CjFreightResponse;
     try {
-      client.assertPointsAvailable(10);
+      await client.authenticateAndAssertPoints(10);
       response = await client.postJson<CjFreightResponse>(freightTipEndpoint, freightPayload);
     } catch (error) {
       if (error instanceof CjAuthenticationError) throw error;

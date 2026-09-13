@@ -54,6 +54,13 @@ jobs:
       - name: Validate and persist catalog JSON
         if: steps.config.outputs.configured == 'true' && steps.import.outputs.catalog_ready == 'true'
         run: node scripts/persist-catalog-import.mjs .catalog-import.json
+      - name: Preserve verified candidate for editorial review
+        if: steps.import.outputs.catalog_ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: cj-catalog-candidate
+          path: src/data/catalog.json
+          retention-days: 3
       - uses: pnpm/action-setup@v4
         if: steps.import.outputs.catalog_ready == 'true'
         with:

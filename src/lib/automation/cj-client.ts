@@ -1,4 +1,6 @@
 import "server-only";
+import { parseCjPoints, verifyCjPoints, type CjPointsInfo } from "./cj-points";
+export type { CjPointsInfo } from "./cj-points";
 
 const cjOrigin = "https://developers.cjdropshipping.com";
 const tokenEndpoint = "/api2.0/v1/authentication/getAccessToken";
@@ -6,12 +8,6 @@ const refreshEndpoint = "/api2.0/v1/authentication/refreshAccessToken";
 // El nivel gratuito de CJ puede estar limitado a una petición por segundo.
 // El margen extra protege contra la precisión del reloj y ejecuciones cálidas.
 const cjRequestIntervalMs = 1_100;
-
-export type CjPointsInfo = {
-  usedToday?: number;
-  remaining?: number;
-  total?: number;
-};
 
 type CjEnvelope<T> = {
   code?: number;
@@ -71,6 +67,7 @@ export type CjSession = {
 export type CjTelemetry = {
   requestId?: string;
   points?: CjPointsInfo;
+  pointsObservedAt?: number;
 };
 
 let sharedRequestQueue: Promise<void> = Promise.resolve();
@@ -148,22 +145,6 @@ function responseDetail(response: Response, payload: CjEnvelope<unknown> | undef
   return `CJ respondió ${response.status}${payload?.code !== undefined ? ` (código ${payload.code})` : ""}: ${message}`;
 }
 
-function numberOrUndefined(value: unknown) {
-  if (value === null || value === undefined || (typeof value === "string" && value.trim() === "")) return undefined;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : undefined;
-}
-
-function pointsFrom(value: unknown): CjPointsInfo | undefined {
-  if (!value || typeof value !== "object") return undefined;
-  const candidate = value as Record<string, unknown>;
-  const usedToday = numberOrUndefined(candidate.usedToday);
-  const remaining = numberOrUndefined(candidate.remaining);
-  const total = numberOrUndefined(candidate.total);
-  if (usedToday === undefined && remaining === undefined && total === undefined) return undefined;
-  return { usedToday, remaining, total };
-}
-
 async function parseResponse(response: Response): Promise<CjResponse> {
   const raw = await response.text();
   let payload: CjEnvelope<unknown> | undefined;
@@ -171,7 +152,7 @@ async function parseResponse(response: Response): Promise<CjResponse> {
     const parsed = JSON.parse(raw) as unknown;
     if (parsed && typeof parsed === "object") {
       const envelope = parsed as CjEnvelope<unknown>;
-      payload = { ...envelope, pointsInfo: pointsFrom(envelope.pointsInfo) };
+      payload = { ...envelope, pointsInfo: parseCjPoints(envelope.pointsInfo) };
     }
   } catch {
     // CJ puede responder HTML/texto al atravesar una capa de red. Nunca se registra
@@ -256,13 +237,21 @@ export class CjClient {
     return {
       requestId: sharedTelemetry.requestId,
       points: sharedTelemetry.points ? { ...sharedTelemetry.points } : undefined,
+      pointsObservedAt: sharedTelemetry.pointsObservedAt,
     };
   }
 
-  assertPointsAvailable(nextRequestCost = 0) {
-    const remaining = sharedTelemetry.points?.remaining;
+  /** Todas las rutas renuevan un saldo bajo antes de aplicar la reserva local. */
+  async authenticateAndAssertPoints(nextRequestCost = 0) {
+    await this.getSession();
     const reserve = minimumPointsReserve(this.pointsReserveOverride);
     const required = reserve + Math.max(0, nextRequestCost);
+    const points = await verifyCjPoints(
+      () => ({ points: sharedTelemetry.points, observedAt: sharedTelemetry.pointsObservedAt }),
+      async () => { await this.getJson(`${cjOrigin}/api2.0/v1/setting/get`); },
+      required,
+    );
+    const remaining = points?.remaining;
     if (remaining !== undefined && remaining < required) {
       throw new CjQuotaError(
         `CJ reportó ${remaining} puntos disponibles; Nexora reservó ${reserve} puntos y detuvo la consulta antes de exceder la cuota.`,
@@ -271,27 +260,13 @@ export class CjClient {
     }
   }
 
-  /** Obtiene primero la telemetría de la sesión y luego valida la reserva. */
-  async authenticateAndAssertPoints(nextRequestCost = 0) {
-    await this.getSession();
-    try {
-      this.assertPointsAvailable(nextRequestCost);
-    } catch (error) {
-      if (!(error instanceof CjQuotaError)) throw error;
-
-      // CJ repone los puntos de forma gradual cada minuto. Una Function cálida
-      // puede conservar en memoria un saldo bajo observado minutos antes; el
-      // endpoint de ajustes no consume puntos y permite renovar esa telemetría
-      // antes de bloquear una compra con información obsoleta.
-      await this.getJson<CjEnvelope<unknown>>(`${cjOrigin}/api2.0/v1/setting/get`);
-      this.assertPointsAvailable(nextRequestCost);
-    }
-  }
-
   private observe(payload: CjEnvelope<unknown> | undefined) {
     if (!payload) return;
     if (payload.requestId) sharedTelemetry.requestId = payload.requestId;
-    if (payload.pointsInfo) sharedTelemetry.points = payload.pointsInfo;
+    if (payload.pointsInfo) {
+      sharedTelemetry.points = payload.pointsInfo;
+      sharedTelemetry.pointsObservedAt = Date.now();
+    }
   }
 
   private async authenticateWithApiKey() {
