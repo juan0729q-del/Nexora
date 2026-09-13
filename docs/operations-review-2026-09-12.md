@@ -9,6 +9,8 @@
 - Inteligencia: conserva decisiones históricas, aplica la última decisión ejecutada por SKU, refleja vigilancia y pausa operativas, rechaza autorizaciones vencidas y elimina marcadores de ejecución introducidos en notas. Una falla del registro privado no reactiva silenciosamente productos pausados.
 - Apps Script: historial completo en lugar de últimas 60 propuestas. Publicado en versión 14 conservando el despliegue existente.
 - Dependencias: Next.js 16.3.4 y dependencias transitivas corregidas; auditoría sin vulnerabilidades conocidas.
+- Despliegue: se corrigió la generación estática del sitemap, que consultaba Google durante el build. El commit 15e9237 pasó GitHub y Vercel; el sitemap productivo respondió HTTP 200 y XML en 4,87 segundos.
+- Carga: las secciones comparten una única lectura concurrente del catálogo operativo; una autorización invalida también las lecturas anteriores. La tienda respondió HTTP 200; Google sigue siendo una dependencia durante las lecturas sin caché.
 
 ## Estado de proveedores
 

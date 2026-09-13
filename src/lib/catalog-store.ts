@@ -36,9 +36,13 @@ export async function getCatalog() {
 }
 
 let operationalCache: { expiresAt: number; products: Product[] } | null = null;
+let operationalRead: Promise<Product[]> | null = null;
+let operationalGeneration = 0;
 
 export function invalidateOperationalCatalogCache() {
   operationalCache = null;
+  operationalRead = null;
+  operationalGeneration += 1;
 }
 
 /**
@@ -48,12 +52,22 @@ export function invalidateOperationalCatalogCache() {
  */
 export async function getOperationalCatalog({ fresh = false }: { fresh?: boolean } = {}) {
   if (!fresh && operationalCache && operationalCache.expiresAt > Date.now()) return operationalCache.products;
-  const products = await getCatalog();
-  // A failed read must never silently reactivate an operator-paused product.
-  const ledger = await getIntelligenceLedgerSnapshot();
-  const operational = applyExecutedCatalogDecisions(products, ledger?.proposals || []);
-  operationalCache = { expiresAt: Date.now() + 30_000, products: operational };
-  return operational;
+  if (operationalRead) return operationalRead;
+  const generation = operationalGeneration;
+  // Las secciones concurrentes comparten una lectura privada. Invalidar una
+  // decisión impide que una lectura anterior repueble la caché con otra regla.
+  const read = (async () => {
+    const [products, ledger] = await Promise.all([getCatalog(), getIntelligenceLedgerSnapshot()]);
+    const operational = applyExecutedCatalogDecisions(products, ledger?.proposals || []);
+    if (generation === operationalGeneration) operationalCache = { expiresAt: Date.now() + 30_000, products: operational };
+    return operational;
+  })();
+  operationalRead = read;
+  try {
+    return await read;
+  } finally {
+    if (operationalRead === read) operationalRead = null;
+  }
 }
 
 export async function getStoreCatalog(niche?: ProductNiche) {
