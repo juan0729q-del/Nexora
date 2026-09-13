@@ -13,12 +13,13 @@ export async function POST() {
   const stages: unknown[] = [];
   for (const [stage, url] of [
     ["settings", "https://developers.cjdropshipping.com/api2.0/v1/setting/get"],
+    ["categories", "https://developers.cjdropshipping.com/api2.0/v1/product/getCategory"],
     ["product-probe", (await getCatalog()).find((product) => (product.supplier.source ?? "cj") === "cj")?.supplier.sourceUrl],
   ]) {
     if (!url) continue;
     try {
-      await client.getJson(url);
-      stages.push({ stage, ok: true, telemetry: client.getTelemetry() });
+      const result = await client.getJson<{ pointsInfo?: unknown }>(url);
+      stages.push({ stage, ok: true, reportedPoints: result.pointsInfo, telemetry: client.getTelemetry() });
     } catch (error) {
       stages.push({ stage, ok: false, message: error instanceof Error ? error.message : "Error CJ", telemetry: client.getTelemetry(), code: error instanceof CjRequestError ? error.code : undefined });
       break;
