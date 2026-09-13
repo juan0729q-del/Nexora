@@ -6,7 +6,8 @@ import { isStoreProductAvailable } from "@/lib/products";
 import { getSiteUrl } from "@/lib/site";
 import { counterpartTrustSlug, getTrustPage, trustPageSlugs } from "@/lib/trust-content";
 
-export const revalidate = 3600;
+// Las decisiones privadas se consultan en operación, nunca durante el build.
+export const dynamic = "force-dynamic";
 
 // Next.js serializes image entries without escaping their query strings.
 // Keep the official CJ URL intact while representing `&` as valid XML.
