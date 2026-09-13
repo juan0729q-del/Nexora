@@ -82,12 +82,12 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
   const purchaseLabel = !hydrated ? (product.market === "co" ? "Preparando carrito…" : "Preparing cart…") : !product.available ? product.stock < 1 ? dictionary.outOfStock : dictionary.unavailable : dictionary.addToCart;
 
   return <article className="group rounded-2xl border border-silver/15 bg-white/[0.025] p-3 transition hover:border-silver/35">
-    {showArt && <Link href={productHref} onClick={() => announceInterest("view")} aria-label={`${dictionary.viewProduct} ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"><ProductArt product={product} image={selectedVariant?.image} priority={priority} alt={selectedVariant?.image?.alt || presentation.imageAlt} market={product.market} /></Link>}
+    {showArt && <Link prefetch={false} href={productHref} onClick={() => announceInterest("view")} aria-label={`${dictionary.viewProduct} ${presentation.title}`} className="block rounded-2xl focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald"><ProductArt product={product} image={selectedVariant?.image} priority={priority} alt={selectedVariant?.image?.alt || presentation.imageAlt} market={product.market} /></Link>}
     <div className="px-1 pt-5 pb-2">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-xs font-medium text-emerald">{reviewSummary}</p>
-          <h3 className="mt-2 text-lg font-semibold text-white">{showArt ? <Link href={productHref} onClick={() => announceInterest("view")} className="hover:text-emerald">{presentation.title}</Link> : presentation.title}</h3>
+          <h3 className="mt-2 text-lg font-semibold text-white">{showArt ? <Link prefetch={false} href={productHref} onClick={() => announceInterest("view")} className="hover:text-emerald">{presentation.title}</Link> : presentation.title}</h3>
         </div>
         {product.stock < 5 && <span className="rounded-full bg-red-400/10 px-2 py-1 text-[10px] font-bold uppercase text-red-300">{dictionary.lastUnits}</span>}
       </div>
@@ -110,7 +110,7 @@ export function ProductCard({ product, priority = false, showArt = true }: { pro
       {!product.variants.length && <p className="mt-3 rounded-lg bg-red-400/10 px-3 py-2 text-xs text-red-200">{product.market === "co" ? "CJ no reportó un estilo verificable; este artículo no puede añadirse al checkout todavía." : "CJ did not report a verifiable style, so this item cannot be added to checkout yet."}</p>}
       <div className="mt-4 flex flex-wrap items-center gap-3">
         <button type="button" onClick={addToCart} disabled={!hydrated || !product.available || !product.variants.length || displayedPrice === null} className="rounded-full bg-emerald px-4 py-2.5 text-sm font-bold text-onyx transition hover:bg-emerald/85 disabled:cursor-not-allowed disabled:bg-silver/30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald">{purchaseLabel}</button>
-        <Link href={cartPath(product.market)} className="rounded-full border border-silver/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald hover:text-emerald">{dictionary.viewCart}</Link>
+        <Link prefetch={false} href={cartPath(product.market)} className="rounded-full border border-silver/25 px-4 py-2.5 text-sm font-semibold text-white transition hover:border-emerald hover:text-emerald">{dictionary.viewCart}</Link>
       </div>
       {status && <p role={status.tone === "warning" ? "alert" : "status"} className={`mt-3 rounded-lg px-3 py-2 text-xs ${status.tone === "warning" ? "bg-amber-300/10 text-amber-100" : "bg-emerald/10 text-emerald"}`}>{status.message}</p>}
     </div>

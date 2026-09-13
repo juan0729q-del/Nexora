@@ -19,7 +19,7 @@ export function AdminNavigation({ current }: { current: "operations" | "sales" |
   }, [router]);
 
   return <nav className="flex flex-wrap gap-2" aria-label="Navegación de administración">
-    {adminItems.map((item) => <Link key={item.key} href={item.href} prefetch onClick={() => setPendingHref(item.href)} aria-current={item.key === current ? "page" : undefined} className={`rounded-full px-4 py-2 text-sm font-medium transition ${item.key === current ? "bg-emerald text-onyx" : "border border-silver/20 text-silver/75 hover:border-silver/45 hover:text-white"}`}>
+    {adminItems.map((item) => <Link key={item.key} href={item.href} prefetch={false} onClick={() => setPendingHref(item.href)} aria-current={item.key === current ? "page" : undefined} className={`rounded-full px-4 py-2 text-sm font-medium transition ${item.key === current ? "bg-emerald text-onyx" : "border border-silver/20 text-silver/75 hover:border-silver/45 hover:text-white"}`}>
       {pendingHref === item.href && item.key !== current ? "Abriendo…" : item.label}
     </Link>)}
   </nav>;

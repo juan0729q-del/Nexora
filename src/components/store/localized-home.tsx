@@ -48,9 +48,9 @@ export function LocalizedHome({ market }: { market: Market }) {
           <p className="text-sm leading-7 text-silver/75">{dictionary.purposeTwo}</p>
         </div>
         <nav className="mx-auto mt-10 flex max-w-7xl flex-wrap gap-4 text-sm" aria-label={market === "co" ? "Categorías" : "Categories"}>
-          <Link href={categoryPath(market, "jewelry")} className="text-emerald hover:text-white">{dictionary.jewelry}</Link>
-          <Link href={categoryPath(market, "technologyHome")} className="text-emerald hover:text-white">{dictionary.technology}</Link>
-          <Link href={categoryPath(market, "wellbeing")} className="text-emerald hover:text-white">{dictionary.wellbeing}</Link>
+          <Link prefetch={false} href={categoryPath(market, "jewelry")} className="text-emerald hover:text-white">{dictionary.jewelry}</Link>
+          <Link prefetch={false} href={categoryPath(market, "technologyHome")} className="text-emerald hover:text-white">{dictionary.technology}</Link>
+          <Link prefetch={false} href={categoryPath(market, "wellbeing")} className="text-emerald hover:text-white">{dictionary.wellbeing}</Link>
         </nav>
       </section>
     </main>
