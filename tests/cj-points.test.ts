@@ -2,6 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { parseCjPoints, verifyCjPoints, type CjPointsSnapshot } from "../src/lib/automation/cj-points";
 
+test("un total cero persistente es indeterminado y no inventa un saldo agotado", async () => {
+  const state = { points: { usedToday: 0, remaining: 0, total: 0 }, observedAt: 1000 };
+  let refreshes = 0;
+  assert.equal(await verifyCjPoints(() => state, async () => { refreshes++; }, 250, () => 1000), undefined);
+  assert.equal(refreshes, 1);
+  assert.equal(state.points.remaining, 0);
+});
+
 test("un cero previo se contrasta con ajustes antes de bloquear la importación", async () => {
   let state: CjPointsSnapshot = { points: { remaining: 0, total: 50000 }, observedAt: 1000 };
   let refreshes = 0;

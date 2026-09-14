@@ -18,6 +18,9 @@ export function parseCjPoints(value: unknown): CjPointsInfo | undefined {
 /** CJ repone puntos por minuto: un saldo anterior no puede bloquear indefinidamente. */
 export function freshCjPoints(snapshot: CjPointsSnapshot, now = Date.now()) {
   const age = snapshot.observedAt === undefined ? Infinity : now - snapshot.observedAt;
+  // Un total sin asignación no demuestra agotamiento. Conservamos la telemetría
+  // original, pero dejamos que CJ autorice o rechace la siguiente petición.
+  if (snapshot.points?.total === 0) return undefined;
   return age >= 0 && age < 60_000 ? snapshot.points : undefined;
 }
 
