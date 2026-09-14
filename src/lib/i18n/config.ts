@@ -41,7 +41,7 @@ export type LocalizedCategorySlug = (typeof markets)[Market]["categorySlugs"][ke
 export const marketIds = Object.keys(markets) as Market[];
 
 export function isMarket(value: string): value is Market {
-  return value in markets;
+  return Object.hasOwn(markets, value);
 }
 
 export function marketFromCountry(countryCode: string | null | undefined): Market {

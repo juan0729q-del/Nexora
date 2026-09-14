@@ -1,10 +1,11 @@
 import "server-only";
 
-import { getCatalog } from "@/lib/catalog-store";
+import { getCatalog, getCatalogImportMetadata } from "@/lib/catalog-store";
+import { parseOfficialStock, type InventoryUpdate } from "./inventory-sync-policy";
 import type { Product } from "@/lib/products";
 import { getUsdToCopRate } from "@/lib/commerce-finance";
 import { startingSalePriceCop } from "@/lib/pricing-policy";
-import { CjQuotaError, createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
+import { CjAuthenticationError, CjQuotaError, createCjClient, getCjCredentialConfiguration, type CjClient } from "./cj-client";
 import { evaluateSupplierCost } from "./pricing";
 
 const cjOrigin = "https://developers.cjdropshipping.com";
@@ -94,24 +95,31 @@ function usdToCop(costUsd: number, exchangeRate = getUsdToCopRate()) {
 export async function getOfficialCjStock(sku: string, client: CjClient = createCjClient()) {
   await client.authenticateAndAssertPoints(10);
   const payload = await client.getJson<SupplierResponse>(stockUrlFor(sku));
-  const inventories = extractSupplierItems(payload);
-  if (!inventories.length) return 0;
+  return parseOfficialStock(payload);
+}
 
-  let knownEntries = 0;
-  const total = inventories.reduce((sum, item) => {
-    const stock = number(
-      item.totalInventoryNum
-      ?? item.totalInventory
-      ?? item.warehouseInventoryNum
-      ?? item.stock
-      ?? item.quantity
-      ?? item.inventory,
-    );
-    if (stock === undefined) return sum;
-    knownEntries += 1;
-    return sum + Math.max(0, Math.floor(stock));
-  }, 0);
-  return knownEntries ? total : undefined;
+/** Actualiza existencias sin depender de novedades, categorías o textos editoriales. */
+export async function refreshCatalogInventory() {
+  const catalog = (await getCatalog()).filter(product => (product.supplier.source ?? "cj") === "cj");
+  const client = createCjClient();
+  const updates: InventoryUpdate[] = [];
+  let retryable = true;
+  const started = Date.now();
+  for (const product of catalog) {
+    // Deja margen al timeout de Function; el orquestador recupera lecturas pendientes.
+    if (Date.now() - started > 35_000) break;
+    try {
+      const stock = await getOfficialCjStock(product.sku, client);
+      if (stock !== undefined) updates.push({ sku: product.sku, stock, verifiedAt: new Date().toISOString() });
+    } catch (error) {
+      if (error instanceof CjAuthenticationError) { retryable = false; break; }
+      if (error instanceof CjQuotaError) break;
+      // Un SKU fallido no invalida las lecturas confirmadas de otros productos.
+    }
+  }
+  const verified = new Set(updates.map(update => update.sku));
+  const missingSkus = catalog.filter(product => !verified.has(product.sku)).map(product => product.sku);
+  return { mode: "inventory", baseVersion: getCatalogImportMetadata().version, complete: !missingSkus.length, retryable, missingSkus, updates, telemetry: client.getTelemetry() };
 }
 
 async function getSupplementalCostUsd(sku: string, client: CjClient) {

@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { collectInitialCatalog } from "@/lib/automation/niche-rotation";
 import { hasValidCatalogImportAuthorization } from "@/lib/automation/runtime-auth";
 import { CjQuotaError } from "@/lib/automation/cj-client";
+import { refreshCatalogInventory } from "@/lib/automation/supplier-sync";
+import { getCatalogImportMetadata } from "@/lib/catalog-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,6 +17,13 @@ export const maxDuration = 60;
 export async function POST(request: Request) {
   if (!(await hasValidCatalogImportAuthorization(request.headers.get("authorization")))) return NextResponse.json({ message: "No autorizado" }, { status: 401 });
   try {
+    const url = new URL(request.url);
+    if (url.searchParams.has("version") && Number(url.searchParams.get("version")) !== getCatalogImportMetadata().version) return NextResponse.json({ message: "Despliegue pendiente: la versión del catálogo no coincide." }, { status: 409 });
+    if (url.searchParams.get("mode") === "inventory") {
+      if (!url.searchParams.has("version")) return NextResponse.json({ message: "La sincronización requiere una versión de catálogo." }, { status: 400 });
+      const result = await refreshCatalogInventory();
+      return NextResponse.json(result, { status: result.updates.length ? 200 : 503, headers: { "Cache-Control": "no-store" } });
+    }
     const requested = Number(new URL(request.url).searchParams.get("perNiche") || 5);
     const perNiche = Math.min(10, Math.max(5, Number.isFinite(requested) ? Math.floor(requested) : 5));
     const { products, selection, telemetry } = await collectInitialCatalog(perNiche);

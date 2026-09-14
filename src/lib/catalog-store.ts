@@ -10,6 +10,7 @@ type CatalogDocument = {
   version: number;
   importedAt: string | null;
   source: string;
+  stockSync?: { verifiedAt: string; complete: boolean; verifiedCount: number; totalCount: number; missingSkus: string[] };
   products: Product[];
 };
 
@@ -87,7 +88,7 @@ export async function getProductBySku(sku: string) {
 
 export function getCatalogImportMetadata() {
   const document = catalog();
-  return { version: document.version, importedAt: document.importedAt, source: document.source };
+  return { version: document.version, importedAt: document.importedAt, source: document.source, stockSync: document.stockSync };
 }
 
 export async function getProductsBySupplier(source: import('@/lib/suppliers/types').SupplierSource) {

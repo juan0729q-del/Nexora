@@ -4,6 +4,7 @@ import { getSalesDashboardSnapshot } from "@/lib/sales-dashboard";
 import { getSalesLedgerStatus } from "@/lib/sales-ledger";
 import { getAutomationConfiguration } from "@/lib/automation/runtime-auth";
 import { getExchangeRateSnapshot } from "@/lib/market-pricing";
+import pendingCandidates from "@/data/catalog-candidates.json";
 
 export type DashboardAlert = {
   id: string;
@@ -17,6 +18,14 @@ export async function getDashboardSnapshot() {
   const salesDashboard = await getSalesDashboardSnapshot({ includePersistedSales: false });
   const catalogMetadata = getCatalogImportMetadata();
   const alerts: DashboardAlert[] = [];
+  if (catalogMetadata.stockSync && !catalogMetadata.stockSync.complete) alerts.push({
+    id: "stock-sync-partial", severity: "critical", title: "Sincronización parcial de inventario",
+    detail: `${catalogMetadata.stockSync.verifiedCount} de ${catalogMetadata.stockSync.totalCount} SKU verificados. Se conservó el último dato de ${catalogMetadata.stockSync.missingSkus.join(", ")}; no se reemplazó por cero. La automatización volverá a intentarlo.`,
+  });
+  if (pendingCandidates.products.length) alerts.push({
+    id: "catalog-editorial-pending", severity: "info", title: "Novedades pendientes de edición",
+    detail: `${pendingCandidates.products.length} candidatos oficiales esperan revisión de contenido. Esto no detiene la actualización automática del inventario publicado.`,
+  });
   const importedAt = Date.parse(catalogMetadata.importedAt || "");
   if (!Number.isFinite(importedAt) || Date.now() - importedAt > 48 * 60 * 60 * 1000) alerts.push({
     id: "catalog-stale", severity: "critical", title: "Inventario pendiente de actualización",

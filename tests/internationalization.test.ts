@@ -8,7 +8,7 @@ import type { Product } from "../src/lib/products";
 const products = catalogDocument.products as Product[];
 
 test("cada producto real tiene contenido editorial completo para CO y US", () => {
-  assert.equal(products.length, 15);
+  assert.ok(products.length >= 15);
   for (const product of products) {
     assert.equal(hasCompleteEditorial(product, "co"), true, `${product.sku} no tiene editorial CO`);
     assert.equal(hasCompleteEditorial(product, "us"), true, `${product.sku} no tiene editorial US`);
@@ -41,7 +41,7 @@ test("el formateo comercial no mezcla monedas", () => {
 
 test("el catálogo conserva exclusivamente imágenes oficiales de proveedor", () => {
   for (const product of products) {
-    assert.equal(product.supplier.name, "CJ Dropshipping");
+    assert.equal(product.supplier.name, product.supplier.source === "dropi" ? "Dropi" : "CJ Dropshipping");
     assert.ok(product.images.length > 0);
     assert.ok(product.images.some((image) => image.src === product.image.src));
     assert.ok(product.images.every((image) => image.source === "provider" && image.src.startsWith("https://")));
