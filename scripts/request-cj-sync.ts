@@ -1,6 +1,7 @@
 import { readFile, writeFile, appendFile } from "node:fs/promises";
 import { recoverCatalogRead, type SyncPayload } from "../src/lib/automation/sync-recovery";
 
+async function main() {
 const mode = process.argv[2];
 if (mode !== "inventory" && mode !== "discovery") throw new Error("Modo de sincronización inválido.");
 const catalog = JSON.parse(await readFile("src/data/catalog.json", "utf8"));
@@ -27,3 +28,5 @@ await writeFile(`.catalog-${mode}.json`, JSON.stringify(result.payload, null, 2)
 const usable = result.status === 200 && (mode === "inventory" ? Boolean(result.payload.updates?.length) : Boolean(result.payload.products?.length));
 if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `usable=${usable}\ncomplete=${result.payload.complete !== false}\n`);
 if (!usable) throw new Error(`No se obtuvo una sincronización utilizable (HTTP ${result.status}). El catálogo permanece intacto.`);
+}
+void main().catch(error => { console.error(error instanceof Error ? error.message : "Error de sincronización"); process.exitCode = 1; });
