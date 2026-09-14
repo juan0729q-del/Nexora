@@ -1,4 +1,5 @@
 import "server-only";
+import { recoverRead } from "@/lib/read-recovery";
 
 import { createHash, createHmac, randomUUID } from "crypto";
 import { estimateContribution, getFulfillmentReserveCop, usdToCop } from "@/lib/commerce-finance";
@@ -245,7 +246,9 @@ export type IntelligenceLedgerSnapshot = {
   proposals: IntelligenceProposal[];
 };
 
-export class SalesLedgerError extends Error {}
+export class SalesLedgerError extends Error {
+  constructor(message: string, readonly retryable = false) { super(message); }
+}
 
 const EXPECTED_LEDGER_CONTRACT = "2026-08-13.6";
 type LedgerContractCache = { endpoint: string; checkedAt: number; ok: boolean };
@@ -308,7 +311,7 @@ async function ensureLedgerContract(configuration: SalesLedgerConfiguration) {
     const response = await fetch(configuration.endpoint, {
       method: "GET",
       cache: "no-store",
-      signal: AbortSignal.timeout(Math.min(configuration.timeoutMs, 10_000)),
+      signal: AbortSignal.timeout(configuration.timeoutMs),
     });
     const payload = await response.json().catch(() => null) as {
       ok?: unknown;
@@ -316,6 +319,7 @@ async function ensureLedgerContract(configuration: SalesLedgerConfiguration) {
       contractVersion?: unknown;
       workbookReady?: unknown;
     } | null;
+    if ([429, 500, 502, 503, 504].includes(response.status)) throw new SalesLedgerError("El registro privado está temporalmente ocupado.", true);
     const compatible = response.ok
       && payload?.ok === true
       && payload.service === "nexora-sales-ledger"
@@ -324,9 +328,11 @@ async function ensureLedgerContract(configuration: SalesLedgerConfiguration) {
     ledgerContractCache = { endpoint, checkedAt: Date.now(), ok: compatible };
     if (!compatible) throw new SalesLedgerError("El Apps Script de ventas no tiene el contrato Nexora vigente.");
   } catch (error) {
-    ledgerContractCache = { endpoint, checkedAt: Date.now(), ok: false };
+    // Una interrupción de transporte no demuestra un contrato incompatible.
+    ledgerContractCache = error instanceof SalesLedgerError && !error.retryable
+      ? { endpoint, checkedAt: Date.now(), ok: false } : null;
     if (error instanceof SalesLedgerError) throw error;
-    throw new SalesLedgerError("No fue posible validar el contrato del registro privado de ventas.");
+    throw new SalesLedgerError("No fue posible validar el contrato del registro privado de ventas.", true);
   }
 }
 
@@ -336,12 +342,12 @@ async function fetchSigned<T>(endpoint: URL, init: RequestInit, timeoutMs: numbe
   try {
     const response = await fetch(endpoint, { ...init, cache: "no-store", signal: controller.signal });
     const payload = await response.json().catch(() => null) as { ok?: unknown; data?: unknown } | null;
-    if (!response.ok || payload?.ok !== true) throw new SalesLedgerError(nonSensitiveErrorMessage(response.status, payload));
+    if (!response.ok || payload?.ok !== true) throw new SalesLedgerError(nonSensitiveErrorMessage(response.status, payload), [429, 500, 502, 503, 504].includes(response.status));
     return payload.data as T;
   } catch (error) {
     if (error instanceof SalesLedgerError) throw error;
-    if (error instanceof DOMException && error.name === "AbortError") throw new SalesLedgerError("El registro privado de ventas agotó el tiempo de respuesta.");
-    throw new SalesLedgerError("No fue posible contactar el registro privado de ventas.");
+    if (error instanceof DOMException && error.name === "AbortError") throw new SalesLedgerError("El registro privado de ventas agotó el tiempo de respuesta.", true);
+    throw new SalesLedgerError("No fue posible contactar el registro privado de ventas.", true);
   } finally {
     clearTimeout(timeout);
   }
@@ -913,7 +919,10 @@ export async function decideIntelligenceProposalAtomically(
 
 export async function getIntelligenceLedgerSnapshot(): Promise<IntelligenceLedgerSnapshot | null> {
   if (!getConfiguration()) return null;
-  const result = await sendSignedAction<unknown>({ action: "intelligence.read" });
+  const result = await recoverRead(
+    () => sendSignedAction<unknown>({ action: "intelligence.read" }),
+    error => error instanceof SalesLedgerError && error.retryable,
+  );
   if (!result || typeof result !== "object") return null;
   const payload = result as Record<string, unknown>;
   const rawEvents = payload.events && typeof payload.events === "object" ? payload.events as Record<string, unknown> : {};

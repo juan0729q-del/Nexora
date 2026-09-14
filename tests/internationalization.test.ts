@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import catalogDocument from "../src/data/catalog.json";
+import clinicalCopyFixture from "./fixtures/clinical-copy-product.json";
 import { cartPath, categoryPath, formatMoney, localizedPathForMarket, productPath } from "../src/lib/i18n/config";
 import { getLocalizedPackageContents, getLocalizedSpecifications, getProductPresentation, hasCompleteEditorial, localizeVariantOption, toStorefrontProduct } from "../src/lib/product-presentation";
 import type { Product } from "../src/lib/products";
@@ -58,8 +59,8 @@ test("las etiquetas públicas neutralizan términos clínicos sin alterar los da
     "Red black-Textured surface with magnetic inserts-3English manual",
   );
 
-  const source = products.find((product) => product.variants.some((variant) => /acupuncture magnetic therapy/i.test(variant.options || "")));
-  assert.ok(source);
+  // La rotación real puede retirar este producto sin romper una prueba de texto.
+  const source = structuredClone(clinicalCopyFixture) as Product;
   const originalOption = source.variants.find((variant) => /acupuncture magnetic therapy/i.test(variant.options || ""))?.options;
   assert.match(originalOption || "", /acupuncture magnetic therapy/i);
   const storefront = toStorefrontProduct(source, "co");
