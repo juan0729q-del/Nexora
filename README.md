@@ -59,11 +59,19 @@ Estos son canales públicos comerciales; no constituyen por sí solos identidad 
 
 ## Documentación operativa
 
+### Sincronización autónoma de CJ
+
+GitHub Actions verifica el inventario publicado cada seis horas, independientemente de la revisión de nuevos productos. Las lecturas temporales fallidas se reintentan como máximo tres veces, con esperas de uno y dos minutos. Los datos ausentes nunca se convierten en cero y las lecturas parciales conservan el último dato de los SKU no confirmados. La fecha se renueva incluso si las cantidades siguen iguales.
+
+Cada publicación valida catálogo, pruebas y build. Los fallos que no se recuperan dejan la ejecución fallida; una actualización parcial muestra además una alerta administrativa. Una comprobación de versión impide aplicar datos de un despliegue anterior sobre un catálogo nuevo.
+
+Las novedades se consultan semanalmente y con la opción manual `discover`. Si falta revisión bilingüe, se guardan en `src/data/catalog-candidates.json` y se informa en el panel; no bloquean la sincronización del stock existente. Cuando toda la selección tiene contenido revisado, la rotación se valida y publica automáticamente. Las pausas humanas ejecutadas siguen teniendo prioridad en la tienda.
+
 ### Proveedor local Dropi
 
 La base multi-proveedor conserva CJ como origen predeterminado y separa los costos COP y las imágenes de Dropi. La integración local todavía no está habilitada para vender: la credencial de la integración 398741 (DropPage) devuelve HTTP 401 al consultar productos. Cotización, checkout y creación de pedidos Dropi se bloquean hasta verificar el contrato oficial; no se generan tarifas estimadas ni pedidos de importe cero.
 
-`pnpm diagnose:dropi -- --production` realiza únicamente una consulta de catálogo y muestra el resultado sin revelar la credencial. El ambiente predeterminado es test y cada ambiente exige su host oficial. Consulta el [informe de revisión](docs/operations-review-2026-09-12.md) para las fases pendientes.
+`pnpm diagnose:dropi -- --production` realiza únicamente una consulta de catálogo y muestra el resultado sin revelar la credencial. El ambiente predeterminado es test y cada ambiente exige su host oficial. En Colombia, los listados priorizan Dropi conservando CJ; la elección manual de mercado se respeta. Soporte de Dropi recibió la solicitud autorizada de habilitación y documentación. Consulta el [informe de revisión](docs/operations-review-2026-09-13.md) para las verificaciones y fases pendientes.
 
 - [Internacionalización y lanzamiento](docs/internationalization-and-launch.md)
 - [Analítica y preparación SEM](docs/analytics-and-sem.md)
