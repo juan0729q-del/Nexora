@@ -53,3 +53,11 @@ También se verificó una respuesta válida del contrato de Google en 23,99 segu
 La corrección 4410acb pasó 48 pruebas, tipos, lint y build, además del control de calidad y despliegue remoto. Las consultas nuevas a /co y /us devolvieron HTTP 200 en aproximadamente 10 segundos, con productos renderizados y sin errores del servidor incrustados en HTML. El administrador volvió a cargar con la versión actual. Se aisló la prueba de lenguaje clínico en una muestra estática para que retirar ese producto por rotación no rompa una prueba editorial ajena al inventario.
 
 Dropi se revisó nuevamente el 14 de septiembre: la última respuesta sigue siendo la transferencia a Integraciones, sin documentación ni habilitación nueva. La integración comercial continúa bloqueada por el proveedor. No se crearon pedidos ni se efectuaron cobros durante estas verificaciones.
+
+## Seguimiento Dropi: 20 de septiembre
+
+Edward, asesor de Dropi, confirmó que Dropi no ofrece una API pública abierta para sistemas propios. Indicó solicitar una API privada evaluada por el equipo técnico mediante correo a `marcos.amado@dropi.co`, incluyendo la justificación, los endpoints requeridos y los datos de la cuenta.
+
+Con confirmación expresa del propietario, se envió desde `nexoraventas1@gmail.com` una solicitud para la integración 398741. Se pidió acceso y documentación oficial para catálogo, detalle y variantes, inventario por SKU, bodegas colombianas, cotización de flete, modalidades contra entrega y prepago, pedidos idempotentes, estados, guías, cancelación previa al despacho y webhooks firmados. También se solicitaron ambientes, autenticación, límites, errores, reintentos y proceso de certificación. No se incluyó el token ni se creó ningún pedido.
+
+Hasta recibir la autorización y el contrato técnico oficial, Nexora mantiene bloqueadas las llamadas operativas de Dropi que podrían cotizar o crear pedidos. La prioridad geográfica de Dropi para Colombia y la convivencia con CJ están implementadas, pero la publicación de productos locales reales sigue condicionada a esa respuesta.
