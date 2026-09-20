@@ -61,3 +61,11 @@ Edward, asesor de Dropi, confirmó que Dropi no ofrece una API pública abierta 
 Con confirmación expresa del propietario, se envió desde `nexoraventas1@gmail.com` una solicitud para la integración 398741. Se pidió acceso y documentación oficial para catálogo, detalle y variantes, inventario por SKU, bodegas colombianas, cotización de flete, modalidades contra entrega y prepago, pedidos idempotentes, estados, guías, cancelación previa al despacho y webhooks firmados. También se solicitaron ambientes, autenticación, límites, errores, reintentos y proceso de certificación. No se incluyó el token ni se creó ningún pedido.
 
 Hasta recibir la autorización y el contrato técnico oficial, Nexora mantiene bloqueadas las llamadas operativas de Dropi que podrían cotizar o crear pedidos. La prioridad geográfica de Dropi para Colombia y la convivencia con CJ están implementadas, pero la publicación de productos locales reales sigue condicionada a esa respuesta.
+
+## Conciliación de autorizaciones de Inteligencia: 20 de septiembre
+
+Se comprobó en producción que varias autorizaciones históricas seguían visibles como recuperables aunque su ventana de siete días ya había terminado. La lectura del libro privado ahora interpreta una autorización con evidencia `[NEXORA_EXECUTED_V1]` como ejecutada y una autorización sin evidencia, pero vencida, como expirada. De este modo no se ofrecen reintentos fuera de la vigencia aprobada.
+
+El ciclo diario de Inteligencia también recupera automáticamente hasta cuatro autorizaciones vigentes que hubieran quedado entre el registro de la decisión y la escritura de su evidencia. Cada intento conserva una marca explícita de éxito o de fallo y nunca crea pedidos, cobra ni publica candidatos sin el flujo versionado del catálogo.
+
+La verificación real dejó las seis autorizaciones antiguas como expiradas y ejecutó la propuesta vigente de búsqueda de tecnología con IA. CJ respondió correctamente, pero no devolvió un candidato nuevo que pasara simultáneamente ficha, imagen, estilo, stock y costo; el panel conservó el fallo verificable y el ciclo diario podrá reintentarlo mientras siga vigente. La corrección `413f68c` pasó 49 pruebas, tipos, lint, build, control de calidad remoto y despliegue Vercel.
