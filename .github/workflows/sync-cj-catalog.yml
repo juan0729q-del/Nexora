@@ -68,7 +68,7 @@ jobs:
           exit 1
       - name: Conservar evidencia de la sincronización
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cj-inventory-result
           path: .catalog-inventory.json
@@ -126,7 +126,7 @@ jobs:
           git push origin HEAD:main
       - name: Conservar candidatos para revisión
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cj-catalog-candidate
           path: .catalog-discovery.json
