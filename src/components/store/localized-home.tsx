@@ -30,10 +30,8 @@ export function LocalizedHome({ market }: { market: Market }) {
             </dl>
             {!commerce.checkoutEnabled ? <p className="mt-5 max-w-xl rounded-xl border border-amber-300/30 bg-amber-300/[.07] p-3 text-xs leading-5 text-amber-100">{market === "us" ? dictionary.usCheckoutUnavailable : commerce.reason}</p> : null}
           </div>
-          <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden rounded-[2rem] border border-silver/20 bg-[radial-gradient(circle_at_55%_40%,rgba(0,148,115,0.28),transparent_31%),linear-gradient(135deg,#181818,#090909)] p-8 shadow-2xl shadow-black/50">
-            <div className="absolute inset-6 rounded-[1.4rem] border border-silver/15" />
-            <div className="absolute inset-0 grid place-items-center"><div className="nexora-hero-logo" aria-label="Nexora"><span className="nexora-spark nexora-spark-one" /><span className="nexora-spark nexora-spark-two" /><span className="nexora-spark nexora-spark-three" /><div className="nexora-hero-logo-rotate"><Image src="/brand/nexora-logo.png" alt="Nexora" fill priority sizes="(min-width: 1024px) 400px, 70vw" className="object-contain" /></div></div></div>
-            <p className="absolute right-8 bottom-8 text-right text-xs leading-5 tracking-[0.16em] text-silver/80 uppercase">{market === "co" ? <>Utilidad<br />con intención</> : <>Useful<br />by design</>}</p>
+          <div className="nexora-jewel-stage relative mx-auto aspect-square w-full max-w-md" aria-label="Emblema Nexora">
+            <div className="absolute inset-0 grid place-items-center"><div className="nexora-hero-logo"><span className="nexora-spark nexora-spark-one" /><span className="nexora-spark nexora-spark-two" /><span className="nexora-spark nexora-spark-three" /><div className="nexora-hero-logo-rotate"><Image src="/brand/nexora-emblem-jewel.png" alt="" fill priority sizes="(min-width: 1024px) 400px, 70vw" className="object-contain" /></div></div></div>
           </div>
         </div>
       </section>
