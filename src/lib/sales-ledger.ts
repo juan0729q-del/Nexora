@@ -9,6 +9,7 @@ import type { CheckoutSession } from "@/lib/payments/hosted-checkout";
 import type { VerifiedWompiTransaction } from "@/lib/payments/webhooks";
 import { paypalCaptureEventId, type VerifiedPayPalCapture } from "@/lib/payments/paypal-core";
 import type { IntelligenceEvent, IntelligenceEventSummary, IntelligenceProposal } from "@/lib/intelligence/types";
+import { effectiveIntelligenceProposalStatus } from "@/lib/intelligence/status";
 
 type SalesLedgerConfiguration = {
   endpoint: URL;
@@ -795,9 +796,7 @@ function parseIntelligenceProposal(value: unknown): IntelligenceProposal | null 
   const niche = stringValue(row.niche) as IntelligenceProposal["niche"];
   const persistedStatus = stringValue(row.status) as IntelligenceProposal["status"];
   const decisionNote = nullableString(row.decisionNote) || undefined;
-  const status = persistedStatus === "authorized" && decisionNote?.includes("[NEXORA_EXECUTED_V1]")
-    ? "executed"
-    : persistedStatus;
+  const status = effectiveIntelligenceProposalStatus(persistedStatus, decisionNote, stringValue(row.expiresAt));
   const execution = stringValue(row.execution) as IntelligenceProposal["execution"];
   if (!id || !title || !["promote_product", "monitor_product", "pause_product", "start_experiment", "source_candidate"].includes(action)) return null;
   if (!["jewelry", "technologyHome", "wellbeing"].includes(niche) || !["proposed", "authorized", "rejected", "executed", "expired"].includes(status)) return null;

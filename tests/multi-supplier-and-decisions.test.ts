@@ -6,6 +6,7 @@ import { getCatalogDecision, isValidCatalogProduct, type Product } from "../src/
 import { supplierCostUsdForVariant } from "../src/lib/pricing-policy";
 import { applyExecutedCatalogDecisions } from "../src/lib/intelligence/catalog-overlay";
 import type { IntelligenceProposal } from "../src/lib/intelligence/types";
+import { effectiveIntelligenceProposalStatus } from "../src/lib/intelligence/status";
 
 test("supplier validation keeps legacy CJ and isolates Dropi hosts and COP costs", () => {
   const cj = structuredClone(catalog.products[0]) as Product;
@@ -31,6 +32,15 @@ test("latest executed decision reverses a pause and monitoring changes operation
   const monitored = applyExecutedCatalogDecisions([product], [old, decision("monitor_product", "2026-09-12T00:00:00Z")])[0];
   assert.equal(getCatalogDecision(monitored), "monitor");
   assert.equal(getCatalogDecision({ ...monitored, stock: 1 }), "pause");
+});
+
+test("authorized intelligence decisions reconcile execution markers and expire stale retries", () => {
+  const future = "2099-01-01T00:00:00Z";
+  const past = "2020-01-01T00:00:00Z";
+  assert.equal(effectiveIntelligenceProposalStatus("authorized", "[NEXORA_EXECUTED_V1] applied", past), "executed");
+  assert.equal(effectiveIntelligenceProposalStatus("authorized", "[NEXORA_EXECUTION_FAILED_V1] temporary", future), "authorized");
+  assert.equal(effectiveIntelligenceProposalStatus("authorized", "autorizado", past), "expired");
+  assert.equal(effectiveIntelligenceProposalStatus("rejected", undefined, past), "rejected");
 });
 
 test("unverified Dropi fulfillment and freight cannot create orders or fabricate charges", async () => {
