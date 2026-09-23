@@ -1,5 +1,5 @@
 {
-  "version": 86,
+  "version": 87,
   "importedAt": "2026-09-23T02:36:35.770Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
@@ -456,7 +456,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-09-23T02:36:17.754Z"
+      "stockVerifiedAt": "2026-09-23T10:33:30.690Z"
     },
     {
       "slug": "fashion-jewelry-envelop-necklace-women-lover-letter-pendant-best-gifts-f-cjlx1372072",
@@ -934,7 +934,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-09-23T02:36:18.290Z"
+      "stockVerifiedAt": "2026-09-23T10:36:11.984Z"
     },
     {
       "slug": "fashion-women-full-crystal-rhinestone-choker-necklace-wedding-jewelry-ch-cjzblxlx02753",
@@ -1282,7 +1282,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-09-23T02:36:19.366Z"
+      "stockVerifiedAt": "2026-09-23T10:36:21.886Z"
     },
     {
       "slug": "retro-reiki-healing-energy-crystal-pendant-natural-stone-for-yoga-medita-cjlx1206870",
@@ -2497,7 +2497,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-09-23T02:36:21.995Z"
+      "stockVerifiedAt": "2026-09-23T10:33:45.501Z"
     },
     {
       "slug": "mini-folding-drone-cjxfxjwr00053",
@@ -6598,10 +6598,22 @@
     }
   ],
   "stockSync": {
-    "verifiedAt": "2026-09-23T02:36:35.770Z",
-    "complete": true,
-    "verifiedCount": 15,
+    "verifiedAt": "2026-09-23T10:36:21.886Z",
+    "complete": false,
+    "verifiedCount": 4,
     "totalCount": 15,
-    "missingSkus": []
+    "missingSkus": [
+      "CJLX1206870",
+      "CJXFXJWR00053",
+      "CJXFZNZN00544",
+      "CJXFXJWR00039",
+      "CJJT1204038",
+      "CJZS1305006",
+      "CJAM1228953",
+      "CJYDQTJM00184",
+      "CJPF1211212",
+      "CJJM1232812",
+      "CJYDQTJM00256"
+    ]
   }
 }
