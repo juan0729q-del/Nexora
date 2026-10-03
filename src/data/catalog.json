@@ -1,6 +1,6 @@
 {
-  "version": 126,
-  "importedAt": "2026-10-03T03:06:01.788Z",
+  "version": 127,
+  "importedAt": "2026-10-03T10:52:25.662Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
     {
@@ -456,7 +456,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:46.426Z"
+      "stockVerifiedAt": "2026-10-03T10:52:10.420Z"
     },
     {
       "slug": "fashion-jewelry-envelop-necklace-women-lover-letter-pendant-best-gifts-f-cjlx1372072",
@@ -934,7 +934,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:47.593Z"
+      "stockVerifiedAt": "2026-10-03T10:52:11.481Z"
     },
     {
       "slug": "fashion-women-full-crystal-rhinestone-choker-necklace-wedding-jewelry-ch-cjzblxlx02753",
@@ -1282,7 +1282,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:48.607Z"
+      "stockVerifiedAt": "2026-10-03T10:52:12.475Z"
     },
     {
       "slug": "retro-reiki-healing-energy-crystal-pendant-natural-stone-for-yoga-medita-cjlx1206870",
@@ -1902,7 +1902,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:49.695Z"
+      "stockVerifiedAt": "2026-10-03T10:52:13.581Z"
     },
     {
       "slug": "kabala-life-tree-necklace-cjzblxlx06494",
@@ -2497,7 +2497,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:50.787Z"
+      "stockVerifiedAt": "2026-10-03T10:52:14.718Z"
     },
     {
       "slug": "mini-folding-drone-cjxfxjwr00053",
@@ -2831,7 +2831,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:51.982Z"
+      "stockVerifiedAt": "2026-10-03T10:52:15.802Z"
     },
     {
       "slug": "electric-detangling-brush-scalp-massage-hair-brush-cjxfznzn00544",
@@ -2998,7 +2998,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:53.074Z"
+      "stockVerifiedAt": "2026-10-03T10:52:16.867Z"
     },
     {
       "slug": "e58-folding-aerial-drone-cjxfxjwr00039",
@@ -3464,7 +3464,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:54.131Z"
+      "stockVerifiedAt": "2026-10-03T10:52:18.033Z"
     },
     {
       "slug": "professional-furniture-lifter-tool-set-furniture-mover-wheel-bar-roller--cjjt1204038",
@@ -3755,7 +3755,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:55.159Z"
+      "stockVerifiedAt": "2026-10-03T10:52:19.059Z"
     },
     {
       "slug": "laser-hair-removal-device-cjzs1305006",
@@ -4133,7 +4133,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:56.282Z"
+      "stockVerifiedAt": "2026-10-03T10:52:20.190Z"
     },
     {
       "slug": "back-massager-massage-and-health-care-appliance-cjam1228953",
@@ -5591,7 +5591,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:57.408Z"
+      "stockVerifiedAt": "2026-10-03T10:52:21.391Z"
     },
     {
       "slug": "yoga-fitness-rally-cjydqtjm00184",
@@ -5770,7 +5770,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:58.557Z"
+      "stockVerifiedAt": "2026-10-03T10:52:22.413Z"
     },
     {
       "slug": "electric-facial-massage-mask-face-massager-skin-tightening-moisturizes-a-cjpf1211212",
@@ -6087,7 +6087,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:05:59.572Z"
+      "stockVerifiedAt": "2026-10-03T10:52:23.480Z"
     },
     {
       "slug": "fitness-hip-stretch-yoga-belt-inverted-rope-pull-stretch-belt-split-lowe-cjjm1232812",
@@ -6381,7 +6381,7 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:06:00.790Z"
+      "stockVerifiedAt": "2026-10-03T10:52:24.570Z"
     },
     {
       "slug": "skipping-rope-with-counter-adjustable-length-counter-wear-resistant-foam-cjydqtjm00256",
@@ -6594,11 +6594,11 @@
         "conversionRate": 0,
         "returnRate": 0
       },
-      "stockVerifiedAt": "2026-10-03T03:06:01.788Z"
+      "stockVerifiedAt": "2026-10-03T10:52:25.662Z"
     }
   ],
   "stockSync": {
-    "verifiedAt": "2026-10-03T03:06:01.788Z",
+    "verifiedAt": "2026-10-03T10:52:25.662Z",
     "complete": true,
     "verifiedCount": 15,
     "totalCount": 15,
