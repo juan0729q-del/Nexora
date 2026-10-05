@@ -1,6 +1,6 @@
 {
-  "version": 136,
-  "importedAt": "2026-10-05T14:47:13.684Z",
+  "version": 137,
+  "importedAt": "2026-10-05T14:48:34.314Z",
   "source": "CJ Dropshipping — Product List v2 por categoría y número de listados",
   "products": [
     {
@@ -436,10 +436,10 @@
           "supplierCostUsd": 1.33
         }
       ],
-      "price": 11800,
+      "price": 11700,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 421084,
+      "stock": 2871,
       "active": true,
       "sku": "CJLX1237838",
       "material": "Metal",
@@ -455,8 +455,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:46:58.391Z"
+      }
     },
     {
       "slug": "fashion-jewelry-envelop-necklace-women-lover-letter-pendant-best-gifts-f-cjlx1372072",
@@ -914,10 +913,10 @@
           "supplierCostUsd": 6.92
         }
       ],
-      "price": 22400,
+      "price": 22100,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 199255,
+      "stock": 336,
       "active": true,
       "sku": "CJLX1372072",
       "material": "Metal",
@@ -933,8 +932,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:46:59.466Z"
+      }
     },
     {
       "slug": "fashion-women-full-crystal-rhinestone-choker-necklace-wedding-jewelry-ch-cjzblxlx02753",
@@ -1262,10 +1260,10 @@
           "supplierCostUsd": 0.62
         }
       ],
-      "price": 6000,
+      "price": 5900,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 88689,
+      "stock": 15,
       "active": true,
       "sku": "CJZBLXLX02753",
       "material": "Metal",
@@ -1281,8 +1279,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:00.576Z"
+      }
     },
     {
       "slug": "retro-reiki-healing-energy-crystal-pendant-natural-stone-for-yoga-medita-cjlx1206870",
@@ -1882,10 +1879,10 @@
           "supplierCostUsd": 1.2
         }
       ],
-      "price": 11200,
+      "price": 11100,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 83458,
+      "stock": 423,
       "active": true,
       "sku": "CJLX1206870",
       "material": "Stone",
@@ -1901,8 +1898,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:01.701Z"
+      }
     },
     {
       "slug": "kabala-life-tree-necklace-cjzblxlx06494",
@@ -2477,10 +2473,10 @@
           "supplierCostUsd": 0.98
         }
       ],
-      "price": 8100,
+      "price": 8000,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 274056,
+      "stock": 157,
       "active": true,
       "sku": "CJZBLXLX06494",
       "material": "Metal, Stone",
@@ -2496,8 +2492,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:02.852Z"
+      }
     },
     {
       "slug": "mini-folding-drone-cjxfxjwr00053",
@@ -2811,10 +2806,10 @@
           "supplierCostUsd": 22.16
         }
       ],
-      "price": 76600,
+      "price": 75900,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 41150,
+      "stock": 10,
       "active": true,
       "sku": "CJXFXJWR00053",
       "material": "Plastic",
@@ -2830,8 +2825,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:03.817Z"
+      }
     },
     {
       "slug": "electric-detangling-brush-scalp-massage-hair-brush-cjxfznzn00544",
@@ -2978,10 +2972,10 @@
           "supplierCostUsd": 8.33
         }
       ],
-      "price": 64000,
+      "price": 63400,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 13209,
+      "stock": 43,
       "active": true,
       "sku": "CJXFZNZN00544",
       "material": "Plastic",
@@ -2997,8 +2991,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:04.894Z"
+      }
     },
     {
       "slug": "e58-folding-aerial-drone-cjxfxjwr00039",
@@ -3444,10 +3437,10 @@
           "supplierCostUsd": 30.62
         }
       ],
-      "price": 18100,
+      "price": 17900,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 560148,
+      "stock": 148,
       "active": true,
       "sku": "CJXFXJWR00039",
       "material": "Plastic, Metal",
@@ -3463,8 +3456,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:06.118Z"
+      }
     },
     {
       "slug": "professional-furniture-lifter-tool-set-furniture-mover-wheel-bar-roller--cjjt1204038",
@@ -3735,10 +3727,10 @@
           "supplierCostUsd": 2.52
         }
       ],
-      "price": 21800,
+      "price": 21600,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 79496,
+      "stock": 20,
       "active": true,
       "sku": "CJJT1204038",
       "material": "Metal",
@@ -3754,8 +3746,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:07.114Z"
+      }
     },
     {
       "slug": "laser-hair-removal-device-cjzs1305006",
@@ -4113,10 +4104,10 @@
           "supplierCostUsd": 19.53
         }
       ],
-      "price": 147100,
+      "price": 145600,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 414557,
+      "stock": 39,
       "active": true,
       "sku": "CJZS1305006",
       "material": "Plastic",
@@ -4132,8 +4123,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:08.217Z"
+      }
     },
     {
       "slug": "back-massager-massage-and-health-care-appliance-cjam1228953",
@@ -5571,10 +5561,10 @@
           "supplierCostUsd": 2.29
         }
       ],
-      "price": 14700,
+      "price": 14500,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 1908266,
+      "stock": 27,
       "active": true,
       "sku": "CJAM1228953",
       "material": "Plastic",
@@ -5590,8 +5580,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:09.281Z"
+      }
     },
     {
       "slug": "yoga-fitness-rally-cjydqtjm00184",
@@ -5750,10 +5739,10 @@
           "supplierCostUsd": 3.2
         }
       ],
-      "price": 26000,
+      "price": 25700,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 12764,
+      "stock": 461,
       "active": true,
       "sku": "CJYDQTJM00184",
       "material": "Plastic",
@@ -5769,8 +5758,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:10.441Z"
+      }
     },
     {
       "slug": "electric-facial-massage-mask-face-massager-skin-tightening-moisturizes-a-cjpf1211212",
@@ -6067,10 +6055,10 @@
           "supplierCostUsd": 13.96
         }
       ],
-      "price": 78900,
+      "price": 78100,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 240593,
+      "stock": 38,
       "active": true,
       "sku": "CJPF1211212",
       "material": "Plastic",
@@ -6086,8 +6074,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:11.466Z"
+      }
     },
     {
       "slug": "fitness-hip-stretch-yoga-belt-inverted-rope-pull-stretch-belt-split-lowe-cjjm1232812",
@@ -6361,10 +6348,10 @@
           "supplierCostUsd": 3.35
         }
       ],
-      "price": 27100,
+      "price": 26800,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 143395,
+      "stock": 64,
       "active": true,
       "sku": "CJJM1232812",
       "material": "Cloth",
@@ -6380,8 +6367,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:12.589Z"
+      }
     },
     {
       "slug": "skipping-rope-with-counter-adjustable-length-counter-wear-resistant-foam-cjydqtjm00256",
@@ -6574,10 +6560,10 @@
           "supplierCostUsd": 0.99
         }
       ],
-      "price": 9600,
+      "price": 9500,
       "rating": 0,
       "reviewCount": 0,
-      "stock": 50024,
+      "stock": 9,
       "active": true,
       "sku": "CJYDQTJM00256",
       "material": "Plastic",
@@ -6593,15 +6579,7 @@
         "salesLast30Days": 0,
         "conversionRate": 0,
         "returnRate": 0
-      },
-      "stockVerifiedAt": "2026-10-05T14:47:13.684Z"
+      }
     }
-  ],
-  "stockSync": {
-    "verifiedAt": "2026-10-05T14:47:13.684Z",
-    "complete": true,
-    "verifiedCount": 15,
-    "totalCount": 15,
-    "missingSkus": []
-  }
+  ]
 }
