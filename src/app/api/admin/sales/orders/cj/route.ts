@@ -4,6 +4,7 @@ import { isAdmin } from "@/lib/admin-auth";
 import { createCjClient, CjAuthenticationError, CjQuotaError, CjRequestError } from "@/lib/automation/cj-client";
 import { buildCjCreateOrderV2Payload, cjCreateOrderV2Url, CjOrderValidationError, orderIdFromCjCreateResult } from "@/lib/fulfillment/cj-order";
 import { getPersistedSalesFulfillmentOrder, SalesLedgerError, updateFulfillment } from "@/lib/sales-ledger";
+import { getProductBySku } from "@/lib/catalog-store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -33,6 +34,10 @@ export async function POST(request: Request) {
     if (!referencePattern.test(reference) || body.confirm !== true) return NextResponse.json({ message: "Confirma una referencia Nexora válida antes de crear el pedido en CJ." }, { status: 400 });
     let order = await getPersistedSalesFulfillmentOrder(reference);
     if (!order) return NextResponse.json({ message: "No se encontró una orden completa en el registro privado. Actualiza Apps Script y vuelve a desplegarlo antes de crear en CJ." }, { status: 503 });
+    const catalogProducts = await Promise.all(order.items.map((item) => getProductBySku(item.sku)));
+    if (order.items.some((item) => item.supplierSource !== "cj") || catalogProducts.some((product) => !product || (product.supplier.source || "cj") !== "cj")) {
+      return NextResponse.json({ message: "Este carrito contiene un proveedor local y no puede enviarse a CJ. Usa el flujo del proveedor indicado en la orden." }, { status: 409 });
+    }
     if (order.cjOrderId) return NextResponse.json({ message: `La orden ya está asociada al pedido CJ ${order.cjOrderId}.` }, { status: 409 });
     if (order.fulfillmentStatus.trim().toUpperCase() === "CREACIÓN CJ EN CURSO") {
       return NextResponse.json({ message: "Existe una creación CJ con estado incierto. No reintentes: busca primero la referencia Nexora en MyCJ y registra el ID CJ si aparece." }, { status: 409 });

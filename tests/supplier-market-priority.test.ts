@@ -9,18 +9,19 @@ const products: { sku: string; supplier: { source?: SupplierSource } }[] = [
   { sku: "local-promoted", supplier: { source: "dropi" } },
   { sku: "international", supplier: { source: "cj" } },
   { sku: "local", supplier: { source: "dropi" } },
+  { sku: "local-rocketfy", supplier: { source: "rocketfy" } },
 ];
 
-test("Colombia prioriza Dropi, conserva CJ y la curaduría de cada proveedor", () => {
+test("Colombia prioriza Rocketfy, conserva Dropi y CJ y la curaduría de cada proveedor", () => {
   const original = structuredClone(products);
-  assert.deepEqual(prioritizeSuppliers(products, marketFromCountry("CO")).map(p => p.sku), ["local-promoted", "local", "international-promoted", "international"]);
+  assert.deepEqual(prioritizeSuppliers(products, marketFromCountry("CO")).map(p => p.sku), ["local-rocketfy", "local-promoted", "local", "international-promoted", "international"]);
   assert.deepEqual(products, original);
 });
 
 test("Estados Unidos prioriza CJ; catálogo legado y vacío siguen funcionando", () => {
-  assert.deepEqual(prioritizeSuppliers(products, marketFromCountry("US")).map(p => p.sku), ["international-promoted", "international", "local-promoted", "local"]);
+  assert.deepEqual(prioritizeSuppliers(products, marketFromCountry("US")).map(p => p.sku), ["international-promoted", "international", "local-rocketfy", "local-promoted", "local"]);
   assert.deepEqual(prioritizeSuppliers([], "co"), []);
-  assert.deepEqual(prioritizeSuppliers(products.filter(p => p.supplier.source !== "dropi"), "co").map(p => p.sku), ["international-promoted", "international"]);
+  assert.deepEqual(prioritizeSuppliers(products.filter(p => p.supplier.source === "cj" || !p.supplier.source), "co").map(p => p.sku), ["international-promoted", "international"]);
 });
 
 test("una preferencia de mercado inválida no se acepta como ruta o país", () => {

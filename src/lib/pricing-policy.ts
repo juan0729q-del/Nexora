@@ -52,10 +52,10 @@ export function supplierCostUsdForVariant(product: Pick<Product, "supplier" | "v
   const variant = normalized
     ? product.variants.find((entry) => entry.sku.trim().toUpperCase() === normalized)
     : undefined;
-  const cost = product.supplier.source === "dropi"
+  const cost = product.supplier.source === "dropi" || product.supplier.source === "rocketfy"
     ? (variant?.supplierCostCop ?? product.supplier.costCop ?? NaN) / (copPerUsd || NaN)
     : variant?.supplierCostUsd ?? product.supplier.costUsd;
-  if (!Number.isFinite(cost) || cost <= 0) throw new Error("El estilo no tiene un costo CJ válido.");
+  if (!Number.isFinite(cost) || cost <= 0) throw new Error("El estilo no tiene un costo de proveedor válido.");
   return cost;
 }
 

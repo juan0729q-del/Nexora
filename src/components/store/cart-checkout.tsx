@@ -88,8 +88,8 @@ function validQuotePayload(value: unknown, market: Market): value is CartShippin
 
 function deliveryText(option: CjShippingQuoteOption, market: Market) {
   return option.estimatedDelivery
-    ? market === "co" ? `Entrega estimada por CJ: ${option.estimatedDelivery}` : `CJ estimated delivery: ${option.estimatedDelivery}`
-    : market === "co" ? "CJ confirmará el tiempo de entrega cuando procese el despacho." : "CJ will confirm the delivery time when dispatching the order.";
+    ? market === "co" ? `Entrega estimada por el proveedor: ${option.estimatedDelivery}` : `Provider estimated delivery: ${option.estimatedDelivery}`
+    : market === "co" ? "El proveedor confirmará el tiempo de entrega cuando procese el despacho." : "The supplier will confirm delivery time when dispatching the order.";
 }
 
 function optionBadge(option: CjShippingQuoteOption, market: Market) {
@@ -202,7 +202,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
     trackIntelligenceEvent({ type: "shipping_quote_requested", page: cartPath(market), quantity: visibleItems.reduce((total, item) => total + item.quantity, 0), ...intelligenceContext });
     try {
       setIsPreparing(true);
-      setStatus(es ? "Consultando tarifas reales de CJ para cada artículo del carrito…" : "Requesting actual CJ shipping rates for every cart item…");
+      setStatus(es ? "Consultando tarifas reales de cada proveedor para el carrito…" : "Requesting actual supplier shipping rates for every cart item…");
       const response = await fetch("/api/shipping/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -223,7 +223,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
         });
         throw new Error(payload?.message || (es ? "No fue posible cotizar el envío." : "Shipping could not be quoted."));
       }
-      if (!validQuotePayload(payload, market)) throw new Error(es ? "CJ no devolvió una cotización completa. Intenta de nuevo antes de pagar." : "CJ did not return a complete quote. Try again before payment.");
+      if (!validQuotePayload(payload, market)) throw new Error(es ? "El proveedor no devolvió una cotización completa. Intenta de nuevo antes de pagar." : "The supplier did not return a complete quote. Try again before payment.");
       if (requestControllerRef.current !== controller) return;
       const suggestions = Object.fromEntries(payload.items.map((line) => [
         lineId(line.productSlug, line.variantSku),
@@ -263,7 +263,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
     if (!quote || isPreparing) return;
     if (quoteExpired) {
       setQuoteExpired(true);
-      setStatus(es ? "La cotización de CJ venció. Vuelve a calcular el envío antes de pagar." : "The CJ quote expired. Request a new shipping quote before checkout.");
+      setStatus(es ? "La cotización del proveedor venció. Vuelve a calcular el envío antes de pagar." : "The supplier quote expired. Request a new shipping quote before checkout.");
       return;
     }
     const checkoutItems = quote.items.map((line) => ({
@@ -329,7 +329,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
       <div>
         <p className="text-sm font-semibold uppercase tracking-[.18em] text-emerald">{es ? "Compra segura" : "Secure shopping"}</p>
         <h1 id="cart-title" className="mt-2 text-3xl font-semibold text-white sm:text-4xl">{es ? "Tu carrito" : "Your cart"}</h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-silver/70">{es ? "Ajusta cantidades y consulta las opciones oficiales de CJ. El envío se suma al total antes de pagar." : "Adjust quantities and request official CJ shipping options. Shipping is added to the total before checkout."}</p>
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-silver/70">{es ? "Ajusta cantidades y consulta las opciones oficiales del proveedor. El envío se suma al total antes de pagar." : "Adjust quantities and request official supplier shipping options. Shipping is added to the total before checkout."}</p>
       </div>
       <Link href={markets[market].homePath} className="rounded-full border border-silver/25 px-4 py-2 text-sm font-semibold text-white hover:border-emerald hover:text-emerald">{es ? "Seguir comprando" : "Continue shopping"}</Link>
     </div>
@@ -389,25 +389,25 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
       <form onSubmit={calculateShipping} className="mt-8 space-y-5 rounded-2xl border border-emerald/30 bg-emerald/[.05] p-5">
         <div>
           <h2 className="text-xl font-semibold text-white">{es ? `Entrega y envío (${itemCount} unidad${itemCount === 1 ? "" : "es"})` : `Delivery and shipping (${itemCount} unit${itemCount === 1 ? "" : "s"})`}</h2>
-          <p className="mt-2 text-xs leading-5 text-silver/65">{es ? "CJ puede despachar productos desde bodegas diferentes. Nexora cotiza cada línea sin estimaciones inventadas, marca la alternativa más económica y permite elegir opciones más rápidas cuando el proveedor las ofrece." : "CJ may dispatch products from different warehouses. Nexora quotes every line without invented estimates, highlights the lowest-cost option, and lets you choose faster options when CJ offers them."}</p>
+          <p className="mt-2 text-xs leading-5 text-silver/65">{es ? "Los proveedores pueden despachar desde bodegas diferentes. Nexora cotiza cada línea sin estimaciones inventadas, marca la alternativa más económica y permite elegir opciones más rápidas cuando estén disponibles." : "Suppliers may dispatch from different warehouses. Nexora quotes every line without invented estimates, highlights the lowest-cost option, and lets you choose faster available options."}</p>
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <Field label={es ? "Nombre de quien recibe" : "Recipient name"}><input value={destination.recipientName} onChange={(event) => updateDestination("recipientName", event.target.value)} required autoComplete="name" /></Field>
           <Field label={es ? "Correo para confirmación" : "Confirmation email"}><input type="email" value={destination.email} onChange={(event) => updateDestination("email", event.target.value)} required autoComplete="email" placeholder={es ? "tu@correo.com" : "you@example.com"} /></Field>
           <Field label={es ? "Teléfono con indicativo" : "Phone with country code"}><input type="tel" value={destination.phone} onChange={(event) => updateDestination("phone", event.target.value)} required autoComplete="tel" placeholder={es ? "+57…" : "+1…"} /></Field>
-          <div className="sm:col-span-2"><p className="text-[11px] leading-4 text-silver/55">{es ? "El país determina las opciones logísticas que CJ puede ofrecer." : "The country determines which CJ logistics options are available."}</p></div>
+          <div className="sm:col-span-2"><p className="text-[11px] leading-4 text-silver/55">{es ? "El país determina las opciones logísticas que cada proveedor puede ofrecer." : "The country determines which supplier logistics options are available."}</p></div>
         </div>
         <div className="grid gap-3 sm:grid-cols-[1fr_.35fr]">
           <Field label={es ? "Dirección de entrega" : "Street address"}><input value={destination.address1} onChange={(event) => updateDestination("address1", event.target.value)} required autoComplete="address-line1" /></Field>
           <Field label={es ? "Número de la dirección" : "Street number"}><input value={destination.houseNumber || ""} onChange={(event) => updateDestination("houseNumber", event.target.value)} required placeholder={es ? "12-34" : "123"} autoComplete="address-line1" /></Field>
         </div>
         <Field label={es ? "Complemento (opcional)" : "Apartment, suite, or unit (optional)"}><input value={destination.address2 || ""} onChange={(event) => updateDestination("address2", event.target.value)} autoComplete="address-line2" placeholder={es ? "Torre, piso, indicaciones" : "Apartment, suite, unit"} /></Field>
-        <Field label={es ? "Barrio / localidad" : "County"}><input value={destination.district || ""} onChange={(event) => updateDestination("district", event.target.value)} required placeholder={es ? "Dato requerido por algunos métodos CJ" : "Required by some CJ shipping methods"} /></Field>
+        <Field label={es ? "Barrio / localidad" : "County"}><input value={destination.district || ""} onChange={(event) => updateDestination("district", event.target.value)} required placeholder={es ? "Dato requerido por algunos métodos de envío" : "Required by some shipping methods"} /></Field>
         <div className="grid gap-3 sm:grid-cols-3">
           <MarketLocationFields market={market} destination={destination} onChange={updateDestination} />
         </div>
         <p className="text-[11px] leading-4 text-silver/55">{es ? "Estos datos se usan para la cotización real, el registro privado del pedido y su seguimiento. Nexora nunca recibe ni almacena datos de tarjeta." : "These details are used for the actual quote and order operations. Nexora never receives or stores card data."}</p>
-        <button type="submit" disabled={isPreparing || invalidItems.length > 0} className="rounded-lg bg-emerald px-4 py-2.5 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing && !quote ? (es ? "Cotizando con CJ…" : "Requesting CJ rates…") : quoteExpired ? (es ? "Volver a cotizar el envío" : "Request a new quote") : (es ? "Cotizar envío real del carrito" : "Get actual cart shipping rates")}</button>
+        <button type="submit" disabled={isPreparing || invalidItems.length > 0} className="rounded-lg bg-emerald px-4 py-2.5 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing && !quote ? (es ? "Cotizando con proveedores…" : "Requesting supplier rates…") : quoteExpired ? (es ? "Volver a cotizar el envío" : "Request a new quote") : (es ? "Cotizar envío real del carrito" : "Get actual cart shipping rates")}</button>
 
         {quote && <div className="space-y-5 border-t border-emerald/20 pt-5">
           {quote.items.map((line) => <fieldset key={lineId(line.productSlug, line.variantSku)} className="space-y-2 rounded-xl border border-silver/15 bg-onyx/45 p-4">
@@ -422,7 +422,7 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
                     <div className="flex flex-wrap justify-between gap-2"><span className="font-semibold text-white">{option.method}</span><span className="font-semibold text-emerald">{formatMoney(optionAmount(option), market)}</span></div>
                     {badge && <span className="mt-1 inline-flex rounded-full bg-emerald/15 px-2 py-0.5 text-[10px] font-bold text-emerald">{badge}</span>}
                     <p className="mt-1 text-xs text-silver/65">{option.carrier && option.carrier !== option.method ? `${option.carrier} · ` : ""}{deliveryText(option, market)}</p>
-                    <p className="mt-1 text-[11px] text-silver/50">{es ? "Origen de inventario CJ" : "CJ inventory origin"}: {option.sourceCountryCode}</p>
+                    <p className="mt-1 text-[11px] text-silver/50">{es ? "Origen del inventario" : "Inventory origin"}: {option.sourceCountryCode}</p>
                     {option.remoteFeeCop ? <p className="mt-1 text-[11px] text-silver/50">{es ? "Incluye zona remota" : "Includes remote-area fee"}: {formatMoney(market === "co" ? option.remoteFeeCop : (option.remoteFeeUsd || 0), market)}</p> : null}
                     {option.notices.map((notice) => <p key={notice} className="mt-1 text-[11px] text-amber-100">{notice}</p>)}
                   </div>
@@ -433,9 +433,9 @@ export function CartCheckout({ products, market }: { products: StorefrontProduct
 
           <div className="rounded-xl border border-silver/20 bg-onyx/70 p-4 text-sm">
             <div className="flex justify-between text-silver/70"><span>{es ? "Productos" : "Products"}</span><span>{formatMoney(quote.productSubtotal, market)}</span></div>
-            <div className="mt-2 flex justify-between text-silver/70"><span>{es ? "Envíos CJ seleccionados" : "Selected CJ shipping"}</span><span>{formatMoney(selectedShippingTotal, market)}</span></div>
+            <div className="mt-2 flex justify-between text-silver/70"><span>{es ? "Envíos seleccionados" : "Selected shipping"}</span><span>{formatMoney(selectedShippingTotal, market)}</span></div>
             <div className="mt-3 flex justify-between border-t border-silver/15 pt-3 font-semibold text-white"><span>{es ? "Total en Wompi" : "Total in PayPal"}</span><span>{formatMoney(checkoutTotal, market)}</span></div>
-            <p className={`mt-2 text-[11px] ${quoteExpired ? "font-semibold text-amber-100" : "text-silver/70"}`}>{quoteExpired ? (es ? "Esta cotización venció; vuelve a consultar CJ antes de pagar." : "This quote expired; request new CJ rates before checkout.") : (es ? `Tarifas válidas hasta ${new Date(quote.expiresAt).toLocaleTimeString(markets[market].locale, { hour: "2-digit", minute: "2-digit" })}. Si cambias artículos, cantidades o dirección, vuelve a cotizar.` : `Rates valid until ${new Date(quote.expiresAt).toLocaleTimeString(markets[market].locale, { hour: "numeric", minute: "2-digit" })}. Request a new quote after changing items, quantities, or address.`)}</p>
+            <p className={`mt-2 text-[11px] ${quoteExpired ? "font-semibold text-amber-100" : "text-silver/70"}`}>{quoteExpired ? (es ? "Esta cotización venció; vuelve a consultar al proveedor antes de pagar." : "This quote expired; request new supplier rates before checkout.") : (es ? `Tarifas válidas hasta ${new Date(quote.expiresAt).toLocaleTimeString(markets[market].locale, { hour: "2-digit", minute: "2-digit" })}. Si cambias artículos, cantidades o dirección, vuelve a cotizar.` : `Rates valid until ${new Date(quote.expiresAt).toLocaleTimeString(markets[market].locale, { hour: "numeric", minute: "2-digit" })}. Request a new quote after changing items, quantities, or address.`)}</p>
             <button type="button" onClick={pay} disabled={isPreparing || quoteExpired} className="mt-4 w-full rounded-lg bg-emerald px-4 py-3 text-sm font-bold text-onyx disabled:cursor-not-allowed disabled:bg-silver/30">{isPreparing ? (es ? "Preparando pago seguro…" : "Preparing secure payment…") : quoteExpired ? (es ? "Cotización vencida · vuelve a cotizar" : "Quote expired · request new rates") : es ? `Pagar de forma segura con Wompi · ${formatMoney(checkoutTotal, market)}` : `Pay securely with PayPal · ${formatMoney(checkoutTotal, market)}`}</button>
           </div>
         </div>}

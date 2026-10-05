@@ -120,7 +120,7 @@ export async function POST(request: Request) {
     for (const requested of requestedItems) {
       const product = productsBySlug.get(requested.productSlug);
       if (!product || !isStoreProductAvailable(product)) return NextResponse.json({ message: "Uno de los productos del carrito ya no está disponible." }, { status: 409 });
-      if (product.supplier.source === "dropi") return NextResponse.json({ message: "El proveedor local todavía no tiene una cotización e inventario habilitados para pago." }, { status: 503 });
+      if (product.supplier.source === "dropi") return NextResponse.json({ message: "Dropi continúa fuera del checkout porque no habilitó su API privada." }, { status: 503 });
       const quoteToken = readShippingQuoteToken(requested.shippingQuoteToken);
       if (!checkoutRateContext) {
         checkoutRateContext = {
@@ -159,7 +159,11 @@ export async function POST(request: Request) {
         },
         quoteExpiresAt: quoteToken.expiresAt,
       };
-      if (!canTrustQuotedInventory(quoteToken.inventoryVerifiedAt, quoteToken.verifiedStock, requested.quantity)) {
+      if (product.supplier.source === "rocketfy") {
+        if (body.market !== "co" || selectedShipping.sourceCountryCode !== "CO" || !selectedShipping.id.startsWith("rocketfy:")) {
+          return NextResponse.json({ message: "La cotización local no corresponde al proveedor o mercado seleccionado." }, { status: 409 });
+        }
+      } else if (!canTrustQuotedInventory(quoteToken.inventoryVerifiedAt, quoteToken.verifiedStock, requested.quantity)) {
         inventoryClient ||= createCjClient({ minimumPointsReserve: 0 });
         const inventory = await verifyCheckoutInventory(product, {
           variantSku: quoteToken.variantSku,

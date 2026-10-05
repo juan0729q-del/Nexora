@@ -1,12 +1,12 @@
 # Nexora
 
-Tienda Next.js App Router + Tailwind CSS para un catálogo real de CJ Dropshipping. El catálogo publicado vive en `src/data/catalog.json`, se valida antes de compilar y se versiona en Git. No hay una base externa ni escrituras persistentes en el filesystem efímero de Vercel.
+Tienda Next.js App Router + Tailwind CSS con arquitectura multi-proveedor. CJ atiende el catálogo internacional; Rocketfy es el conector elegido para logística local en Colombia cuando exista contrato técnico completo. El catálogo publicado vive en `src/data/catalog.json`, se valida antes de compilar y se versiona en Git.
 
 ## Estado real por mercado
 
 | Mercado | URL | Idioma | Moneda | Envío | Pago |
 | --- | --- | --- | --- | --- | --- |
-| Colombia | `/co` | `es-CO` | COP | Cotización CJ por destino, variante y cantidad | Wompi, únicamente si llaves, firma, webhook y libro privado están listos |
+| Colombia | `/co` | `es-CO` | COP | CJ internacional; Rocketfy local cuando contrato, inventario y credenciales estén verificados | Wompi suma producto + flete firmado antes de cobrar |
 | Estados Unidos | `/us` | `en-US` | USD | Cotización CJ real por dirección estadounidense | Adaptador PayPal preparado; sólo se habilita con cinco variables coherentes, webhook Live y libro privado `2026-08-13.6` |
 
 La cookie funcional `nexora_market` conserva la selección manual. Para la primera visita, Vercel puede sugerir Estados Unidos mediante `x-vercel-ip-country`; cualquier otro país usa Colombia como fallback. La URL elegida prevalece y el checkout nunca cambia de mercado silenciosamente.
@@ -23,7 +23,7 @@ La cookie funcional `nexora_market` conserva la selección manual. Para la prime
 
 ## Reglas no negociables
 
-- Sólo productos CJ reales con SKU, fuente directa, inventario y recursos gráficos oficiales.
+- Sólo productos reales con SKU, fuente directa, inventario reciente y recursos gráficos oficiales del proveedor.
 - Los datos crudos del proveedor se conservan separados del copy editorial de `src/lib/product-presentation.ts`.
 - Una ficha se publica en un mercado únicamente cuando su paquete editorial tipado está completo.
 - No existen `AggregateRating`, reseñas, descuentos, GTIN, MPN, marca ni afirmaciones médicas inventadas.
@@ -67,11 +67,19 @@ Cada publicación valida catálogo, pruebas y build. Los fallos que no se recupe
 
 Las novedades se consultan semanalmente y con la opción manual `discover`. Si falta revisión bilingüe, se guardan en `src/data/catalog-candidates.json` y se informa en el panel; no bloquean la sincronización del stock existente. Cuando toda la selección tiene contenido revisado, la rotación se valida y publica automáticamente. Las pausas humanas ejecutadas siguen teniendo prioridad en la tienda.
 
-### Proveedor local Dropi
+### Proveedor local Rocketfy
+
+La evaluación de Amazon, AliExpress, Mercado Libre, Dropi y Rocketfy eligió Rocketfy como candidato local. Amazon SP-API administra la operación del vendedor; Mercado Libre expone publicaciones y órdenes de sus propios usuarios; AliExpress y CJ conservan un flujo principalmente internacional; Dropi no habilitó su API privada. Rocketfy sí documenta cotización nacional con transportadoras y una red colombiana de proveedores.
+
+Nexora ya reconoce `rocketfy` como proveedor, lo prioriza en `/co`, valida costos COP, fichas e imágenes oficiales, autentica únicamente contra `https://api.rocketfy.co`, cotiza por ciudad, departamento, dirección, peso y dimensiones, y agrega exactamente el `shipping_value` elegido al total firmado de Wompi. La cotización expira y el checkout verifica proveedor, mercado, dirección, variante, precio e inventario reciente antes de permitir el pago.
+
+`ROCKETFY_LOCAL_COMMERCE_ENABLED` permanece en `false`. La API pública disponible crea envíos de inventario propio, pero no documenta el contrato de catálogo, inventario ni orden al proveedor de su marketplace. Activarla antes de obtener `partnerID`, `api_key`, `customerID` y ese contrato podría cobrar un producto que el proveedor no haya reservado. El código falla de forma cerrada y no inventa stock, fletes ni pedidos. Los requisitos exactos están en [Integración local Rocketfy](docs/local-supplier-rocketfy.md).
+
+### Integración anterior Dropi
 
 La base multi-proveedor conserva CJ como origen predeterminado y separa los costos COP y las imágenes de Dropi. La integración local todavía no está habilitada para vender: la credencial de la integración 398741 (DropPage) devuelve HTTP 401 al consultar productos. Cotización, checkout y creación de pedidos Dropi se bloquean hasta verificar el contrato oficial; no se generan tarifas estimadas ni pedidos de importe cero.
 
-`pnpm diagnose:dropi -- --production` realiza únicamente una consulta de catálogo y muestra el resultado sin revelar la credencial. El ambiente predeterminado es test y cada ambiente exige su host oficial. En Colombia, los listados priorizan Dropi conservando CJ; la elección manual de mercado se respeta. Soporte de Dropi recibió la solicitud autorizada de habilitación y documentación. Consulta el [informe de revisión](docs/operations-review-2026-09-13.md) para las verificaciones y fases pendientes.
+`pnpm diagnose:dropi -- --production` realiza únicamente una consulta de catálogo y muestra el resultado sin revelar la credencial. Dropi se conserva como integración inactiva; en Colombia Rocketfy queda primero, Dropi segundo y CJ continúa disponible. Consulta el [informe de revisión](docs/operations-review-2026-09-13.md) para el historial.
 
 - [Internacionalización y lanzamiento](docs/internationalization-and-launch.md)
 - [Analítica y preparación SEM](docs/analytics-and-sem.md)

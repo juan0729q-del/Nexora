@@ -8,7 +8,7 @@ import { getOperationalCatalog } from "@/lib/catalog-store";
 import { isMarket, markets, type Market } from "@/lib/i18n/config";
 import { getExchangeRateSnapshot, marketPriceFromCop } from "@/lib/market-pricing";
 import { getProductPresentation } from "@/lib/product-presentation";
-import { recommendedSalePriceCopFromSupplierCost } from "@/lib/pricing-policy";
+import { recommendedSalePriceCopFromSupplierCost, supplierCostUsdForVariant } from "@/lib/pricing-policy";
 import { isStoreProductAvailable } from "@/lib/products";
 import {
   CjShippingConfigurationError,
@@ -20,6 +20,7 @@ import {
 import { enforceShippingQuoteRateLimit, ShippingQuoteRateLimitError } from "@/lib/shipping/quote-rate-limit";
 import { createShippingQuoteToken, destinationFingerprint } from "@/lib/shipping/quote-token";
 import type { CartShippingQuoteLine, ShippingDestinationInput } from "@/lib/shipping/types";
+import { RocketfyShippingQuoteError } from "@/lib/shipping/rocketfy-shipping";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -103,7 +104,29 @@ export async function POST(request: Request) {
       }
       let quote: Awaited<ReturnType<typeof quoteCjShipping>>;
 
-      if (product.supplier.source === "dropi") {
+      if (product.supplier.source === "rocketfy") {
+        const copPerUsd = exchangeRate.copPerUsd;
+        if (!copPerUsd) throw new RocketfyShippingQuoteError("La tasa COP/USD no está disponible para calcular el producto local.");
+        const variantSku = requested.variantSku || product.variants[0]?.sku || "";
+        const supplierCostUsd = supplierCostUsdForVariant(product, variantSku, copPerUsd);
+        const productPriceCop = recommendedSalePriceCopFromSupplierCost({ supplierCostUsd, copPerUsd });
+        const { quoteRocketfyShipping } = await import("@/lib/shipping/rocketfy-shipping");
+        const localQuote = await quoteRocketfyShipping({ product, variantSku, quantity: requested.quantity, destination, productSubtotalCop: productPriceCop * requested.quantity });
+        const quotedAt = new Date();
+        const ttlSeconds = Math.max(60, Math.min(900, Number(process.env.ROCKETFY_SHIPPING_QUOTE_TTL_SECONDS || 300)));
+        quote = {
+          productSlug: product.slug,
+          variantSku: localQuote.variantSku,
+          quantity: requested.quantity,
+          supplierCostUsd,
+          exchangeRateCopPerUsd: copPerUsd,
+          inventoryVerifiedAt: product.stockVerifiedAt || quotedAt.toISOString(),
+          verifiedStock: product.stock,
+          quotedAt: quotedAt.toISOString(),
+          expiresAt: new Date(quotedAt.getTime() + ttlSeconds * 1000).toISOString(),
+          options: localQuote.options.map((option) => ({ ...option, amountUsd: Math.round((option.amountCop / copPerUsd) * 100) / 100 })),
+        };
+      } else if (product.supplier.source === "dropi") {
         const { getDropiShippingQuote } = await import("@/lib/shipping/dropi-shipping");
         const options = await getDropiShippingQuote(destination, requested.quantity);
         const quotedAt = new Date();
@@ -198,6 +221,7 @@ export async function POST(request: Request) {
     if (error instanceof CjShippingConfigurationError) return NextResponse.json({ message: us ? "Real shipping quotes are not configured. Your cart has been preserved and no charge will be made." : error.message }, { status: 503 });
     if (error instanceof ShippingQuoteRateLimitError) return NextResponse.json({ message: us ? "Too many quote attempts. Wait one minute and try again." : error.message }, { status: 429, headers: { "Retry-After": "60" } });
     if (error instanceof CjShippingQuoteError) return NextResponse.json({ message: us ? "CJ could not return a valid shipping option for this product and address. Try a different style or destination." : error.message }, { status: 422 });
+    if (error instanceof RocketfyShippingQuoteError) return NextResponse.json({ message: error.message, provider: "rocketfy" }, { status: 503, headers: { "Cache-Control": "no-store" } });
     if (error instanceof CjAuthenticationError) {
       console.error("CJ shipping authentication failed", { error: error.message });
       return NextResponse.json({

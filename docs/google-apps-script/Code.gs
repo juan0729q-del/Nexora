@@ -415,6 +415,7 @@ function readSalesOrderForFulfillment_(reference) {
     const line = item && typeof item === "object" ? item : {};
     const quantity = Math.floor(Number(line.quantity) || 0);
     return {
+      supplierSource: ["cj", "dropi", "rocketfy"].indexOf(String(line.supplierSource || "cj").toLowerCase()) !== -1 ? String(line.supplierSource || "cj").toLowerCase() : "cj",
       sku: safeIntelligenceText_(line.sku, 180),
       variantSku: safeIntelligenceText_(line.variantSku, 180),
       providerVariantId: safeIntelligenceText_(line.providerVariantId, 180),

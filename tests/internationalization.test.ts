@@ -42,7 +42,8 @@ test("el formateo comercial no mezcla monedas", () => {
 
 test("el catálogo conserva exclusivamente imágenes oficiales de proveedor", () => {
   for (const product of products) {
-    assert.equal(product.supplier.name, product.supplier.source === "dropi" ? "Dropi" : "CJ Dropshipping");
+    const expectedName = product.supplier.source === "dropi" ? "Dropi" : product.supplier.source === "rocketfy" ? "Rocketfy" : "CJ Dropshipping";
+    assert.equal(product.supplier.name, expectedName);
     assert.ok(product.images.length > 0);
     assert.ok(product.images.some((image) => image.src === product.image.src));
     assert.ok(product.images.every((image) => image.source === "provider" && image.src.startsWith("https://")));

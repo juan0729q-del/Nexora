@@ -22,6 +22,22 @@ test("supplier validation keeps legacy CJ and isolates Dropi hosts and COP costs
   assert.equal(isValidCatalogProduct({ ...cj, supplier: { ...cj.supplier, source: "unknown" } }), false);
 });
 
+test("Rocketfy requires official product and image hosts plus a positive COP cost", () => {
+  const cj = structuredClone(catalog.products[0]) as Product;
+  const image = { src: "https://fs.rocketfy.co/products/test-only.jpg", alt: "Producto local de prueba", source: "provider" as const };
+  const local: Product = {
+    ...cj,
+    image,
+    images: [image],
+    variants: [{ providerVariantId: "42", sku: "RFY-TEST", label: "Producto local de prueba", image, supplierCostCop: 12000, weightGrams: 500, dimensions: { lengthMm: 200, widthMm: 150, heightMm: 100 } }],
+    supplier: { name: "Rocketfy", source: "rocketfy", sourcePage: "Ficha oficial", sourceUrl: "https://app.rocketfy.com/product/42", reference: "42", costCop: 12000, costUsd: 0 },
+  };
+  assert.equal(isValidCatalogProduct(local), true);
+  assert.equal(supplierCostUsdForVariant(local, "RFY-TEST", 4000), 3);
+  assert.equal(isValidCatalogProduct({ ...local, supplier: { ...local.supplier, sourceUrl: "https://example.com/product/42" } }), false);
+  assert.equal(isValidCatalogProduct({ ...local, images: [{ ...image, src: "https://example.com/test.jpg" }] }), false);
+});
+
 test("latest executed decision reverses a pause and monitoring changes operational state", () => {
   const product = { ...catalog.products[0], active: true, stock: 20 } as Product;
   const decision = (action: IntelligenceProposal["action"], at: string, status = "executed") => ({ id: at, targetSku: product.sku, action, status, decidedAt: at }) as IntelligenceProposal;

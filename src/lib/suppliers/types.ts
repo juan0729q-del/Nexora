@@ -1,4 +1,4 @@
-export type SupplierSource = "cj" | "dropi";
+export type SupplierSource = "cj" | "dropi" | "rocketfy";
 
 export type SupplierConfig = {
   name: string;
