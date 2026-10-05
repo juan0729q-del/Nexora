@@ -31,7 +31,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       - name: Audit dependencies
-        run: pnpm audit --audit-level high
+        # La publicación contiene dependencias de producción. Las herramientas
+        # de lint se ejecutan después, pero no forman parte del bundle servido.
+        run: pnpm audit --prod --audit-level high
       - name: Validate CJ catalog
         run: pnpm catalog:validate
       - name: Lint
