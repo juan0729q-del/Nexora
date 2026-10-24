@@ -1,8 +1,8 @@
 {
-  "copPerUsd": 3185.01,
-  "updatedAt": "2026-10-23T00:00:00-05:00",
+  "copPerUsd": 3158.43,
+  "updatedAt": "2026-10-24T00:00:00-05:00",
   "source": "Superintendencia Financiera de Colombia via Datos Abiertos Colombia",
   "sourceUrl": "https://www.datos.gov.co/resource/32sa-8pi3.json",
-  "effectiveFrom": "2026-10-23",
-  "effectiveTo": "2026-10-23"
+  "effectiveFrom": "2026-10-24",
+  "effectiveTo": "2026-10-26"
 }
